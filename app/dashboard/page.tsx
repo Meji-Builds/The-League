@@ -58,7 +58,7 @@ export default async function DashboardPage() {
           </p>
           <Link
             href="/dashboard/onboarding"
-            className="mt-3 inline-block bg-gold text-navy font-semibold text-xs px-4 py-2 hover:bg-gold/90 transition-colors"
+            className="mt-3 inline-block bg-gold text-navy font-semibold text-xs px-4 py-2 rounded hover:bg-gold/90 transition-colors"
           >
             Complete payment
           </Link>

@@ -55,7 +55,7 @@ export function Nav() {
             </Link>
             <Link
               href="/register"
-              className="text-sm font-medium bg-gold text-navy px-4 py-2 hover:bg-gold/90 transition-colors"
+              className="text-sm font-medium bg-gold text-navy px-4 py-2 rounded hover:bg-gold/90 transition-colors"
             >
               Register Club
             </Link>
@@ -109,7 +109,7 @@ export function Nav() {
               <Link
                 href="/register"
                 onClick={() => setMenuOpen(false)}
-                className="text-sm font-medium bg-gold text-navy px-4 py-2 text-center transition-colors hover:bg-gold/90"
+                className="text-sm font-medium bg-gold text-navy px-4 py-2 rounded text-center transition-colors hover:bg-gold/90"
               >
                 Register Club
               </Link>

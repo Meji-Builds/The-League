@@ -65,7 +65,7 @@ export default async function SponsorsPage() {
           </p>
           <a
             href="mailto:sponsorship@theleague.ng"
-            className="mt-8 inline-block border border-gold text-gold text-sm font-semibold px-6 py-3 hover:bg-gold hover:text-navy transition-colors"
+            className="mt-8 inline-block border border-gold text-gold text-sm font-semibold px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors"
           >
             Get in touch
           </a>
@@ -130,7 +130,7 @@ export default async function SponsorsPage() {
           </p>
           <a
             href="mailto:sponsorship@theleague.ng"
-            className="inline-block bg-gold text-navy text-sm font-semibold px-6 py-3 hover:bg-gold/90 transition-colors"
+            className="inline-block bg-gold text-navy text-sm font-semibold px-6 py-3 rounded hover:bg-gold/90 transition-colors"
           >
             Email us
           </a>

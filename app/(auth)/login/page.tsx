@@ -41,7 +41,7 @@ export default function LoginPage() {
       <button
         onClick={signInWithGoogle}
         disabled={loading}
-        className="w-full flex items-center justify-center gap-3 bg-white text-navy font-semibold text-sm px-4 py-3 hover:bg-white/90 transition-colors disabled:opacity-60"
+        className="w-full flex items-center justify-center gap-3 bg-white text-navy font-semibold text-sm px-4 py-3 rounded hover:bg-white/90 transition-colors disabled:opacity-60"
       >
         {/* Google "G" icon */}
         <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">

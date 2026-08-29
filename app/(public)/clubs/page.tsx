@@ -43,7 +43,7 @@ export default async function ClubsPage() {
           <p className="text-muted text-sm mt-2">Be the first — register your club today.</p>
           <Link
             href="/register"
-            className="mt-6 inline-block bg-gold text-navy text-sm font-semibold px-5 py-2 hover:bg-gold/90 transition-colors"
+            className="mt-6 inline-block bg-gold text-navy text-sm font-semibold px-5 py-2 rounded hover:bg-gold/90 transition-colors"
           >
             Register Club
           </Link>

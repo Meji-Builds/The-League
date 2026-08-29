@@ -63,13 +63,13 @@ export default async function HomePage() {
           <div className="mt-10 flex flex-col sm:flex-row gap-3">
             <Link
               href="/register"
-              className="inline-block bg-gold text-navy font-semibold text-sm px-6 py-3 hover:bg-gold/90 transition-colors text-center"
+              className="inline-block bg-gold text-navy font-semibold text-sm px-6 py-3 rounded hover:bg-gold/90 transition-colors text-center"
             >
               Register Your Club
             </Link>
             <Link
               href="/competitions"
-              className="inline-block border border-white/20 text-white font-medium text-sm px-6 py-3 hover:border-white/40 hover:bg-white/5 transition-colors text-center"
+              className="inline-block border border-white/20 text-white font-medium text-sm px-6 py-3 rounded hover:border-white/40 hover:bg-white/5 transition-colors text-center"
             >
               View Competitions
             </Link>
@@ -114,7 +114,7 @@ export default async function HomePage() {
             </p>
             <Link
               href="/register"
-              className="mt-6 inline-block bg-gold text-navy text-sm font-semibold px-5 py-2 hover:bg-gold/90 transition-colors"
+              className="mt-6 inline-block bg-gold text-navy text-sm font-semibold px-5 py-2 rounded hover:bg-gold/90 transition-colors"
             >
               Register your club now
             </Link>
@@ -173,7 +173,7 @@ export default async function HomePage() {
           </div>
           <Link
             href="/sponsors"
-            className="shrink-0 border border-gold text-gold text-sm font-semibold px-6 py-3 hover:bg-gold hover:text-navy transition-colors"
+            className="shrink-0 border border-gold text-gold text-sm font-semibold px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors"
           >
             View Sponsorship Tiers
           </Link>

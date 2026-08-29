@@ -47,7 +47,7 @@ export default function RegisterPage() {
       <button
         onClick={signUpWithGoogle}
         disabled={loading}
-        className="w-full flex items-center justify-center gap-3 bg-gold text-navy font-semibold text-sm px-4 py-3 hover:bg-gold/90 transition-colors disabled:opacity-60"
+        className="w-full flex items-center justify-center gap-3 bg-gold text-navy font-semibold text-sm px-4 py-3 rounded hover:bg-gold/90 transition-colors disabled:opacity-60"
       >
         <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
           <path d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z" fill="#4285F4" />
