@@ -96,87 +96,83 @@ function TrophyIcon({ className }: { className?: string }) {
 
 // ─── Data fetching ────────────────────────────────────────────────────────
 
+function settled<T>(result: PromiseSettledResult<{ data: T | null }>): T | null {
+  return result.status === "fulfilled" ? result.value.data : null;
+}
+
+function settledCount(result: PromiseSettledResult<{ count: number | null }>): number {
+  return result.status === "fulfilled" ? (result.value.count ?? 0) : 0;
+}
+
 async function getPageData() {
-  try {
-    const supabase = await createClient();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const db = supabase as any;
+  const supabase = await createClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any;
 
-    const [
-      { data: competitions },
-      { count: clubCount },
-      { count: playerCount },
-      { count: competitionCount },
-      { count: fixtureCount },
-      { data: siteSettings },
-      { data: announcements },
-      { data: fixtures },
-      { data: topClubs },
-      { data: players },
-      { data: sponsors },
-    ] = await Promise.all([
-      db.from("competitions")
-        .select("*")
-        .in("status", ["registration_open", "in_progress"])
-        .order("created_at", { ascending: false })
-        .limit(4),
-      supabase.from("clubs").select("*", { count: "exact", head: true }).eq("status", "approved"),
-      supabase.from("players").select("*", { count: "exact", head: true }),
-      supabase.from("competitions").select("*", { count: "exact", head: true }),
-      supabase.from("fixtures").select("*", { count: "exact", head: true }),
-      db.from("site_settings").select("livestream_url, livestream_title, hero_title, hero_subtitle").eq("id", 1).single(),
-      db.from("announcements")
-        .select("id, title, slug, image_url, published_at")
-        .order("published_at", { ascending: false })
-        .limit(4),
-      db.from("fixtures")
-        .select("id, stage, status, scheduled_at, confirmed_score, club_a:clubs!club_a_id(id, name, slug), club_b:clubs!club_b_id(id, name, slug), competition:competitions(name, slug)")
-        .order("scheduled_at", { ascending: false })
-        .limit(6),
-      db.from("clubs")
-        .select("id, name, slug, faculty, department")
-        .eq("status", "approved")
-        .order("created_at", { ascending: true })
-        .limit(5),
-      db.from("players")
-        .select("id, gamer_tag, position, stats, club:clubs(name, slug)")
-        .limit(20),
-      db.from("global_sponsors")
-        .select("*")
-        .order("display_order", { ascending: true }),
-    ]);
+  const [
+    rCompetitions,
+    rClubCount,
+    rPlayerCount,
+    rCompetitionCount,
+    rFixtureCount,
+    rSiteSettings,
+    rAnnouncements,
+    rFixtures,
+    rTopClubs,
+    rPlayers,
+    rSponsors,
+  ] = await Promise.allSettled([
+    db.from("competitions")
+      .select("*")
+      .in("status", ["registration_open", "in_progress"])
+      .order("created_at", { ascending: false })
+      .limit(4),
+    supabase.from("clubs").select("*", { count: "exact", head: true }).eq("status", "approved"),
+    supabase.from("players").select("*", { count: "exact", head: true }),
+    supabase.from("competitions").select("*", { count: "exact", head: true }),
+    supabase.from("fixtures").select("*", { count: "exact", head: true }),
+    db.from("site_settings").select("*").eq("id", 1).single(),
+    db.from("announcements")
+      .select("id, title, slug, image_url, published_at")
+      .order("published_at", { ascending: false })
+      .limit(4),
+    db.from("fixtures")
+      .select("id, stage, status, scheduled_at, confirmed_score, club_a:clubs!club_a_id(id, name, slug), club_b:clubs!club_b_id(id, name, slug), competition:competitions(name, slug)")
+      .order("scheduled_at", { ascending: false })
+      .limit(6),
+    db.from("clubs")
+      .select("id, name, slug, faculty, department")
+      .eq("status", "approved")
+      .order("created_at", { ascending: true })
+      .limit(5),
+    db.from("players")
+      .select("id, gamer_tag, position, stats, club:clubs(name, slug)")
+      .limit(20),
+    db.from("global_sponsors")
+      .select("*")
+      .order("display_order", { ascending: true }),
+  ]);
 
-    const topPlayers = ([...(players ?? [])] as PlayerRow[])
-      .sort((a, b) => (b.stats?.wins ?? 0) - (a.stats?.wins ?? 0))
-      .slice(0, 5);
+  const players = settled<PlayerRow[]>(rPlayers as PromiseSettledResult<{ data: PlayerRow[] | null }>) ?? [];
+  const topPlayers = [...players]
+    .sort((a, b) => (b.stats?.wins ?? 0) - (a.stats?.wins ?? 0))
+    .slice(0, 5);
 
-    return {
-      competitions: (competitions ?? []) as Competition[],
-      summary: {
-        clubs:        clubCount        ?? 0,
-        players:      playerCount      ?? 0,
-        competitions: competitionCount ?? 0,
-        fixtures:     fixtureCount     ?? 0,
-      },
-      siteSettings:  (siteSettings ?? null) as SiteSettings | null,
-      announcements: (announcements ?? []) as AnnouncementRow[],
-      fixtures:      (fixtures      ?? []) as FixtureRow[],
-      topClubs:      (topClubs      ?? []) as ClubRow[],
-      topPlayers,
-      sponsors:      (sponsors      ?? []) as GlobalSponsor[],
-    };
-  } catch {
-    return {
-      competitions:  [],
-      summary:       { clubs: 0, players: 0, competitions: 0, fixtures: 0 },
-      siteSettings:  null,
-      announcements: [],
-      fixtures:      [],
-      topClubs:      [],
-      topPlayers:    [],
-      sponsors:      [],
-    };
-  }
+  return {
+    competitions:  (settled<Competition[]>(rCompetitions as PromiseSettledResult<{ data: Competition[] | null }>) ?? []) as Competition[],
+    summary: {
+      clubs:        settledCount(rClubCount        as PromiseSettledResult<{ count: number | null }>),
+      players:      settledCount(rPlayerCount       as PromiseSettledResult<{ count: number | null }>),
+      competitions: settledCount(rCompetitionCount  as PromiseSettledResult<{ count: number | null }>),
+      fixtures:     settledCount(rFixtureCount      as PromiseSettledResult<{ count: number | null }>),
+    },
+    siteSettings:  (rSiteSettings.status === "fulfilled" ? rSiteSettings.value.data : null) as SiteSettings | null,
+    announcements: (settled<AnnouncementRow[]>(rAnnouncements as PromiseSettledResult<{ data: AnnouncementRow[] | null }>) ?? []) as AnnouncementRow[],
+    fixtures:      (settled<FixtureRow[]>(rFixtures as PromiseSettledResult<{ data: FixtureRow[] | null }>) ?? []) as FixtureRow[],
+    topClubs:      (settled<ClubRow[]>(rTopClubs as PromiseSettledResult<{ data: ClubRow[] | null }>) ?? []) as ClubRow[],
+    topPlayers,
+    sponsors:      (settled<GlobalSponsor[]>(rSponsors as PromiseSettledResult<{ data: GlobalSponsor[] | null }>) ?? []) as GlobalSponsor[],
+  };
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────
