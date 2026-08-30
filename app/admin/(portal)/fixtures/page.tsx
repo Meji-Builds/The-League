@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { CreateFixtureForm } from "./CreateFixtureForm";
 import { EditFixtureForm } from "./EditFixtureForm";
+import { LineupUploadForm } from "./LineupUploadForm";
 
 export const metadata = { title: "Admin — Fixtures" };
 
@@ -11,8 +12,10 @@ interface Fixture {
   matchday: number;
   status: string;
   scheduled_at: string | null;
-  club_a: { name: string } | null;
-  club_b: { name: string } | null;
+  lineup_image_a: string | null;
+  lineup_image_b: string | null;
+  club_a: { id: string; name: string } | null;
+  club_b: { id: string; name: string } | null;
   competition: { name: string; edition: string } | null;
 }
 
@@ -49,9 +52,9 @@ export default async function AdminFixturesPage() {
   const [{ data: rawFixtures }, { data: rawComps }, { data: rawClubs }] = await Promise.all([
     db.from("fixtures")
       .select(`
-        id, stage, group_name, matchday, status, scheduled_at,
-        club_a:clubs!fixtures_club_a_id_fkey(name),
-        club_b:clubs!fixtures_club_b_id_fkey(name),
+        id, stage, group_name, matchday, status, scheduled_at, lineup_image_a, lineup_image_b,
+        club_a:clubs!fixtures_club_a_id_fkey(id, name),
+        club_b:clubs!fixtures_club_b_id_fkey(id, name),
         competition:competitions(name, edition)
       `)
       .order("scheduled_at", { ascending: false }),
@@ -98,6 +101,13 @@ export default async function AdminFixturesPage() {
                   <EditFixtureForm fixture={f} />
                 </div>
               </div>
+              <LineupUploadForm
+                fixtureId={f.id}
+                clubAName={f.club_a?.name ?? "Club A"}
+                clubBName={f.club_b?.name ?? "Club B"}
+                hasLineupA={!!f.lineup_image_a}
+                hasLineupB={!!f.lineup_image_b}
+              />
             </div>
           ))}
         </div>

@@ -2,12 +2,13 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { uploadMedia } from "@/lib/supabase/upload-media";
+import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 async function requireAdmin() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user || user.app_metadata?.role !== "admin") throw new Error("Unauthorized");
+  if (!user || user.app_metadata?.role !== "admin") redirect("/admin/login");
   return { supabase };
 }
 

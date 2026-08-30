@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Fixtures" };
@@ -66,7 +67,7 @@ export default async function FixturesPage() {
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {fixtures.map((f) => (
-            <div key={f.id} className="bg-white border border-border p-4">
+            <Link key={f.id} href={`/fixtures/${f.id}`} className="block bg-white border border-border p-4 hover:border-cobalt transition-colors group">
               <div className="flex items-center justify-between mb-3">
                 <div className="min-w-0 mr-2">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-cobalt truncate">
@@ -122,7 +123,7 @@ export default async function FixturesPage() {
                   </p>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

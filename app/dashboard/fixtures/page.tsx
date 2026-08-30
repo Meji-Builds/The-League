@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { ClubLineupUploadForm } from "./ClubLineupUploadForm";
 
 export const metadata = { title: "Fixtures" };
 
@@ -11,6 +12,10 @@ interface FixtureRow {
   status: string;
   scheduled_at: string | null;
   confirmed_score: { score_a: number; score_b: number } | null;
+  club_a_id: string;
+  club_b_id: string;
+  lineup_image_a: string | null;
+  lineup_image_b: string | null;
   club_a: { name: string } | null;
   club_b: { name: string } | null;
   competition: { name: string } | null;
@@ -43,6 +48,7 @@ export default async function FixturesPage() {
     .from("fixtures")
     .select(`
       id, stage, group_name, matchday, status, scheduled_at, confirmed_score,
+      club_a_id, club_b_id, lineup_image_a, lineup_image_b,
       club_a:clubs!fixtures_club_a_id_fkey(name),
       club_b:clubs!fixtures_club_b_id_fkey(name),
       competition:competitions(name)
@@ -55,32 +61,42 @@ export default async function FixturesPage() {
   const upcoming = fixtures.filter((f) => ["scheduled", "reported", "disputed"].includes(f.status));
   const past = fixtures.filter((f) => f.status === "confirmed");
 
-  const FixtureCard = ({ f }: { f: FixtureRow }) => (
-    <div className="border border-border bg-white rounded p-4 flex flex-col sm:flex-row sm:items-center gap-3">
-      <div className="flex-1">
-        <p className="text-xs text-muted mb-1">{f.competition?.name} &middot; {f.stage} &middot; Day {f.matchday}</p>
-        <p className="font-semibold text-navy text-sm">
-          {f.club_a?.name ?? "TBC"} vs {f.club_b?.name ?? "TBC"}
-        </p>
-        {f.confirmed_score && (
-          <p className="text-lg font-bold text-navy mt-1">
-            {f.confirmed_score.score_a} &ndash; {f.confirmed_score.score_b}
-          </p>
+  const FixtureCard = ({ f }: { f: FixtureRow }) => {
+    const isClubA = f.club_a_id === owner.club_id;
+    const hasLineup = isClubA ? !!f.lineup_image_a : !!f.lineup_image_b;
+
+    return (
+      <div className="border border-border bg-white rounded p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="flex-1">
+            <p className="text-xs text-muted mb-1">{f.competition?.name} &middot; {f.stage} &middot; Day {f.matchday}</p>
+            <p className="font-semibold text-navy text-sm">
+              {f.club_a?.name ?? "TBC"} vs {f.club_b?.name ?? "TBC"}
+            </p>
+            {f.confirmed_score && (
+              <p className="text-lg font-bold text-navy mt-1">
+                {f.confirmed_score.score_a} &ndash; {f.confirmed_score.score_b}
+              </p>
+            )}
+          </div>
+          <div className="text-right flex-shrink-0">
+            <p className="text-xs text-muted">{formatDate(f.scheduled_at)}</p>
+            <span className={`inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded capitalize
+              ${f.status === "confirmed" ? "bg-success/10 text-success" : ""}
+              ${f.status === "disputed" ? "bg-danger/10 text-danger" : ""}
+              ${f.status === "reported" ? "bg-warning/10 text-warning" : ""}
+              ${f.status === "scheduled" ? "bg-cobalt/10 text-cobalt" : ""}
+            `}>
+              {f.status}
+            </span>
+          </div>
+        </div>
+        {["scheduled", "reported"].includes(f.status) && (
+          <ClubLineupUploadForm fixtureId={f.id} hasLineup={hasLineup} />
         )}
       </div>
-      <div className="text-right flex-shrink-0">
-        <p className="text-xs text-muted">{formatDate(f.scheduled_at)}</p>
-        <span className={`inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded capitalize
-          ${f.status === "confirmed" ? "bg-success/10 text-success" : ""}
-          ${f.status === "disputed" ? "bg-danger/10 text-danger" : ""}
-          ${f.status === "reported" ? "bg-warning/10 text-warning" : ""}
-          ${f.status === "scheduled" ? "bg-cobalt/10 text-cobalt" : ""}
-        `}>
-          {f.status}
-        </span>
-      </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div>
