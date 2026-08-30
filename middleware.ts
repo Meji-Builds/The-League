@@ -41,9 +41,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Protect admin console
-  if (request.nextUrl.pathname.startsWith("/admin") && !user) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  // Protect admin console (but allow /admin/login through so the page is reachable)
+  if (
+    request.nextUrl.pathname.startsWith("/admin") &&
+    request.nextUrl.pathname !== "/admin/login" &&
+    !user
+  ) {
+    return NextResponse.redirect(new URL("/admin/login", request.url));
   }
 
   return response;
