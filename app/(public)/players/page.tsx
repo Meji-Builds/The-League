@@ -30,13 +30,9 @@ export default async function PlayersPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-10">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-5 h-0.5 bg-gold shrink-0" />
-          <p className="text-gold text-xs font-bold uppercase tracking-[0.25em]">Roster</p>
-        </div>
         <div className="flex items-end justify-between">
           <h1 className="font-display text-4xl font-bold text-white uppercase tracking-tight">
-            Player Directory
+            Players
           </h1>
           <p className="text-dim text-sm">{players.length} player{players.length !== 1 ? "s" : ""}</p>
         </div>

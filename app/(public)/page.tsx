@@ -98,31 +98,24 @@ const COMPETITION_STATUS_LABEL: Record<string, string> = {
   completed:         "Completed",
 };
 
-const FIXTURE_STATUS_LABEL: Record<string, string> = {
-  scheduled: "Scheduled",
-  reported:  "Reported",
-  confirmed: "Confirmed",
-  disputed:  "Disputed",
+const statusPill: Record<string, string> = {
+  scheduled: "bg-cobalt/15 text-cobalt",
+  reported:  "bg-gold/15 text-gold",
+  disputed:  "bg-danger/15 text-danger",
+  confirmed: "bg-success/15 text-success",
 };
 
-// ─── Icons ────────────────────────────────────────────────────────────────
-
-function TrophyIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
-      <path d="M19 5h-2V3H7v2H5C3.9 5 3 5.9 3 7v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0 0 11 15.9V18H9v2h6v-2h-2v-2.1a5.01 5.01 0 0 0 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.86 10.4 5 9.3 5 8zm14 0c0 1.3-.86 2.4-2 2.82V7h2v1z" />
-    </svg>
-  );
-}
+const statusLabel: Record<string, string> = {
+  scheduled: "Scheduled",
+  reported:  "Reported",
+  disputed:  "Disputed",
+  confirmed: "FT",
+};
 
 // ─── Data fetching ────────────────────────────────────────────────────────
 
 function settled<T>(result: PromiseSettledResult<{ data: T | null }>): T | null {
   return result.status === "fulfilled" ? result.value.data : null;
-}
-
-function settledCount(result: PromiseSettledResult<{ count: number | null }>): number {
-  return result.status === "fulfilled" ? (result.value.count ?? 0) : 0;
 }
 
 async function getPageData() {
@@ -132,10 +125,6 @@ async function getPageData() {
 
   const [
     rCompetitions,
-    rClubCount,
-    rPlayerCount,
-    rCompetitionCount,
-    rFixtureCount,
     rSiteSettings,
     rAnnouncements,
     rFixtures,
@@ -150,15 +139,11 @@ async function getPageData() {
       .in("status", ["registration_open", "in_progress"])
       .order("created_at", { ascending: false })
       .limit(4),
-    supabase.from("clubs").select("*", { count: "exact", head: true }).eq("status", "approved"),
-    supabase.from("players").select("*", { count: "exact", head: true }),
-    supabase.from("competitions").select("*", { count: "exact", head: true }),
-    supabase.from("fixtures").select("*", { count: "exact", head: true }),
     db.from("site_settings").select("*").eq("id", 1).single(),
     db.from("announcements")
       .select("id, title, slug, image_url, published_at")
       .order("published_at", { ascending: false })
-      .limit(4),
+      .limit(6),
     db.from("fixtures")
       .select("id, stage, status, scheduled_at, confirmed_score, club_a:clubs!club_a_id(id, name, slug), club_b:clubs!club_b_id(id, name, slug), competition:competitions(name, slug)")
       .order("scheduled_at", { ascending: false })
@@ -216,12 +201,6 @@ async function getPageData() {
 
   return {
     competitions: (settled<Competition[]>(rCompetitions as PromiseSettledResult<{ data: Competition[] | null }>) ?? []) as Competition[],
-    summary: {
-      clubs:        settledCount(rClubCount        as PromiseSettledResult<{ count: number | null }>),
-      players:      settledCount(rPlayerCount       as PromiseSettledResult<{ count: number | null }>),
-      competitions: settledCount(rCompetitionCount  as PromiseSettledResult<{ count: number | null }>),
-      fixtures:     settledCount(rFixtureCount      as PromiseSettledResult<{ count: number | null }>),
-    },
     siteSettings: (rSiteSettings.status === "fulfilled" ? rSiteSettings.value.data : null) as SiteSettings | null,
     newsItems,
     fixtures:     (settled<FixtureRow[]>(rFixtures as PromiseSettledResult<{ data: FixtureRow[] | null }>) ?? []) as FixtureRow[],
@@ -232,58 +211,41 @@ async function getPageData() {
   };
 }
 
-// ─── Shared UI ────────────────────────────────────────────────────────────
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex items-center gap-3 mb-2">
-      <div className="w-5 h-0.5 bg-gold shrink-0" />
-      <p className="text-gold text-xs font-bold uppercase tracking-[0.25em]">{children}</p>
-    </div>
-  );
-}
-
-const gridBg: React.CSSProperties = {
-  backgroundImage:
-    "linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px)",
-  backgroundSize: "64px 64px",
-};
-
 // ─── Page ─────────────────────────────────────────────────────────────────
 
 export default async function HomePage() {
   const {
-    competitions, summary, siteSettings, newsItems,
+    competitions, siteSettings, newsItems,
     fixtures, topClubs, topPlayers, sponsors, livestreams,
   } = await getPageData();
 
   return (
     <>
       {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section className="bg-navy text-white relative overflow-hidden min-h-[64vh] flex items-center">
-        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-          <div className="absolute inset-0" style={gridBg} />
-        </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-36 w-full">
-          <SectionLabel>University Esports</SectionLabel>
-          <h1 className="font-display text-6xl sm:text-7xl md:text-8xl font-bold leading-none tracking-tight uppercase mt-4 max-w-4xl whitespace-pre-line">
+      <section className="bg-navy text-white relative overflow-hidden min-h-[56vh] flex items-center">
+        <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-gradient-to-l from-cobalt/5 to-transparent pointer-events-none" aria-hidden="true" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 w-full">
+          <p className="text-gold text-xs font-semibold uppercase tracking-[0.3em] mb-5">
+            University Esports
+          </p>
+          <h1 className="font-display text-6xl sm:text-7xl md:text-8xl font-bold leading-none tracking-tight uppercase max-w-4xl whitespace-pre-line">
             {siteSettings?.hero_title ?? "The League.\nWhere Champions\nAre Made."}
           </h1>
-          <p className="mt-6 text-white/45 text-base max-w-lg leading-relaxed">
+          <p className="mt-5 text-white/40 text-sm max-w-md leading-relaxed">
             {siteSettings?.hero_subtitle
               ? siteSettings.hero_subtitle
               : "University esports competitions — from department qualifiers to the championship final."}
           </p>
-          <div className="mt-10 flex flex-col sm:flex-row gap-3">
+          <div className="mt-8 flex flex-col sm:flex-row gap-3">
             <Link
               href="/register"
-              className="inline-block bg-gold text-navy font-bold text-sm px-7 py-3.5 rounded hover:brightness-110 transition-all text-center uppercase tracking-wider"
+              className="inline-block bg-gold text-navy font-bold text-sm px-6 py-3 hover:brightness-110 transition-all text-center uppercase tracking-wider"
             >
               Register Your Club
             </Link>
             <Link
               href="/competitions"
-              className="inline-block border border-white/15 text-white font-medium text-sm px-7 py-3.5 rounded hover:border-white/30 hover:bg-white/5 transition-colors text-center"
+              className="inline-block border border-white/12 text-white/70 text-sm px-6 py-3 hover:text-white hover:border-white/25 transition-colors text-center"
             >
               View Competitions
             </Link>
@@ -291,35 +253,16 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Stats ────────────────────────────────────────────────────── */}
-      <section className="bg-panel border-t border-rim">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-0 sm:divide-x sm:divide-rim">
-            {[
-              { value: summary.clubs,        label: "Registered Clubs" },
-              { value: summary.players,      label: "Active Players" },
-              { value: summary.competitions, label: "Competitions" },
-              { value: summary.fixtures,     label: "Fixtures Played" },
-            ].map(({ value, label }) => (
-              <div key={label} className="sm:px-8 first:pl-0 last:pr-0">
-                <p className="font-display text-5xl font-bold text-gold leading-none">{value}</p>
-                <p className="text-dim text-xs uppercase tracking-wider mt-2">{label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ── Livestreams ──────────────────────────────────────────────── */}
       {livestreams.length > 0 && (
         <section className="bg-navy border-t border-rim">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="flex items-center gap-3 mb-6">
-              <span className="relative flex h-2.5 w-2.5">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <div className="flex items-center gap-2.5 mb-5">
+              <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-danger opacity-75" />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-danger" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-danger" />
               </span>
-              <p className="text-white font-bold text-sm uppercase tracking-widest">Live Now</p>
+              <p className="text-white text-xs font-semibold uppercase tracking-widest">Live Now</p>
             </div>
             <div className={`grid gap-6 ${livestreams.length > 1 ? "sm:grid-cols-2" : ""}`}>
               {livestreams.map((stream) => {
@@ -327,7 +270,7 @@ export default async function HomePage() {
                 return (
                   <div key={stream.id}>
                     {embedId ? (
-                      <div className="relative w-full bg-black rounded overflow-hidden" style={{ paddingTop: "56.25%" }}>
+                      <div className="relative w-full bg-black overflow-hidden" style={{ paddingTop: "56.25%" }}>
                         <iframe
                           className="absolute inset-0 w-full h-full"
                           src={`https://www.youtube.com/embed/${embedId}?autoplay=0`}
@@ -341,7 +284,7 @@ export default async function HomePage() {
                         href={stream.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block bg-card border border-rim px-5 py-4 text-sm text-cobalt hover:text-gold transition-colors rounded"
+                        className="block bg-card border border-rim px-5 py-4 text-sm text-cobalt hover:text-gold transition-colors"
                       >
                         {stream.url}
                       </a>
@@ -358,67 +301,57 @@ export default async function HomePage() {
       )}
 
       {/* ── Active Competitions ───────────────────────────────────────── */}
-      <section className="py-16 bg-panel border-t border-rim">
+      <section className="py-14 bg-panel border-t border-rim">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between mb-8">
-            <div>
-              <SectionLabel>Competitions</SectionLabel>
-              <h2 className="font-display text-4xl font-bold text-white uppercase tracking-tight">
-                Active Competitions
-              </h2>
-            </div>
-            <Link href="/competitions" className="text-sm text-dim hover:text-white transition-colors font-medium">
-              All competitions
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-display text-2xl font-bold text-white uppercase tracking-tight">
+              Active Competitions
+            </h2>
+            <Link href="/competitions" className="text-xs text-dim hover:text-white transition-colors">
+              View all
             </Link>
           </div>
 
           {competitions.length === 0 ? (
-            <div className="border border-rim bg-card px-8 py-14 text-center rounded">
-              <p className="text-white font-semibold">Season 1 is getting ready.</p>
-              <p className="text-dim text-sm mt-2">
-                Competitions will appear here once registration opens.
-              </p>
+            <div className="border border-rim bg-card px-8 py-12 text-center">
+              <p className="text-white font-semibold text-sm">Season 1 is getting ready.</p>
+              <p className="text-dim text-xs mt-2">Competitions will appear here once registration opens.</p>
               <Link
                 href="/register"
-                className="mt-6 inline-block bg-gold text-navy text-sm font-bold px-5 py-2.5 rounded hover:brightness-110 transition-all uppercase tracking-wide"
+                className="mt-5 inline-block bg-gold text-navy text-xs font-bold px-5 py-2.5 hover:brightness-110 transition-all uppercase tracking-wide"
               >
                 Register your club now
               </Link>
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid sm:grid-cols-2 gap-3">
               {competitions.map((c) => (
                 <Link
                   key={c.id}
                   href={`/competitions/${c.slug}`}
-                  className="bg-card border border-rim hover:border-cobalt/50 transition-all group p-5 block rounded"
+                  className="bg-card border border-rim hover:bg-white/[0.03] transition-colors group p-5 block"
                 >
                   <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 bg-gold/10 flex items-center justify-center shrink-0 mt-0.5 rounded">
-                        <TrophyIcon className="w-4 h-4 text-gold" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-white group-hover:text-gold transition-colors leading-snug">
-                          {c.name}
-                        </p>
-                        <p className="text-dim text-xs mt-0.5">{c.edition}</p>
-                      </div>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-white text-sm leading-snug group-hover:text-gold transition-colors">
+                        {c.name}
+                      </p>
+                      <p className="text-dim text-xs mt-1">{c.edition}</p>
                     </div>
-                    <span className={`shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full ${
+                    <span className={`shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                       c.status === "in_progress"
-                        ? "bg-success/10 text-success"
-                        : "bg-gold/10 text-gold"
+                        ? "bg-success/15 text-success"
+                        : "bg-gold/15 text-gold"
                     }`}>
                       {COMPETITION_STATUS_LABEL[c.status]}
                     </span>
                   </div>
-                  <div className="mt-4 flex items-center justify-between border-t border-rim pt-4">
-                    <span className="text-xs text-dim font-medium uppercase tracking-wider">
+                  <div className="mt-4 flex items-center justify-between border-t border-rim pt-3">
+                    <span className="text-xs text-dim">
                       {FORMAT_LABEL[c.format] ?? c.format}
                     </span>
                     {c.entry_fee > 0 && (
-                      <span className="text-xs text-white font-semibold">
+                      <span className="text-xs text-white/60">
                         {"₦"}{c.entry_fee.toLocaleString()} entry
                       </span>
                     )}
@@ -432,82 +365,75 @@ export default async function HomePage() {
 
       {/* ── Recent Fixtures ───────────────────────────────────────────── */}
       {fixtures.length > 0 && (
-        <section className="py-16 bg-navy border-t border-rim">
+        <section className="py-14 bg-navy border-t border-rim">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-end justify-between mb-8">
-              <div>
-                <SectionLabel>Schedule</SectionLabel>
-                <h2 className="font-display text-4xl font-bold text-white uppercase tracking-tight">
-                  Recent Fixtures
-                </h2>
-              </div>
-              <Link href="/fixtures" className="text-sm text-dim hover:text-white transition-colors font-medium">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="font-display text-2xl font-bold text-white uppercase tracking-tight">
+                Recent Fixtures
+              </h2>
+              <Link href="/fixtures" className="text-xs text-dim hover:text-white transition-colors">
                 All fixtures
               </Link>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-3">
+            <div className="bg-card border border-rim divide-y divide-rim">
               {fixtures.map((f) => (
-                <div key={f.id} className="bg-card border border-rim p-4 rounded">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-dim truncate mr-2">
-                      {f.competition?.name ?? ""}
-                    </span>
-                    <span className={`shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                      f.status === "confirmed" ? "bg-success/10 text-success" :
-                      f.status === "disputed"  ? "bg-danger/10 text-danger"   :
-                      f.status === "reported"  ? "bg-gold/10 text-gold"       :
-                      "bg-cobalt/10 text-cobalt"
-                    }`}>
-                      {FIXTURE_STATUS_LABEL[f.status]}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
-                      <div
-                        className="w-10 h-10 rounded flex items-center justify-center text-navy text-xs font-bold shrink-0"
-                        style={{ backgroundColor: avatarColor(f.club_a?.name ?? "A") }}
-                      >
-                        {nameInitials(f.club_a?.name ?? "A")}
-                      </div>
-                      <p className="text-xs font-semibold text-white text-center leading-tight line-clamp-2">
-                        {f.club_a?.name ?? "TBA"}
-                      </p>
-                    </div>
-                    <div className="text-center px-1 shrink-0">
-                      {f.confirmed_score ? (
-                        <p className="font-display text-2xl font-bold text-white tabular-nums leading-none">
-                          {f.confirmed_score.score_a}&nbsp;&ndash;&nbsp;{f.confirmed_score.score_b}
-                        </p>
-                      ) : (
-                        <p className="text-xs font-bold text-dim tracking-widest">VS</p>
-                      )}
-                      {f.scheduled_at && (
-                        <p className="text-[10px] text-dim mt-1">
-                          {new Date(f.scheduled_at).toLocaleDateString("en-GB", {
-                            day: "numeric", month: "short",
-                          })}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
-                      <div
-                        className="w-10 h-10 rounded flex items-center justify-center text-navy text-xs font-bold shrink-0"
-                        style={{ backgroundColor: avatarColor(f.club_b?.name ?? "B") }}
-                      >
-                        {nameInitials(f.club_b?.name ?? "B")}
-                      </div>
-                      <p className="text-xs font-semibold text-white text-center leading-tight line-clamp-2">
-                        {f.club_b?.name ?? "TBA"}
-                      </p>
-                    </div>
-                  </div>
-                  {f.stage && (
-                    <p className="text-[10px] text-dim text-center mt-2 uppercase tracking-wider border-t border-rim pt-2">
-                      {f.stage}
+                <Link
+                  key={f.id}
+                  href={`/fixtures/${f.id}`}
+                  className="flex items-center gap-3 sm:gap-4 px-4 py-3 hover:bg-white/[0.035] transition-colors group"
+                >
+                  {/* Club A side */}
+                  <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
+                    <p className="text-[13px] font-medium text-white group-hover:text-gold transition-colors truncate text-right">
+                      {f.club_a?.name ?? "TBA"}
                     </p>
-                  )}
-                </div>
+                    <div
+                      className="w-7 h-7 shrink-0 flex items-center justify-center text-navy text-[9px] font-bold"
+                      style={{ backgroundColor: avatarColor(f.club_a?.name ?? "A") }}
+                    >
+                      {nameInitials(f.club_a?.name ?? "A")}
+                    </div>
+                  </div>
+
+                  {/* Score / VS */}
+                  <div className="w-24 text-center shrink-0">
+                    {f.confirmed_score ? (
+                      <span className="font-display text-base font-bold text-gold tabular-nums">
+                        {f.confirmed_score.score_a}&nbsp;&ndash;&nbsp;{f.confirmed_score.score_b}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-dim font-medium tracking-widest">vs</span>
+                    )}
+                  </div>
+
+                  {/* Club B side */}
+                  <div className="flex items-center gap-2 flex-1 justify-start min-w-0">
+                    <div
+                      className="w-7 h-7 shrink-0 flex items-center justify-center text-navy text-[9px] font-bold"
+                      style={{ backgroundColor: avatarColor(f.club_b?.name ?? "B") }}
+                    >
+                      {nameInitials(f.club_b?.name ?? "B")}
+                    </div>
+                    <p className="text-[13px] font-medium text-white truncate">
+                      {f.club_b?.name ?? "TBA"}
+                    </p>
+                  </div>
+
+                  {/* Meta */}
+                  <div className="hidden sm:flex items-center gap-3 shrink-0">
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 ${statusPill[f.status] ?? "bg-cobalt/15 text-cobalt"}`}>
+                      {statusLabel[f.status]}
+                    </span>
+                    {f.scheduled_at && (
+                      <span className="text-[11px] text-dim w-14 text-right">
+                        {new Date(f.scheduled_at).toLocaleDateString("en-GB", {
+                          day: "numeric", month: "short",
+                        })}
+                      </span>
+                    )}
+                  </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -516,31 +442,28 @@ export default async function HomePage() {
 
       {/* ── Top Clubs + Season Leaders ────────────────────────────────── */}
       {(topClubs.length > 0 || topPlayers.length > 0) && (
-        <section className="py-16 bg-panel border-t border-rim">
+        <section className="py-14 bg-panel border-t border-rim">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-12 md:gap-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-10 md:gap-12">
 
               {topClubs.length > 0 && (
                 <div>
-                  <SectionLabel>Rankings</SectionLabel>
-                  <div className="flex items-end justify-between mb-5">
-                    <h2 className="font-display text-4xl font-bold text-white uppercase tracking-tight">Top Clubs</h2>
-                    <Link href="/clubs" className="text-sm text-dim hover:text-white transition-colors font-medium">
+                  <div className="flex items-center justify-between mb-5">
+                    <h2 className="font-display text-2xl font-bold text-white uppercase tracking-tight">Clubs</h2>
+                    <Link href="/clubs" className="text-xs text-dim hover:text-white transition-colors">
                       All clubs
                     </Link>
                   </div>
-                  <div className="divide-y divide-rim bg-card border border-rim rounded overflow-hidden">
+                  <div className="divide-y divide-rim border border-rim">
                     {topClubs.map((club, i) => (
                       <Link
                         key={club.id}
                         href={`/clubs/${club.slug}`}
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors group"
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.03] transition-colors group"
                       >
-                        <span className="font-display text-base font-bold text-gold w-5 text-right shrink-0">
-                          {i + 1}
-                        </span>
+                        <span className="text-dim text-xs w-4 text-right shrink-0">{i + 1}</span>
                         <div
-                          className="w-8 h-8 rounded flex items-center justify-center shrink-0 text-navy text-xs font-bold"
+                          className="w-7 h-7 shrink-0 flex items-center justify-center text-navy text-[9px] font-bold"
                           style={{ backgroundColor: avatarColor(club.name) }}
                         >
                           {nameInitials(club.name)}
@@ -559,21 +482,18 @@ export default async function HomePage() {
 
               {topPlayers.length > 0 && (
                 <div>
-                  <SectionLabel>Season</SectionLabel>
-                  <div className="flex items-end justify-between mb-5">
-                    <h2 className="font-display text-4xl font-bold text-white uppercase tracking-tight">Season Leaders</h2>
-                    <Link href="/players" className="text-sm text-dim hover:text-white transition-colors font-medium">
+                  <div className="flex items-center justify-between mb-5">
+                    <h2 className="font-display text-2xl font-bold text-white uppercase tracking-tight">Season Leaders</h2>
+                    <Link href="/players" className="text-xs text-dim hover:text-white transition-colors">
                       All players
                     </Link>
                   </div>
-                  <div className="divide-y divide-rim bg-card border border-rim rounded overflow-hidden">
+                  <div className="divide-y divide-rim border border-rim">
                     {topPlayers.map((player, i) => (
                       <div key={player.id} className="flex items-center gap-3 px-4 py-3">
-                        <span className="font-display text-base font-bold text-gold w-5 text-right shrink-0">
-                          {i + 1}
-                        </span>
+                        <span className="text-dim text-xs w-4 text-right shrink-0">{i + 1}</span>
                         <div
-                          className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-navy text-xs font-bold"
+                          className="w-7 h-7 shrink-0 flex items-center justify-center text-navy text-[9px] font-bold"
                           style={{ backgroundColor: avatarColor(player.gamer_tag) }}
                         >
                           {nameInitials(player.gamer_tag)}
@@ -586,8 +506,8 @@ export default async function HomePage() {
                           </p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="font-display text-xl font-bold text-gold">{player.stats.wins}</p>
-                          <p className="text-xs text-dim">wins</p>
+                          <p className="font-display text-lg font-bold text-gold leading-none">{player.stats.wins}</p>
+                          <p className="text-[10px] text-dim">wins</p>
                         </div>
                       </div>
                     ))}
@@ -601,50 +521,47 @@ export default async function HomePage() {
 
       {/* ── Latest News ───────────────────────────────────────────────── */}
       {newsItems.length > 0 && (
-        <section className="py-16 bg-navy border-t border-rim">
+        <section className="py-14 bg-navy border-t border-rim">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-end justify-between mb-8">
-              <div>
-                <SectionLabel>Updates</SectionLabel>
-                <h2 className="font-display text-4xl font-bold text-white uppercase tracking-tight">
-                  Latest News
-                </h2>
-              </div>
-              <Link href="/news" className="text-sm text-dim hover:text-white transition-colors font-medium">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="font-display text-2xl font-bold text-white uppercase tracking-tight">
+                Latest News
+              </h2>
+              <Link href="/news" className="text-xs text-dim hover:text-white transition-colors">
                 All news
               </Link>
             </div>
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid sm:grid-cols-2 gap-px bg-rim border border-rim">
               {newsItems.map((item) => (
                 <Link
                   key={item.id}
                   href={item.href}
-                  className="flex items-start gap-4 bg-card border border-rim hover:border-cobalt/40 transition-all group p-4 rounded"
+                  className="flex items-start gap-4 bg-card hover:bg-white/[0.035] transition-colors group p-4"
                 >
                   {item.image_url ? (
-                    <div className="w-20 h-16 shrink-0 overflow-hidden rounded bg-panel">
+                    <div className="w-20 h-16 shrink-0 overflow-hidden bg-panel">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={item.image_url}
                         alt={item.title}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
                   ) : (
-                    <div className="w-20 h-16 shrink-0 bg-gold/5 border border-rim flex items-center justify-center rounded">
-                      <span className="text-gold text-[9px] font-bold uppercase tracking-wider">News</span>
+                    <div className="w-20 h-16 shrink-0 bg-panel border border-rim flex items-center justify-center">
+                      <span className="text-dim text-[9px] font-semibold uppercase tracking-wider">No image</span>
                     </div>
                   )}
                   <div className="flex-1 min-w-0 py-0.5">
                     <div className="flex items-center gap-2 mb-1.5">
-                      <span className="text-[10px] font-bold text-gold uppercase tracking-wider">{item.source}</span>
+                      <span className="text-[10px] font-semibold text-gold">{item.source}</span>
                       <span className="text-dim text-[10px]">
                         {new Date(item.published_at).toLocaleDateString("en-GB", {
-                          day: "numeric", month: "short", year: "numeric",
+                          day: "numeric", month: "short",
                         })}
                       </span>
                     </div>
-                    <h3 className="font-semibold text-white text-sm leading-snug group-hover:text-gold transition-colors line-clamp-2">
+                    <h3 className="text-sm font-semibold text-white leading-snug group-hover:text-gold transition-colors line-clamp-2">
                       {item.title}
                     </h3>
                   </div>
@@ -657,9 +574,9 @@ export default async function HomePage() {
 
       {/* ── Sponsors ─────────────────────────────────────────────────── */}
       {sponsors.length > 0 && (
-        <section className="py-12 bg-panel border-t border-rim">
+        <section className="py-10 bg-panel border-t border-rim">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <p className="text-center text-dim text-xs uppercase tracking-[0.25em] mb-8">Our Sponsors</p>
+            <p className="text-center text-dim text-[10px] uppercase tracking-[0.3em] mb-7">Partners &amp; Sponsors</p>
             <div className="flex flex-wrap items-center justify-center gap-10">
               {sponsors.map((s) =>
                 s.website_url ? (
@@ -668,15 +585,15 @@ export default async function HomePage() {
                     href={s.website_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="opacity-35 hover:opacity-70 transition-opacity"
+                    className="opacity-30 hover:opacity-60 transition-opacity"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={s.logo_url} alt={s.name} className="h-8 object-contain brightness-0 invert" />
+                    <img src={s.logo_url} alt={s.name} className="h-7 object-contain brightness-0 invert" />
                   </a>
                 ) : (
-                  <div key={s.id} className="opacity-35">
+                  <div key={s.id} className="opacity-30">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={s.logo_url} alt={s.name} className="h-8 object-contain brightness-0 invert" />
+                    <img src={s.logo_url} alt={s.name} className="h-7 object-contain brightness-0 invert" />
                   </div>
                 )
               )}
@@ -686,29 +603,26 @@ export default async function HomePage() {
       )}
 
       {/* ── CTA ──────────────────────────────────────────────────────── */}
-      <section className="bg-navy border-t border-rim relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-          <div className="absolute inset-0" style={gridBg} />
-        </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <SectionLabel>Join The League</SectionLabel>
-          <h2 className="font-display text-5xl sm:text-6xl font-bold text-white uppercase tracking-tight mt-4 max-w-2xl leading-none">
+      <section className="bg-navy border-t border-rim">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <p className="text-gold text-xs font-semibold uppercase tracking-[0.3em] mb-4">Join The League</p>
+          <h2 className="font-display text-5xl sm:text-6xl font-bold text-white uppercase tracking-tight max-w-2xl leading-none">
             Represent Your University
           </h2>
-          <p className="text-white/40 mt-5 max-w-md text-sm leading-relaxed">
+          <p className="text-white/35 mt-4 max-w-md text-sm leading-relaxed">
             Register your club, compete for your department and faculty, and
             represent your university at the championship level.
           </p>
-          <div className="mt-10 flex flex-col sm:flex-row gap-3">
+          <div className="mt-8 flex flex-col sm:flex-row gap-3">
             <Link
               href="/register"
-              className="inline-block bg-gold text-navy font-bold text-sm px-7 py-3.5 rounded hover:brightness-110 transition-all text-center uppercase tracking-wider"
+              className="inline-block bg-gold text-navy font-bold text-sm px-6 py-3 hover:brightness-110 transition-all text-center uppercase tracking-wider"
             >
               Register Your Club
             </Link>
             <Link
               href="/sponsors"
-              className="inline-block border border-white/15 text-white font-medium text-sm px-7 py-3.5 rounded hover:border-white/30 hover:bg-white/5 transition-colors text-center"
+              className="inline-block border border-white/12 text-white/60 text-sm px-6 py-3 hover:text-white hover:border-white/25 transition-colors text-center"
             >
               Sponsor The League
             </Link>

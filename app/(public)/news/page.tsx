@@ -64,10 +64,6 @@ export default async function NewsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="flex items-center gap-3 mb-2">
-        <div className="w-5 h-0.5 bg-gold shrink-0" />
-        <p className="text-gold text-xs font-bold uppercase tracking-[0.25em]">Updates</p>
-      </div>
       <h1 className="font-display text-4xl font-bold text-white uppercase tracking-tight mb-10">
         News &amp; Announcements
       </h1>
@@ -102,11 +98,11 @@ export default async function NewsPage() {
               <div className="p-5">
                 <div className="flex items-center gap-2 mb-2">
                   {item.source === "club" ? (
-                    <span className="text-[10px] font-bold uppercase tracking-wide text-gold bg-gold/10 px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] font-bold uppercase tracking-wide text-cobalt bg-cobalt/10 px-1.5 py-0.5 rounded">
                       {item.club_name ?? "Club"}
                     </span>
                   ) : (
-                    <span className="text-[10px] font-bold uppercase tracking-wide text-cobalt bg-cobalt/10 px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] font-bold uppercase tracking-wide text-gold bg-gold/10 px-1.5 py-0.5 rounded">
                       Official
                     </span>
                   )}
