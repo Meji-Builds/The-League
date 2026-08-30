@@ -197,8 +197,8 @@ export default async function HomePage() {
     <>
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section className="bg-navy text-white relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-          <div className="absolute right-0 top-0 w-80 h-80 bg-cobalt/10 rotate-12 blur-3xl translate-x-1/2 -translate-y-1/4" />
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+          <div className="absolute -right-10 -top-10 w-72 h-72 bg-cobalt/10 rotate-12 blur-3xl" />
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
           <p className="text-cobalt text-xs font-semibold uppercase tracking-[0.25em] mb-4">
@@ -460,7 +460,7 @@ export default async function HomePage() {
       {(topClubs.length > 0 || topPlayers.length > 0) && (
         <section className="py-16 bg-surface border-t border-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid md:grid-cols-2 gap-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-10 md:gap-12">
 
               {topClubs.length > 0 && (
                 <div>
