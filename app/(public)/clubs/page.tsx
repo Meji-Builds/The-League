@@ -64,7 +64,7 @@ export default async function ClubsPage() {
                   className="block bg-card border border-rim p-4 hover:border-cobalt/50 transition-all group text-center rounded"
                 >
                   <div className="w-14 h-14 mx-auto mb-3 bg-panel border border-rim flex items-center justify-center overflow-hidden rounded">
-                    {club.logo_url ? (
+                    {club.logo_url && club.logo_status === "approved" ? (
                       <Image
                         src={club.logo_url}
                         alt={`${club.name} logo`}

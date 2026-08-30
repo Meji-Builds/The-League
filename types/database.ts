@@ -20,6 +20,7 @@ export interface Club {
   name: string;
   slug: string;
   logo_url: string | null;
+  logo_status: string | null; // 'none' | 'pending' | 'approved' | 'rejected'
   badge_url: string | null;
   department: string;
   faculty: string;

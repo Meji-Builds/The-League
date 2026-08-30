@@ -13,7 +13,7 @@ export default async function ClubProfilePage() {
   const db = supabase as any;
   const { data: club } = await db
     .from("clubs")
-    .select("name, faculty, bio, logo_url, badge_url")
+    .select("name, faculty, bio, logo_url, logo_status, badge_url")
     .eq("owner_id", user.id)
     .single();
 
@@ -34,6 +34,7 @@ export default async function ClubProfilePage() {
           faculty={club.faculty}
           bio={club.bio}
           logo_url={club.logo_url}
+          logo_status={club.logo_status}
           badge_url={club.badge_url}
         />
       </div>

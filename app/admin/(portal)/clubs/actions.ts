@@ -25,6 +25,22 @@ export async function suspendClub(formData: FormData) {
   revalidatePath("/admin/clubs");
 }
 
+export async function approveClubLogo(formData: FormData) {
+  const db = await requireAdminDb();
+  const clubId = formData.get("club_id") as string;
+  await db.from("clubs").update({ logo_status: "approved" }).eq("id", clubId);
+  revalidatePath("/admin/clubs");
+  revalidatePath("/clubs");
+}
+
+export async function rejectClubLogo(formData: FormData) {
+  const db = await requireAdminDb();
+  const clubId = formData.get("club_id") as string;
+  await db.from("clubs").update({ logo_status: "rejected", logo_url: null }).eq("id", clubId);
+  revalidatePath("/admin/clubs");
+  revalidatePath("/clubs");
+}
+
 export async function approvePlayer(formData: FormData) {
   const db = await requireAdminDb();
   const playerId = formData.get("player_id") as string;

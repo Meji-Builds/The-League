@@ -35,7 +35,7 @@ export async function updateClubProfile(prevState: ActionState, formData: FormDa
   if (!name || !faculty) return { error: "Club name and faculty are required." };
 
   const updates: Record<string, unknown> = { name, faculty, bio };
-  if (logo_url)  updates.logo_url  = logo_url;
+  if (logo_url)  { updates.logo_url = logo_url; updates.logo_status = "pending"; }
   if (badge_url) updates.badge_url = badge_url;
 
   const { error } = await db.from("clubs").update(updates).eq("id", club.id);

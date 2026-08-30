@@ -5,14 +5,15 @@ import { updateClubProfile } from "./actions";
 import { directUpload } from "@/lib/direct-upload";
 
 interface Props {
-  name:      string;
-  faculty:   string;
-  bio:       string | null;
-  logo_url:  string | null;
-  badge_url: string | null;
+  name:        string;
+  faculty:     string;
+  bio:         string | null;
+  logo_url:    string | null;
+  logo_status: string | null;
+  badge_url:   string | null;
 }
 
-export function ClubProfileForm({ name, faculty, bio, logo_url, badge_url }: Props) {
+export function ClubProfileForm({ name, faculty, bio, logo_url, logo_status, badge_url }: Props) {
   const [state, formAction, isPending] = useActionState(updateClubProfile, null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -109,8 +110,13 @@ export function ClubProfileForm({ name, faculty, bio, logo_url, badge_url }: Pro
             Logo <span className="text-muted font-normal normal-case">(optional — replaces current)</span>
           </label>
           {logo_url && (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={logo_url} alt="Current logo" className="h-14 w-24 object-contain border border-border bg-surface p-1 mb-2 rounded" />
+            <div className="flex items-center gap-3 mb-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={logo_url} alt="Current logo" className="h-14 w-24 object-contain border border-border bg-surface p-1 rounded" />
+              {logo_status === "pending"  && <span className="text-xs font-semibold text-warning bg-warning/10 px-2 py-0.5 rounded">Pending approval</span>}
+              {logo_status === "approved" && <span className="text-xs font-semibold text-success bg-success/10 px-2 py-0.5 rounded">Approved</span>}
+              {logo_status === "rejected" && <span className="text-xs font-semibold text-danger bg-danger/10 px-2 py-0.5 rounded">Rejected — upload a new one</span>}
+            </div>
           )}
           <input
             ref={logoRef}

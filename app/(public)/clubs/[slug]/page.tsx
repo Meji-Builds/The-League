@@ -131,7 +131,7 @@ export default async function ClubPage({ params }: { params: Promise<{ slug: str
 
       {/* Header */}
       <div className="flex items-start gap-5 mb-10">
-        {c.logo_url ? (
+        {c.logo_url && c.logo_status === "approved" ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={c.logo_url}

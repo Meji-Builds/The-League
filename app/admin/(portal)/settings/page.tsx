@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { FeeForm } from "./FeeForm";
 import { SiteSettingsForm } from "./SiteSettingsForm";
+import { ThemeForm } from "./ThemeForm";
 
 export const metadata = { title: "Admin — Settings" };
 
@@ -35,6 +36,17 @@ export default async function AdminSettingsPage() {
         <section className="border border-border bg-white rounded p-5">
           <h2 className="text-navy font-semibold text-sm mb-4">Social &amp; Livestream</h2>
           <SiteSettingsForm settings={siteRow ?? null} />
+        </section>
+
+        <section className="border border-border bg-white rounded p-5">
+          <h2 className="text-navy font-semibold text-sm mb-1">Theme</h2>
+          <p className="text-muted text-xs mb-4">
+            Changes the accent and background colours on all public-facing pages. The admin panel is unaffected.
+          </p>
+          <ThemeForm
+            current={siteRow ?? null}
+            history={siteRow?.theme_history ?? []}
+          />
         </section>
       </div>
     </div>
