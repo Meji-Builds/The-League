@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "News" };
@@ -47,12 +46,12 @@ export default async function NewsPage() {
               className="block bg-white border border-border hover:border-cobalt transition-colors group"
             >
               {post.image_url && (
-                <div className="relative w-full h-44 overflow-hidden bg-surface">
-                  <Image
+                <div className="w-full h-44 overflow-hidden bg-surface">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
                     src={post.image_url}
                     alt={post.title}
-                    fill
-                    className="object-cover"
+                    className="w-full h-full object-cover"
                   />
                 </div>
               )}
