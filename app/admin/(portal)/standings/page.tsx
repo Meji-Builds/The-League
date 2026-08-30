@@ -106,9 +106,14 @@ export default async function AdminStandingsPage({ searchParams }: { searchParam
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-navy">Standings</h1>
         <p className="text-muted text-sm mt-1">
-          Computed from all confirmed fixtures. Confirm results on the{" "}
-          <Link href="/admin/results" className="text-cobalt hover:underline">Results page</Link>.
+          Automatically computed from confirmed results — no manual entry needed.
         </p>
+        <div className="mt-3 bg-cobalt/5 border border-cobalt/20 rounded px-4 py-3 text-sm text-navy">
+          <span className="font-semibold">How to update standings:</span> Go to{" "}
+          <Link href="/admin/results" className="text-cobalt hover:underline font-medium">Results</Link>
+          {" "}→ review submitted match reports from clubs → click <strong>Confirm Result</strong>.
+          The table below updates instantly.
+        </div>
       </div>
 
       {competitions.length === 0 ? (
