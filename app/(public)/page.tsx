@@ -2,33 +2,66 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type { Competition } from "@/types/database";
 
-async function getActiveCompetitions(): Promise<Competition[]> {
-  try {
-    const supabase = await createClient();
-    const { data } = await supabase
-      .from("competitions")
-      .select("*")
-      .in("status", ["registration_open", "in_progress"])
-      .order("created_at", { ascending: false })
-      .limit(4);
-    return data ?? [];
-  } catch {
-    return [];
-  }
+interface SiteSettings {
+  livestream_url:   string | null;
+  livestream_title: string;
 }
 
-async function getSiteSummary() {
+interface Announcement {
+  id: string;
+  title: string;
+  slug: string;
+  image_url: string | null;
+  published_at: string;
+}
+
+function youtubeEmbedId(url: string): string | null {
+  const match = url.match(/(?:v=|youtu\.be\/|\/live\/|\/embed\/)([a-zA-Z0-9_-]{11})/);
+  return match?.[1] ?? null;
+}
+
+async function getPageData() {
   try {
     const supabase = await createClient();
-    const [{ count: clubCount }, { count: playerCount }, { count: competitionCount }] =
-      await Promise.all([
-        supabase.from("clubs").select("*", { count: "exact", head: true }).eq("status", "approved"),
-        supabase.from("players").select("*", { count: "exact", head: true }),
-        supabase.from("competitions").select("*", { count: "exact", head: true }),
-      ]);
-    return { clubs: clubCount ?? 0, players: playerCount ?? 0, competitions: competitionCount ?? 0 };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db = supabase as any;
+
+    const [
+      { data: competitions },
+      { count: clubCount },
+      { count: playerCount },
+      { count: competitionCount },
+      { data: siteSettings },
+      { data: announcements },
+    ] = await Promise.all([
+      db.from("competitions")
+        .select("*")
+        .in("status", ["registration_open", "in_progress"])
+        .order("created_at", { ascending: false })
+        .limit(4),
+      supabase.from("clubs").select("*", { count: "exact", head: true }).eq("status", "approved"),
+      supabase.from("players").select("*", { count: "exact", head: true }),
+      supabase.from("competitions").select("*", { count: "exact", head: true }),
+      db.from("site_settings").select("livestream_url, livestream_title").eq("id", 1).single(),
+      db.from("announcements")
+        .select("id, title, slug, image_url, published_at")
+        .order("published_at", { ascending: false })
+        .limit(3),
+    ]);
+
+    return {
+      competitions: (competitions ?? []) as Competition[],
+      summary: { clubs: clubCount ?? 0, players: playerCount ?? 0, competitions: competitionCount ?? 0 },
+      siteSettings: (siteSettings ?? null) as SiteSettings | null,
+      announcements: (announcements ?? []) as Announcement[],
+    };
   } catch {
-    return { clubs: 0, players: 0, competitions: 0 };
+    return {
+      competitions: [],
+      summary: { clubs: 0, players: 0, competitions: 0 },
+      siteSettings: null,
+      announcements: [],
+    };
   }
 }
 
@@ -40,16 +73,23 @@ const competitionStatusLabel: Record<string, string> = {
 };
 
 export default async function HomePage() {
-  const [competitions, summary] = await Promise.all([
-    getActiveCompetitions(),
-    getSiteSummary(),
-  ]);
+  const { competitions, summary, siteSettings, announcements } = await getPageData();
+
+  const streamEmbedId = siteSettings?.livestream_url
+    ? youtubeEmbedId(siteSettings.livestream_url)
+    : null;
 
   return (
     <>
       {/* Hero */}
-      <section className="bg-navy text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
+      <section className="bg-navy text-white relative overflow-hidden">
+        {/* Subtle geometric accent */}
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+          <div className="absolute -right-32 top-0 w-[500px] h-[500px] border border-white/5 rotate-12" />
+          <div className="absolute -right-16 top-10 w-[500px] h-[500px] border border-white/5 rotate-12" />
+          <div className="absolute right-40 -top-20 w-[300px] h-[300px] bg-cobalt/10 rotate-12 blur-3xl" />
+        </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
           <p className="text-gold text-xs font-semibold uppercase tracking-[0.2em] mb-4">
             Season 1 — Now Live
           </p>
@@ -96,6 +136,32 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Livestream — only shown when a URL is configured */}
+      {streamEmbedId && (
+        <section className="bg-navy">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-danger opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-danger" />
+              </span>
+              <p className="text-white font-bold text-sm uppercase tracking-widest">
+                {siteSettings?.livestream_title ?? "Live Now"}
+              </p>
+            </div>
+            <div className="relative w-full bg-black" style={{ paddingTop: "56.25%" }}>
+              <iframe
+                className="absolute inset-0 w-full h-full"
+                src={`https://www.youtube.com/embed/${streamEmbedId}?autoplay=0`}
+                title={siteSettings?.livestream_title ?? "Live stream"}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Active competitions */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -157,6 +223,46 @@ export default async function HomePage() {
           </div>
         )}
       </section>
+
+      {/* Latest news */}
+      {announcements.length > 0 && (
+        <section className="bg-surface border-t border-border">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-xl font-bold text-navy">Latest News</h2>
+              <Link href="/news" className="text-sm text-cobalt hover:underline font-medium">
+                All news
+              </Link>
+            </div>
+            <div className="grid sm:grid-cols-3 gap-6">
+              {announcements.map((post) => (
+                <Link
+                  key={post.id}
+                  href={`/news/${post.slug}`}
+                  className="block bg-white border border-border hover:border-cobalt transition-colors group"
+                >
+                  {post.image_url && (
+                    <div className="relative w-full h-40 overflow-hidden bg-surface">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={post.image_url} alt={post.title} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <div className="p-4">
+                    <p className="text-xs text-muted mb-1">
+                      {new Date(post.published_at).toLocaleDateString("en-GB", {
+                        day: "numeric", month: "short", year: "numeric",
+                      })}
+                    </p>
+                    <h3 className="font-semibold text-navy text-sm leading-snug group-hover:text-cobalt transition-colors">
+                      {post.title}
+                    </h3>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Sponsor CTA */}
       <section className="bg-navy text-white">

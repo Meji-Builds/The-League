@@ -38,3 +38,33 @@ export async function updateFeeSettings(prevState: ActionState, formData: FormDa
   revalidatePath("/admin/settings");
   return { success: true };
 }
+
+export async function updateSiteSettings(prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const { supabase, user } = await requireAdmin();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any;
+
+  const payload = {
+    id: 1,
+    social_youtube:   (formData.get("social_youtube")   as string).trim() || null,
+    social_instagram: (formData.get("social_instagram") as string).trim() || null,
+    social_twitter:   (formData.get("social_twitter")   as string).trim() || null,
+    social_tiktok:    (formData.get("social_tiktok")    as string).trim() || null,
+    social_discord:   (formData.get("social_discord")   as string).trim() || null,
+    livestream_url:   (formData.get("livestream_url")   as string).trim() || null,
+    livestream_title: (formData.get("livestream_title") as string).trim() || "Live Now",
+    updated_at: new Date().toISOString(),
+    updated_by: user.id,
+  };
+
+  const { error } = await db.from("site_settings").upsert(payload, { onConflict: "id" });
+
+  if (error) {
+    console.error("admin/updateSiteSettings:", error);
+    return { error: "Could not save settings. Please try again." };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/admin/settings");
+  return { success: true };
+}

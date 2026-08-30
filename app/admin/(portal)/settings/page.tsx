@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { FeeForm } from "./FeeForm";
+import { SiteSettingsForm } from "./SiteSettingsForm";
 
 export const metadata = { title: "Admin — Settings" };
 
@@ -7,11 +8,10 @@ export default async function AdminSettingsPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = (await createClient()) as any;
 
-  const { data: feeRow } = await db
-    .from("fee_settings")
-    .select("owner_registration_fee, updated_at")
-    .eq("id", 1)
-    .single();
+  const [{ data: feeRow }, { data: siteRow }] = await Promise.all([
+    db.from("fee_settings").select("owner_registration_fee, updated_at").eq("id", 1).single(),
+    db.from("site_settings").select("*").eq("id", 1).single(),
+  ]);
 
   const currentFee = feeRow?.owner_registration_fee ?? 0;
 
@@ -19,7 +19,7 @@ export default async function AdminSettingsPage() {
     <div>
       <h1 className="text-2xl font-bold text-navy mb-8">Settings</h1>
 
-      <div className="max-w-md">
+      <div className="max-w-lg flex flex-col gap-6">
         <section className="border border-border bg-white rounded p-5">
           <h2 className="text-navy font-semibold text-sm mb-4">Registration fees</h2>
           <FeeForm currentFee={currentFee} />
@@ -30,6 +30,11 @@ export default async function AdminSettingsPage() {
               })}
             </p>
           )}
+        </section>
+
+        <section className="border border-border bg-white rounded p-5">
+          <h2 className="text-navy font-semibold text-sm mb-4">Social &amp; Livestream</h2>
+          <SiteSettingsForm settings={siteRow ?? null} />
         </section>
       </div>
     </div>
