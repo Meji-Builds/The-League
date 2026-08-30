@@ -11,8 +11,8 @@ interface FixtureRow {
   status:          string;
   scheduled_at:    string | null;
   confirmed_score: { score_a: number; score_b: number } | null;
-  club_a:          { id: string; name: string; slug: string; logo_url: string | null } | null;
-  club_b:          { id: string; name: string; slug: string; logo_url: string | null } | null;
+  club_a:          { id: string; name: string; slug: string } | null;
+  club_b:          { id: string; name: string; slug: string } | null;
   competition:     { id: string; name: string; slug: string } | null;
 }
 
@@ -22,13 +22,13 @@ async function getFixtures(): Promise<FixtureRow[]> {
     const { data } = await supabase
       .from("fixtures")
       .select(`
-        *,
-        club_a:clubs!fixtures_club_a_id_fkey(id, name, slug, logo_url),
-        club_b:clubs!fixtures_club_b_id_fkey(id, name, slug, logo_url),
+        id, stage, group_name, matchday, status, scheduled_at, confirmed_score,
+        club_a:clubs!fixtures_club_a_id_fkey(id, name, slug),
+        club_b:clubs!fixtures_club_b_id_fkey(id, name, slug),
         competition:competitions(id, name, slug)
       `)
       .order("scheduled_at", { ascending: true })
-      .limit(50);
+      .limit(100);
     return (data ?? []) as unknown as FixtureRow[];
   } catch {
     return [];
@@ -37,103 +37,138 @@ async function getFixtures(): Promise<FixtureRow[]> {
 
 const AVATAR_PALETTE = ["#5B72FF", "#B4FF00", "#10B981", "#EF4444", "#8B5CF6", "#F59E0B"];
 
-const statusLabel: Record<string, string> = {
-  scheduled: "Scheduled",
-  reported:  "Reported",
-  disputed:  "Disputed",
-  confirmed: "Confirmed",
+const statusPill: Record<string, string> = {
+  scheduled: "bg-cobalt/15 text-cobalt",
+  reported:  "bg-gold/15 text-gold",
+  disputed:  "bg-danger/15 text-danger",
+  confirmed: "bg-success/15 text-success",
 };
 
-const statusPill: Record<string, string> = {
-  scheduled: "bg-cobalt/10 text-cobalt",
-  reported:  "bg-gold/10 text-gold",
-  disputed:  "bg-danger/10 text-danger",
-  confirmed: "bg-success/10 text-success",
+const statusLabel: Record<string, string> = {
+  scheduled: "Upcoming",
+  reported:  "Reported",
+  disputed:  "Disputed",
+  confirmed: "FT",
 };
+
+function avatarColor(name: string): string {
+  return AVATAR_PALETTE[name.charCodeAt(0) % AVATAR_PALETTE.length];
+}
+
+function nameInitials(name: string): string {
+  return name.split(" ").map((w) => w[0] ?? "").join("").slice(0, 2).toUpperCase();
+}
+
+function formatGroupLabel(f: FixtureRow): string {
+  const comp = f.competition?.name ?? "Fixtures";
+  const stage = f.stage && f.stage !== "N/A" ? ` · ${f.stage}` : "";
+  const day = f.matchday ? ` · Day ${f.matchday}` : "";
+  return `${comp}${stage}${day}`;
+}
 
 export default async function FixturesPage() {
   const fixtures = await getFixtures();
 
+  // Group by competition + stage + matchday
+  type Group = { label: string; date: string | null; fixtures: FixtureRow[] };
+  const groupMap = new Map<string, Group>();
+
+  for (const f of fixtures) {
+    const key = `${f.competition?.id ?? ""}__${f.stage}__${f.matchday}`;
+    if (!groupMap.has(key)) {
+      groupMap.set(key, {
+        label: formatGroupLabel(f),
+        date: f.scheduled_at,
+        fixtures: [],
+      });
+    }
+    groupMap.get(key)!.fixtures.push(f);
+  }
+
+  const groups = [...groupMap.values()];
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
       <div className="mb-10">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-5 h-0.5 bg-gold shrink-0" />
-          <p className="text-gold text-xs font-bold uppercase tracking-[0.25em]">Schedule</p>
-        </div>
         <h1 className="font-display text-4xl font-bold text-white uppercase tracking-tight">Fixtures</h1>
         <p className="text-dim text-sm mt-1">All scheduled and completed matches.</p>
       </div>
 
-      {fixtures.length === 0 ? (
-        <div className="border border-rim bg-card px-8 py-14 text-center rounded">
-          <p className="text-white font-semibold">No fixtures scheduled yet.</p>
+      {groups.length === 0 ? (
+        <div className="border border-rim bg-card px-8 py-14 text-center">
+          <p className="text-white font-semibold text-sm">No fixtures scheduled yet.</p>
           <p className="text-dim text-sm mt-2">Check back once the competition stage begins.</p>
         </div>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {fixtures.map((f) => (
-            <Link
-              key={f.id}
-              href={`/fixtures/${f.id}`}
-              className="block bg-card border border-rim p-4 hover:border-cobalt/50 transition-all group rounded"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="min-w-0 mr-2">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-gold truncate">
-                    {f.competition?.name}
-                  </p>
-                  <p className="text-[10px] text-dim">
-                    {f.stage !== "N/A" ? f.stage : f.group_name}
-                    {f.matchday ? ` · Day ${f.matchday}` : ""}
-                  </p>
-                </div>
-                <span className={`shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full ${statusPill[f.status] ?? "bg-cobalt/10 text-cobalt"}`}>
-                  {statusLabel[f.status]}
-                </span>
+        <div className="space-y-8">
+          {groups.map((g, gi) => (
+            <div key={gi}>
+              <div className="flex items-center gap-3 mb-2">
+                <p className="text-xs font-semibold text-dim uppercase tracking-wider">{g.label}</p>
+                <div className="flex-1 h-px bg-rim" />
               </div>
 
-              <div className="flex items-center gap-2">
-                <div className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
-                  <div
-                    className="w-10 h-10 rounded flex items-center justify-center text-navy text-xs font-bold shrink-0"
-                    style={{ backgroundColor: AVATAR_PALETTE[(f.club_a?.name.charCodeAt(0) ?? 0) % AVATAR_PALETTE.length] }}
+              <div className="border border-rim divide-y divide-rim">
+                {g.fixtures.map((f) => (
+                  <Link
+                    key={f.id}
+                    href={`/fixtures/${f.id}`}
+                    className="flex items-center gap-3 sm:gap-4 px-4 py-3.5 hover:bg-white/[0.035] transition-colors group"
                   >
-                    {(f.club_a?.name ?? "A").split(" ").map((w: string) => w[0] ?? "").join("").slice(0, 2).toUpperCase()}
-                  </div>
-                  <p className="text-xs font-semibold text-white text-center leading-tight line-clamp-2">
-                    {f.club_a?.name ?? "TBC"}
-                  </p>
-                </div>
+                    {/* Club A */}
+                    <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
+                      <p className="text-[13px] font-medium text-white group-hover:text-gold transition-colors truncate text-right">
+                        {f.club_a?.name ?? "TBA"}
+                      </p>
+                      <div
+                        className="w-7 h-7 shrink-0 flex items-center justify-center text-navy text-[9px] font-bold"
+                        style={{ backgroundColor: avatarColor(f.club_a?.name ?? "A") }}
+                      >
+                        {nameInitials(f.club_a?.name ?? "A")}
+                      </div>
+                    </div>
 
-                <div className="text-center px-1 shrink-0">
-                  {f.confirmed_score ? (
-                    <p className="font-display text-2xl font-bold text-white tabular-nums leading-none">
-                      {f.confirmed_score.score_a}&nbsp;&ndash;&nbsp;{f.confirmed_score.score_b}
-                    </p>
-                  ) : (
-                    <p className="text-xs font-bold text-dim tracking-widest">VS</p>
-                  )}
-                  {f.scheduled_at && (
-                    <p className="text-[10px] text-dim mt-1">
-                      {new Date(f.scheduled_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
-                    </p>
-                  )}
-                </div>
+                    {/* Score / VS */}
+                    <div className="w-20 text-center shrink-0">
+                      {f.confirmed_score ? (
+                        <span className="font-display text-base font-bold text-white tabular-nums">
+                          {f.confirmed_score.score_a}&nbsp;&ndash;&nbsp;{f.confirmed_score.score_b}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-dim tracking-widest">vs</span>
+                      )}
+                    </div>
 
-                <div className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
-                  <div
-                    className="w-10 h-10 rounded flex items-center justify-center text-navy text-xs font-bold shrink-0"
-                    style={{ backgroundColor: AVATAR_PALETTE[(f.club_b?.name.charCodeAt(0) ?? 3) % AVATAR_PALETTE.length] }}
-                  >
-                    {(f.club_b?.name ?? "B").split(" ").map((w: string) => w[0] ?? "").join("").slice(0, 2).toUpperCase()}
-                  </div>
-                  <p className="text-xs font-semibold text-white text-center leading-tight line-clamp-2">
-                    {f.club_b?.name ?? "TBC"}
-                  </p>
-                </div>
+                    {/* Club B */}
+                    <div className="flex items-center gap-2 flex-1 justify-start min-w-0">
+                      <div
+                        className="w-7 h-7 shrink-0 flex items-center justify-center text-navy text-[9px] font-bold"
+                        style={{ backgroundColor: avatarColor(f.club_b?.name ?? "B") }}
+                      >
+                        {nameInitials(f.club_b?.name ?? "B")}
+                      </div>
+                      <p className="text-[13px] font-medium text-white truncate">
+                        {f.club_b?.name ?? "TBA"}
+                      </p>
+                    </div>
+
+                    {/* Meta */}
+                    <div className="hidden sm:flex items-center gap-3 shrink-0">
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 ${statusPill[f.status] ?? "bg-cobalt/15 text-cobalt"}`}>
+                        {statusLabel[f.status] ?? f.status}
+                      </span>
+                      {f.scheduled_at && (
+                        <span className="text-[11px] text-dim w-14 text-right">
+                          {new Date(f.scheduled_at).toLocaleDateString("en-GB", {
+                            day: "numeric", month: "short",
+                          })}
+                        </span>
+                      )}
+                    </div>
+                  </Link>
+                ))}
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       )}

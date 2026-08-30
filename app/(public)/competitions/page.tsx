@@ -47,10 +47,6 @@ export default async function CompetitionsPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-10">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-5 h-0.5 bg-gold shrink-0" />
-          <p className="text-gold text-xs font-bold uppercase tracking-[0.25em]">The League</p>
-        </div>
         <h1 className="font-display text-4xl font-bold text-white uppercase tracking-tight">Competitions</h1>
         <p className="text-dim text-sm mt-2 max-w-lg">
           Multiple competitions run concurrently — from the flagship
@@ -72,9 +68,10 @@ export default async function CompetitionsPage() {
       ].map(({ title, items }) =>
         items.length > 0 ? (
           <section key={title} className="mb-12">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-dim border-b border-rim pb-2 mb-4">
-              {title}
-            </h2>
+            <div className="flex items-center gap-3 mb-4">
+              <p className="text-xs font-semibold text-dim uppercase tracking-wider">{title}</p>
+              <div className="flex-1 h-px bg-rim" />
+            </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {items.map((c) => (
                 <Link
