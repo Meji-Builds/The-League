@@ -91,6 +91,17 @@ export default async function ClubPage({ params }: { params: Promise<{ slug: str
 
   const totalWins = clubPlayers.reduce((sum, p) => sum + (p.stats?.wins ?? 0), 0);
 
+  // Last 5 confirmed fixtures as W/L dots for the form guide
+  const last5 = clubFixtures
+    .filter((f) => f.status === "confirmed" && f.confirmed_score)
+    .slice(0, 5)
+    .map((f) => {
+      const isA   = f.club_a?.id === c.id;
+      const mine  = isA ? f.confirmed_score!.score_a : f.confirmed_score!.score_b;
+      const theirs = isA ? f.confirmed_score!.score_b : f.confirmed_score!.score_a;
+      return mine > theirs ? "W" : mine < theirs ? "L" : "D";
+    });
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
@@ -125,6 +136,22 @@ export default async function ClubPage({ params }: { params: Promise<{ slug: str
           </p>
           <h1 className="text-2xl sm:text-3xl font-bold text-navy leading-tight">{c.name}</h1>
           <p className="text-muted text-sm mt-1">{c.department}</p>
+          {last5.length > 0 && (
+            <div className="flex items-center gap-1.5 mt-3">
+              <span className="text-xs text-muted mr-1">Form</span>
+              {last5.map((result, i) => (
+                <span
+                  key={i}
+                  className={`w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold text-white ${
+                    result === "W" ? "bg-success" :
+                    result === "L" ? "bg-danger"  : "bg-muted"
+                  }`}
+                >
+                  {result}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -145,59 +172,91 @@ export default async function ClubPage({ params }: { params: Promise<{ slug: str
           {clubFixtures.length > 0 && (
             <section>
               <h2 className="text-sm font-semibold text-navy uppercase tracking-wider mb-4">Fixtures</h2>
-              <div className="divide-y divide-border bg-white border border-border">
+              <div className="grid sm:grid-cols-2 gap-3">
                 {clubFixtures.map((f) => {
-                  const isClubA  = f.club_a?.id === c.id;
-                  const opponent = isClubA ? f.club_b : f.club_a;
-                  const myScore  = f.confirmed_score
+                  const isClubA = f.club_a?.id === c.id;
+                  const myScore = f.confirmed_score
                     ? (isClubA ? f.confirmed_score.score_a : f.confirmed_score.score_b)
                     : null;
-                  const opScore  = f.confirmed_score
+                  const opScore = f.confirmed_score
                     ? (isClubA ? f.confirmed_score.score_b : f.confirmed_score.score_a)
                     : null;
 
                   return (
-                    <div key={f.id} className="px-4 py-3 flex items-center gap-3">
-                      <span className="hidden sm:block text-xs text-muted uppercase tracking-wider w-20 shrink-0">
-                        {f.stage}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-sm text-navy truncate">{c.name}</span>
-                          <span className="text-muted text-xs shrink-0">
-                            {myScore !== null && opScore !== null
-                              ? `${myScore} – ${opScore}`
-                              : "vs"}
-                          </span>
-                          {opponent ? (
-                            <Link
-                              href={`/clubs/${opponent.slug}`}
-                              className="font-semibold text-sm text-navy hover:text-cobalt transition-colors truncate"
-                            >
-                              {opponent.name}
-                            </Link>
+                    <div key={f.id} className="border border-border bg-white p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-cobalt truncate mr-2">
+                          {f.competition?.name ?? ""}
+                        </span>
+                        <span className={`shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                          f.status === "confirmed" ? "bg-success/10 text-success" :
+                          f.status === "disputed"  ? "bg-danger/10 text-danger"   :
+                          f.status === "reported"  ? "bg-gold/10 text-gold"       :
+                          "bg-cobalt/10 text-cobalt"
+                        }`}>
+                          {FIXTURE_STATUS_LABEL[f.status]}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
+                          <div
+                            className="w-10 h-10 rounded flex items-center justify-center text-white text-xs font-bold"
+                            style={{ backgroundColor: avatarColor(c.name) }}
+                          >
+                            {nameInitials(c.name)}
+                          </div>
+                          <p className="text-xs font-semibold text-navy text-center leading-tight line-clamp-2">
+                            {c.name}
+                          </p>
+                        </div>
+                        <div className="text-center px-1 shrink-0">
+                          {myScore !== null && opScore !== null ? (
+                            <p className="text-xl font-bold text-navy tabular-nums leading-none">
+                              {myScore}&nbsp;&ndash;&nbsp;{opScore}
+                            </p>
                           ) : (
-                            <span className="text-sm text-muted">TBA</span>
+                            <p className="text-xs font-bold text-muted tracking-widest">VS</p>
+                          )}
+                          {f.scheduled_at && (
+                            <p className="text-[10px] text-muted mt-1">
+                              {new Date(f.scheduled_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                            </p>
                           )}
                         </div>
-                        {f.competition && (
-                          <p className="text-xs text-muted mt-0.5">{f.competition.name}</p>
-                        )}
+                        <div className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
+                          {isClubA ? (
+                            f.club_b ? (
+                              <Link href={`/clubs/${f.club_b.slug}`} className="flex flex-col items-center gap-1.5 group">
+                                <div
+                                  className="w-10 h-10 rounded flex items-center justify-center text-white text-xs font-bold"
+                                  style={{ backgroundColor: avatarColor(f.club_b.name) }}
+                                >
+                                  {nameInitials(f.club_b.name)}
+                                </div>
+                                <p className="text-xs font-semibold text-navy text-center leading-tight line-clamp-2 group-hover:text-cobalt transition-colors">
+                                  {f.club_b.name}
+                                </p>
+                              </Link>
+                            ) : <span className="text-xs text-muted">TBA</span>
+                          ) : (
+                            f.club_a ? (
+                              <Link href={`/clubs/${f.club_a.slug}`} className="flex flex-col items-center gap-1.5 group">
+                                <div
+                                  className="w-10 h-10 rounded flex items-center justify-center text-white text-xs font-bold"
+                                  style={{ backgroundColor: avatarColor(f.club_a.name) }}
+                                >
+                                  {nameInitials(f.club_a.name)}
+                                </div>
+                                <p className="text-xs font-semibold text-navy text-center leading-tight line-clamp-2 group-hover:text-cobalt transition-colors">
+                                  {f.club_a.name}
+                                </p>
+                              </Link>
+                            ) : <span className="text-xs text-muted">TBA</span>
+                          )}
+                        </div>
                       </div>
-                      <span className={`shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full ${
-                        f.status === "confirmed" ? "bg-success/10 text-success" :
-                        f.status === "disputed"  ? "bg-danger/10 text-danger"   :
-                        f.status === "reported"  ? "bg-gold/10 text-gold"       :
-                        "bg-cobalt/10 text-cobalt"
-                      }`}>
-                        {FIXTURE_STATUS_LABEL[f.status]}
-                      </span>
-                      {f.scheduled_at && (
-                        <span className="hidden md:block text-xs text-muted shrink-0">
-                          {new Date(f.scheduled_at).toLocaleDateString("en-GB", {
-                            day: "numeric", month: "short",
-                          })}
-                        </span>
+                      {f.stage && (
+                        <p className="text-[10px] text-muted text-center mt-2 uppercase tracking-wider">{f.stage}</p>
                       )}
                     </div>
                   );

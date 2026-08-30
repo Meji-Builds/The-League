@@ -11,6 +11,10 @@ interface SiteSettings {
   social_discord:   string | null;
   livestream_url:   string | null;
   livestream_title: string;
+  about_text:       string | null;
+  contact_email:    string | null;
+  hero_title:       string | null;
+  hero_subtitle:    string | null;
 }
 
 function Field({ label, name, value, placeholder }: {
@@ -89,6 +93,59 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings | null }
               type="text"
               defaultValue={settings?.livestream_title ?? "Live Now"}
               placeholder="e.g. Season 1 — Grand Finals"
+              className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-border pt-5">
+        <p className="text-navy text-xs font-semibold uppercase tracking-wide mb-3">Platform content</p>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
+              Hero headline
+            </label>
+            <input
+              name="hero_title"
+              type="text"
+              defaultValue={settings?.hero_title ?? "University Esports, Officially Organized."}
+              className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
+            />
+          </div>
+          <div>
+            <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
+              Hero subtitle
+            </label>
+            <input
+              name="hero_subtitle"
+              type="text"
+              defaultValue={settings?.hero_subtitle ?? ""}
+              placeholder="Short tagline shown below the headline"
+              className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
+            />
+          </div>
+          <div>
+            <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
+              About us
+            </label>
+            <textarea
+              name="about_text"
+              rows={4}
+              defaultValue={settings?.about_text ?? ""}
+              placeholder="Platform description shown on the About/Sponsors page"
+              className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors resize-none"
+            />
+          </div>
+          <div>
+            <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
+              Contact email
+            </label>
+            <input
+              name="contact_email"
+              type="email"
+              defaultValue={settings?.contact_email ?? ""}
+              placeholder="sponsorship@theleague.ng"
               className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
             />
           </div>

@@ -17,6 +17,9 @@ const navItems = [
   { label: "Competitions",  href: "/admin/competitions" },
   { label: "Fixtures",      href: "/admin/fixtures" },
   { label: "Disputes",      href: "/admin/disputes" },
+  { label: "News",          href: "/admin/announcements" },
+  { label: "Highlights",    href: "/admin/highlights" },
+  { label: "Sponsors",      href: "/admin/sponsors" },
   { label: "Settings",      href: "/admin/settings" },
 ];
 
