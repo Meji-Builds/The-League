@@ -8,6 +8,7 @@ const navItems = [
   { label: "Competitions", href: "/dashboard/competitions" },
   { label: "Fixtures",     href: "/dashboard/fixtures" },
   { label: "Results",      href: "/dashboard/results" },
+  { label: "Updates",      href: "/dashboard/updates" },
   { label: "Profile",      href: "/dashboard/profile" },
 ];
 

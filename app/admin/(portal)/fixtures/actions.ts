@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { uploadMedia } from "@/lib/supabase/upload-media";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
@@ -9,6 +10,13 @@ async function requireAdminDb() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user || user.app_metadata?.role !== "admin") redirect("/admin/login");
   return supabase as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+}
+
+async function requireAdminClient() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || user.app_metadata?.role !== "admin") redirect("/admin/login");
+  return supabase;
 }
 
 type ActionState = { error: string } | null;
@@ -78,5 +86,37 @@ export async function updateFixture(prevState: ActionState, formData: FormData):
   revalidatePath("/admin/fixtures");
   revalidatePath("/fixtures");
   revalidatePath("/");
+  return null;
+}
+
+export async function uploadLineupImages(prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const supabase = await requireAdminClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any;
+
+  const fixtureId = formData.get("fixture_id") as string;
+  if (!fixtureId) return { error: "Invalid fixture." };
+
+  const fileA = formData.get("lineup_image_a") as File | null;
+  const fileB = formData.get("lineup_image_b") as File | null;
+
+  const updates: Record<string, string> = {};
+
+  if (fileA && fileA.size > 0) {
+    const url = await uploadMedia(supabase, fileA, `lineups/${fixtureId}`);
+    if (url) updates.lineup_image_a = url;
+  }
+  if (fileB && fileB.size > 0) {
+    const url = await uploadMedia(supabase, fileB, `lineups/${fixtureId}`);
+    if (url) updates.lineup_image_b = url;
+  }
+
+  if (Object.keys(updates).length === 0) return { error: "Please select at least one image." };
+
+  const { error } = await db.from("fixtures").update(updates).eq("id", fixtureId);
+  if (error) { console.error("admin/uploadLineupImages:", error); return { error: "Could not save lineup images." }; }
+
+  revalidatePath("/admin/fixtures");
+  revalidatePath(`/fixtures/${fixtureId}`);
   return null;
 }
