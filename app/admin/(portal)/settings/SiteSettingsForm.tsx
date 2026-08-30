@@ -2,17 +2,19 @@
 
 import { useActionState } from "react";
 import { updateSiteSettings } from "./actions";
+import { ImageUploadField } from "@/app/admin/_components/ImageUploadField";
 
 interface SiteSettings {
-  social_youtube:   string | null;
-  social_instagram: string | null;
-  social_twitter:   string | null;
-  social_tiktok:    string | null;
-  social_discord:   string | null;
-  about_text:       string | null;
-  contact_email:    string | null;
-  hero_title:       string | null;
-  hero_subtitle:    string | null;
+  social_youtube:      string | null;
+  social_instagram:    string | null;
+  social_twitter:      string | null;
+  social_tiktok:       string | null;
+  social_discord:      string | null;
+  about_text:          string | null;
+  contact_email:       string | null;
+  hero_title:          string | null;
+  hero_subtitle:       string | null;
+  hero_bg_image_url:   string | null;
 }
 
 function Field({ label, name, value, placeholder }: {
@@ -90,6 +92,13 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings | null }
               className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
             />
           </div>
+          <ImageUploadField
+            name="hero_bg_image_url"
+            folder="hero"
+            label="Hero background image"
+            currentUrl={settings?.hero_bg_image_url}
+            aspectHint="16:9 or wider recommended"
+          />
           <div>
             <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
               About us

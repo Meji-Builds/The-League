@@ -5,8 +5,9 @@ import type { Competition, GlobalSponsor } from "@/types/database";
 // ─── Local interfaces ──────────────────────────────────────────────────────
 
 interface SiteSettings {
-  hero_title:    string | null;
-  hero_subtitle: string | null;
+  hero_title:        string | null;
+  hero_subtitle:     string | null;
+  hero_bg_image_url: string | null;
 }
 
 interface LivestreamRow {
@@ -219,11 +220,18 @@ export default async function HomePage() {
     fixtures, topClubs, topPlayers, sponsors, livestreams,
   } = await getPageData();
 
+  const heroBg = siteSettings?.hero_bg_image_url;
+
   return (
     <>
       {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section className="bg-navy text-white relative overflow-hidden min-h-[56vh] flex items-center">
-        <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-gradient-to-l from-cobalt/5 to-transparent pointer-events-none" aria-hidden="true" />
+      <section
+        className="bg-navy text-white relative overflow-hidden min-h-[56vh] flex items-center"
+        style={heroBg ? { backgroundImage: `url(${heroBg})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
+      >
+        {heroBg && (
+          <div className="absolute inset-0 bg-navy/75 pointer-events-none" aria-hidden="true" />
+        )}
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 w-full">
           <p className="text-gold text-xs font-semibold uppercase tracking-[0.3em] mb-5">
             University Esports

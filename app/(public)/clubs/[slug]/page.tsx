@@ -114,6 +114,21 @@ export default async function ClubPage({ params }: { params: Promise<{ slug: str
         All clubs
       </Link>
 
+      {/* Club banner */}
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      {(club as any).banner_image_url && (
+        <div className="relative w-full h-48 sm:h-64 overflow-hidden rounded mb-8">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            src={(club as any).banner_image_url}
+            alt={`${c.name} banner`}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-navy/75 via-navy/20 to-transparent" />
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-start gap-5 mb-10">
         {c.logo_url ? (
