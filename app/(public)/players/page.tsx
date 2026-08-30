@@ -5,10 +5,10 @@ import { createClient } from "@/lib/supabase/server";
 export const metadata = { title: "Player Directory" };
 
 interface PlayerWithClub {
-  id: string;
-  gamer_tag: string;
+  id:                  string;
+  gamer_tag:           string;
   profile_picture_url: string | null;
-  club: { id: string; name: string; slug: string } | null;
+  club:                { id: string; name: string; slug: string } | null;
 }
 
 async function getPlayers(): Promise<PlayerWithClub[]> {
@@ -29,23 +29,33 @@ export default async function PlayersPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-bold text-navy mb-2">Player Directory</h1>
-      <p className="text-muted text-sm mb-10">{players.length} player{players.length !== 1 ? "s" : ""} across all clubs.</p>
+      <div className="mb-10">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-5 h-0.5 bg-gold shrink-0" />
+          <p className="text-gold text-xs font-bold uppercase tracking-[0.25em]">Roster</p>
+        </div>
+        <div className="flex items-end justify-between">
+          <h1 className="font-display text-4xl font-bold text-white uppercase tracking-tight">
+            Player Directory
+          </h1>
+          <p className="text-dim text-sm">{players.length} player{players.length !== 1 ? "s" : ""}</p>
+        </div>
+      </div>
 
       {players.length === 0 ? (
-        <div className="border border-border bg-white px-8 py-14 text-center">
-          <p className="text-navy font-semibold">No players yet.</p>
-          <p className="text-muted text-sm mt-2">Players are added by their club owners.</p>
+        <div className="border border-rim bg-card px-8 py-14 text-center rounded">
+          <p className="text-white font-semibold">No players yet.</p>
+          <p className="text-dim text-sm mt-2">Players are added by their club owners.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
           {players.map((p) => (
             <Link
               key={p.id}
               href={`/players/${p.id}`}
-              className="block bg-white border border-border p-4 hover:border-cobalt transition-colors group text-center"
+              className="block bg-card border border-rim p-4 hover:border-cobalt/50 transition-all group text-center rounded"
             >
-              <div className="w-14 h-14 mx-auto mb-3 bg-surface border border-border rounded-full overflow-hidden flex items-center justify-center">
+              <div className="w-14 h-14 mx-auto mb-3 bg-panel border border-rim rounded-full overflow-hidden flex items-center justify-center">
                 {p.profile_picture_url ? (
                   <Image
                     src={p.profile_picture_url}
@@ -55,15 +65,15 @@ export default async function PlayersPage() {
                     className="object-cover w-full h-full"
                   />
                 ) : (
-                  <span className="text-xl font-bold text-cobalt/30 select-none">
+                  <span className="text-xl font-bold text-cobalt/50 select-none">
                     {p.gamer_tag.charAt(0).toUpperCase()}
                   </span>
                 )}
               </div>
-              <p className="text-sm font-semibold text-navy group-hover:text-cobalt transition-colors truncate">
+              <p className="text-sm font-semibold text-white group-hover:text-gold transition-colors truncate">
                 {p.gamer_tag}
               </p>
-              <p className="text-xs text-muted mt-1 truncate">{p.club?.name}</p>
+              <p className="text-xs text-dim mt-1 truncate">{p.club?.name}</p>
             </Link>
           ))}
         </div>

@@ -2,8 +2,31 @@ import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Standings" };
 
-// Standings are derived from confirmed fixtures.
-// For each competition+stage+group, we compute W/D/L/GF/GA/GD/Pts.
+interface FixtureWithJoins {
+  id:              string;
+  stage:           string;
+  group_name:      string;
+  matchday:        number;
+  status:          string;
+  confirmed_score: { score_a: number; score_b: number } | null;
+  club_a:          { id: string; name: string; slug: string } | null;
+  club_b:          { id: string; name: string; slug: string } | null;
+  competition:     { id: string; name: string; slug: string } | null;
+}
+
+interface StandingRow {
+  clubId:        string;
+  clubName:      string;
+  clubSlug:      string;
+  played:        number;
+  won:           number;
+  drawn:         number;
+  lost:          number;
+  goalsFor:      number;
+  goalsAgainst:  number;
+  points:        number;
+}
+
 async function getStandings(): Promise<FixtureWithJoins[]> {
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -17,36 +40,10 @@ async function getStandings(): Promise<FixtureWithJoins[]> {
         competition:competitions(id, name, slug)
       `)
       .eq("status", "confirmed");
-
     return (fixtures ?? []) as FixtureWithJoins[];
   } catch {
     return [];
   }
-}
-
-interface FixtureWithJoins {
-  id: string;
-  stage: string;
-  group_name: string;
-  matchday: number;
-  status: string;
-  confirmed_score: { score_a: number; score_b: number } | null;
-  club_a: { id: string; name: string; slug: string } | null;
-  club_b: { id: string; name: string; slug: string } | null;
-  competition: { id: string; name: string; slug: string } | null;
-}
-
-interface StandingRow {
-  clubId: string;
-  clubName: string;
-  clubSlug: string;
-  played: number;
-  won: number;
-  drawn: number;
-  lost: number;
-  goalsFor: number;
-  goalsAgainst: number;
-  points: number;
 }
 
 function buildTable(fixtures: FixtureWithJoins[]): StandingRow[] {
@@ -72,23 +69,20 @@ function buildTable(fixtures: FixtureWithJoins[]): StandingRow[] {
     a.goalsFor += sa; a.goalsAgainst += sb;
     b.goalsFor += sb; b.goalsAgainst += sa;
 
-    if (sa > sb)       { a.won++;   a.points += 3; b.lost++; }
-    else if (sb > sa)  { b.won++;   b.points += 3; a.lost++; }
-    else               { a.drawn++; a.points += 1; b.drawn++; b.points += 1; }
+    if (sa > sb)      { a.won++;   a.points += 3; b.lost++; }
+    else if (sb > sa) { b.won++;   b.points += 3; a.lost++; }
+    else              { a.drawn++; a.points += 1; b.drawn++; b.points += 1; }
   }
 
   return [...map.values()].sort((x, y) => {
     if (y.points !== x.points) return y.points - x.points;
-    const gdY = y.goalsFor - y.goalsAgainst;
-    const gdX = x.goalsFor - x.goalsAgainst;
-    return gdY - gdX;
+    return (y.goalsFor - y.goalsAgainst) - (x.goalsFor - x.goalsAgainst);
   });
 }
 
 export default async function StandingsPage() {
   const fixtures = await getStandings();
 
-  // Group by competition -> stage -> group
   type Group = { competition: string; stage: string; group: string; fixtures: FixtureWithJoins[] };
   const groups = fixtures.reduce<Record<string, Group>>((acc, f) => {
     const key = `${f.competition?.id}__${f.stage}__${f.group_name}`;
@@ -108,13 +102,19 @@ export default async function StandingsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-bold text-navy mb-2">Standings</h1>
-      <p className="text-muted text-sm mb-10">League tables, updated after every confirmed result.</p>
+      <div className="mb-10">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-5 h-0.5 bg-gold shrink-0" />
+          <p className="text-gold text-xs font-bold uppercase tracking-[0.25em]">League Tables</p>
+        </div>
+        <h1 className="font-display text-4xl font-bold text-white uppercase tracking-tight">Standings</h1>
+        <p className="text-dim text-sm mt-1">Updated after every confirmed result.</p>
+      </div>
 
       {tables.length === 0 ? (
-        <div className="border border-border bg-white px-8 py-14 text-center">
-          <p className="text-navy font-semibold">No standings yet.</p>
-          <p className="text-muted text-sm mt-2">
+        <div className="border border-rim bg-card px-8 py-14 text-center rounded">
+          <p className="text-white font-semibold">No standings yet.</p>
+          <p className="text-dim text-sm mt-2">
             Tables will appear here once results are confirmed.
           </p>
         </div>
@@ -124,47 +124,47 @@ export default async function StandingsPage() {
           return (
             <section key={i} className="mb-10">
               <div className="mb-3">
-                <p className="text-xs font-semibold uppercase tracking-widest text-muted">
-                  {g.competition}
-                </p>
-                <h2 className="text-base font-bold text-navy">
+                <p className="text-xs font-bold uppercase tracking-widest text-dim">{g.competition}</p>
+                <h2 className="font-display text-xl font-bold text-white uppercase">
                   {g.stage !== "N/A" ? `${g.stage} Stage` : g.group}
                 </h2>
               </div>
 
-              <div className="bg-white border border-border overflow-x-auto">
+              <div className="bg-card border border-rim rounded overflow-hidden overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-border text-xs text-muted uppercase tracking-wider">
-                      <th className="text-left px-4 py-2 font-semibold w-6">#</th>
-                      <th className="text-left px-4 py-2 font-semibold">Club</th>
-                      <th className="px-3 py-2 font-semibold text-center">P</th>
-                      <th className="px-3 py-2 font-semibold text-center">W</th>
-                      <th className="px-3 py-2 font-semibold text-center">D</th>
-                      <th className="px-3 py-2 font-semibold text-center">L</th>
-                      <th className="px-3 py-2 font-semibold text-center">GF</th>
-                      <th className="px-3 py-2 font-semibold text-center">GA</th>
-                      <th className="px-3 py-2 font-semibold text-center">GD</th>
-                      <th className="px-3 py-2 font-semibold text-center">Pts</th>
+                    <tr className="border-b border-rim text-xs text-dim uppercase tracking-wider">
+                      <th className="text-left px-4 py-3 font-bold w-6">#</th>
+                      <th className="text-left px-4 py-3 font-bold">Club</th>
+                      <th className="px-3 py-3 font-bold text-center">P</th>
+                      <th className="px-3 py-3 font-bold text-center">W</th>
+                      <th className="px-3 py-3 font-bold text-center">D</th>
+                      <th className="px-3 py-3 font-bold text-center">L</th>
+                      <th className="px-3 py-3 font-bold text-center">GF</th>
+                      <th className="px-3 py-3 font-bold text-center">GA</th>
+                      <th className="px-3 py-3 font-bold text-center">GD</th>
+                      <th className="px-3 py-3 font-bold text-center">Pts</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border">
+                  <tbody className="divide-y divide-rim">
                     {rows.map((row, rank) => (
-                      <tr key={row.clubId} className="hover:bg-surface transition-colors">
-                        <td className="px-4 py-3 text-muted text-xs">{rank + 1}</td>
-                        <td className="px-4 py-3 font-semibold text-navy">{row.clubName}</td>
-                        <td className="px-3 py-3 text-center text-muted">{row.played}</td>
-                        <td className="px-3 py-3 text-center">{row.won}</td>
-                        <td className="px-3 py-3 text-center text-muted">{row.drawn}</td>
-                        <td className="px-3 py-3 text-center text-muted">{row.lost}</td>
-                        <td className="px-3 py-3 text-center text-muted">{row.goalsFor}</td>
-                        <td className="px-3 py-3 text-center text-muted">{row.goalsAgainst}</td>
-                        <td className="px-3 py-3 text-center text-muted">
+                      <tr key={row.clubId} className="hover:bg-white/5 transition-colors">
+                        <td className="px-4 py-3 text-dim text-xs">{rank + 1}</td>
+                        <td className="px-4 py-3 font-semibold text-white">{row.clubName}</td>
+                        <td className="px-3 py-3 text-center text-dim">{row.played}</td>
+                        <td className="px-3 py-3 text-center text-white">{row.won}</td>
+                        <td className="px-3 py-3 text-center text-dim">{row.drawn}</td>
+                        <td className="px-3 py-3 text-center text-dim">{row.lost}</td>
+                        <td className="px-3 py-3 text-center text-dim">{row.goalsFor}</td>
+                        <td className="px-3 py-3 text-center text-dim">{row.goalsAgainst}</td>
+                        <td className="px-3 py-3 text-center text-dim">
                           {row.goalsFor - row.goalsAgainst > 0
                             ? `+${row.goalsFor - row.goalsAgainst}`
                             : row.goalsFor - row.goalsAgainst}
                         </td>
-                        <td className="px-3 py-3 text-center font-bold text-navy">{row.points}</td>
+                        <td className="px-3 py-3 text-center font-display font-bold text-gold text-base">
+                          {row.points}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

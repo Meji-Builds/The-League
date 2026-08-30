@@ -78,7 +78,7 @@ export async function Footer() {
   ].filter(Boolean) as { href: string; label: string; icon: React.ReactNode }[];
 
   return (
-    <footer className="bg-navy border-t border-white/10 mt-auto">
+    <footer className="bg-navy border-t border-rim mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">
@@ -159,7 +159,7 @@ export async function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/10 mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div className="border-t border-rim mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-white/30 text-xs">
             &copy; {new Date().getFullYear()} The League. All rights reserved.
           </p>

@@ -30,6 +30,13 @@ const statusLabel: Record<string, string> = {
   completed:         "Completed",
 };
 
+const statusStyle: Record<string, string> = {
+  in_progress:       "bg-success/10 text-success",
+  registration_open: "bg-gold/10 text-gold",
+  upcoming:          "bg-cobalt/10 text-cobalt",
+  completed:         "bg-white/5 text-dim",
+};
+
 export default async function CompetitionsPage() {
   const competitions = await getCompetitions();
 
@@ -39,16 +46,22 @@ export default async function CompetitionsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-bold text-navy mb-2">Competitions</h1>
-      <p className="text-muted text-sm mb-10">
-        The League runs multiple competitions concurrently — from the flagship
-        University Championship to standalone cups.
-      </p>
+      <div className="mb-10">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-5 h-0.5 bg-gold shrink-0" />
+          <p className="text-gold text-xs font-bold uppercase tracking-[0.25em]">The League</p>
+        </div>
+        <h1 className="font-display text-4xl font-bold text-white uppercase tracking-tight">Competitions</h1>
+        <p className="text-dim text-sm mt-2 max-w-lg">
+          Multiple competitions run concurrently — from the flagship
+          University Championship to standalone cups.
+        </p>
+      </div>
 
       {competitions.length === 0 && (
-        <div className="border border-border bg-white px-8 py-14 text-center">
-          <p className="text-navy font-semibold">No competitions yet.</p>
-          <p className="text-muted text-sm mt-2">Check back once Season 1 kicks off.</p>
+        <div className="border border-rim bg-card px-8 py-14 text-center rounded">
+          <p className="text-white font-semibold">No competitions yet.</p>
+          <p className="text-dim text-sm mt-2">Check back once Season 1 kicks off.</p>
         </div>
       )}
 
@@ -59,7 +72,7 @@ export default async function CompetitionsPage() {
       ].map(({ title, items }) =>
         items.length > 0 ? (
           <section key={title} className="mb-12">
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-dim border-b border-rim pb-2 mb-4">
               {title}
             </h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -67,28 +80,28 @@ export default async function CompetitionsPage() {
                 <Link
                   key={c.id}
                   href={`/competitions/${c.slug}`}
-                  className="block bg-white border border-border p-6 hover:border-cobalt transition-colors group"
+                  className="block bg-card border border-rim p-6 hover:border-cobalt/50 transition-all group rounded"
                 >
                   <div className="flex items-start justify-between gap-3 mb-3">
-                    <span className="text-xs text-cobalt font-semibold uppercase tracking-wider">
+                    <span className="text-xs text-gold font-bold uppercase tracking-wider">
                       {typeLabel[c.type]}
                     </span>
-                    <span className="text-xs border border-border text-muted px-2 py-0.5">
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusStyle[c.status] ?? "bg-white/5 text-dim"}`}>
                       {statusLabel[c.status]}
                     </span>
                   </div>
-                  <p className="font-bold text-navy group-hover:text-cobalt transition-colors">
+                  <p className="font-bold text-white group-hover:text-gold transition-colors leading-snug">
                     {c.name}
                   </p>
-                  <p className="text-muted text-xs mt-1">{c.edition}</p>
+                  <p className="text-dim text-xs mt-1">{c.edition}</p>
                   {c.description && (
-                    <p className="text-muted text-sm mt-3 leading-relaxed line-clamp-2">
+                    <p className="text-dim text-sm mt-3 leading-relaxed line-clamp-2">
                       {c.description}
                     </p>
                   )}
                   {c.entry_fee > 0 && (
-                    <p className="text-xs text-navy font-semibold mt-4">
-                      Entry fee: ₦{c.entry_fee.toLocaleString()}
+                    <p className="text-xs text-white font-semibold mt-4 border-t border-rim pt-4">
+                      {"₦"}{c.entry_fee.toLocaleString()} entry fee
                     </p>
                   )}
                 </Link>
