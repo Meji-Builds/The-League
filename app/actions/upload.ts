@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 export async function getSignedUploadUrl(
   folder: string,
   ext: string,
-): Promise<{ signedUrl: string; publicUrl: string } | { error: string }> {
+): Promise<{ token: string; path: string; publicUrl: string } | { error: string }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
@@ -23,12 +23,12 @@ export async function getSignedUploadUrl(
   }
 
   const publicUrl = supabase.storage.from("media").getPublicUrl(path).data.publicUrl;
-  return { signedUrl: data.signedUrl, publicUrl };
+  return { token: data.token, path, publicUrl };
 }
 
 export async function getIdCardUploadUrl(
   ext: string,
-): Promise<{ signedUrl: string; storagePath: string } | { error: string }> {
+): Promise<{ token: string; storagePath: string } | { error: string }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
@@ -53,5 +53,5 @@ export async function getIdCardUploadUrl(
     return { error: "Could not prepare upload. Please try again." };
   }
 
-  return { signedUrl: data.signedUrl, storagePath };
+  return { token: data.token, storagePath };
 }
