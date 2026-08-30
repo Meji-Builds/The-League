@@ -12,6 +12,8 @@ interface FixtureRow {
   scheduled_at: string | null;
   club_a_id: string;
   club_b_id: string;
+  reported_by_a: object | null;
+  reported_by_b: object | null;
   club_a: { name: string } | null;
   club_b: { name: string } | null;
   competition: { name: string } | null;
@@ -38,6 +40,7 @@ export default async function ResultsPage() {
     .from("fixtures")
     .select(`
       id, stage, matchday, status, scheduled_at, club_a_id, club_b_id,
+      reported_by_a, reported_by_b,
       club_a:clubs!fixtures_club_a_id_fkey(name),
       club_b:clubs!fixtures_club_b_id_fkey(name),
       competition:competitions(name)
@@ -74,7 +77,7 @@ export default async function ResultsPage() {
                 clubId={owner.club_id}
                 isClubA={f.club_a_id === owner.club_id}
                 opponentName={f.club_a_id === owner.club_id ? (f.club_b?.name ?? "Opponent") : (f.club_a?.name ?? "Opponent")}
-                currentStatus={f.status}
+                hasSubmitted={f.club_a_id === owner.club_id ? !!f.reported_by_a : !!f.reported_by_b}
               />
             </div>
           ))}

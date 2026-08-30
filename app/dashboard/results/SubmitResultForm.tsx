@@ -8,14 +8,14 @@ interface Props {
   clubId: string;
   isClubA: boolean;
   opponentName: string;
-  currentStatus: string;
+  hasSubmitted: boolean;
 }
 
-export function SubmitResultForm({ fixtureId, clubId, isClubA, opponentName, currentStatus }: Props) {
+export function SubmitResultForm({ fixtureId, clubId, isClubA, opponentName, hasSubmitted: initiallySubmitted }: Props) {
   const [state, action, isPending] = useActionState(submitResult, null);
 
-  // Success state: form submitted (state null after revalidation means page reloaded fresh data).
-  if (currentStatus === "reported" && !state) {
+  // Show waiting state only if THIS club has already submitted their side.
+  if (initiallySubmitted) {
     return (
       <p className="text-sm text-muted">
         Result submitted. Waiting for <span className="font-medium text-navy">{opponentName}</span> to report their score.
