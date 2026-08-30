@@ -41,6 +41,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </Link>
           ))}
         </nav>
+        <div className="ml-auto">
+          <form action="/api/auth/signout" method="POST">
+            <button type="submit" className="text-white/40 hover:text-white text-xs transition-colors">
+              Sign out
+            </button>
+          </form>
+        </div>
       </header>
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
