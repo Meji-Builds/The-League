@@ -45,7 +45,7 @@ const statusLabel: Record<string, string> = {
   confirmed: "Confirmed",
 };
 
-const AVATAR_PALETTE = ["#2D4A7C", "#C9A227", "#2D7A4F", "#B91C1C", "#7C2D96", "#0369A1"];
+const AVATAR_PALETTE = ["#5B72FF", "#B4FF00", "#10B981", "#EF4444", "#8B5CF6", "#F59E0B"];
 
 function avatarColor(name: string): string {
   return AVATAR_PALETTE[name.charCodeAt(0) % AVATAR_PALETTE.length];
@@ -151,13 +151,19 @@ export default async function CompetitionPage({ params }: { params: Promise<{ sl
     in_progress: "In Progress", completed: "Completed",
   };
 
+  const compStatusStyle: Record<string, string> = {
+    in_progress:       "bg-success/10 text-success",
+    registration_open: "bg-gold/10 text-gold",
+    upcoming:          "bg-cobalt/10 text-cobalt",
+    completed:         "bg-white/5 text-dim",
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
-      {/* Header */}
       <Link
         href="/competitions"
-        className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-navy transition-colors mb-8"
+        className="inline-flex items-center gap-1.5 text-sm text-dim hover:text-white transition-colors mb-8"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
           <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
@@ -166,30 +172,24 @@ export default async function CompetitionPage({ params }: { params: Promise<{ sl
       </Link>
 
       <div className="mb-10">
-        <p className="text-xs text-cobalt font-semibold uppercase tracking-wider mb-2">
+        <p className="text-xs text-gold font-bold uppercase tracking-wider mb-2">
           {typeLabel[competition.type] ?? competition.type} &middot; {competition.edition}
         </p>
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <h1 className="text-3xl font-bold text-navy">{competition.name}</h1>
-          <span className={`text-xs font-semibold px-3 py-1 rounded-full ${
-            competition.status === "in_progress"
-              ? "bg-success/10 text-success"
-              : competition.status === "registration_open"
-              ? "bg-gold/10 text-gold"
-              : "bg-cobalt/10 text-cobalt"
-          }`}>
+          <h1 className="font-display text-3xl font-bold text-white uppercase">{competition.name}</h1>
+          <span className={`text-xs font-semibold px-3 py-1 rounded-full ${compStatusStyle[competition.status] ?? "bg-cobalt/10 text-cobalt"}`}>
             {compStatusLabel[competition.status] ?? competition.status}
           </span>
         </div>
         {competition.description && (
-          <p className="text-muted text-sm max-w-2xl mt-3">{competition.description}</p>
+          <p className="text-dim text-sm max-w-2xl mt-3">{competition.description}</p>
         )}
         <div className="flex items-center gap-4 mt-3 flex-wrap">
-          <span className="text-xs text-muted uppercase tracking-wider">
+          <span className="text-xs text-dim uppercase tracking-wider">
             {competition.format.replace(/_/g, " ")}
           </span>
           {competition.entry_fee > 0 && (
-            <span className="text-xs text-muted">
+            <span className="text-xs text-dim">
               Entry fee: &#x20A6;{competition.entry_fee.toLocaleString()}
             </span>
           )}
@@ -204,44 +204,44 @@ export default async function CompetitionPage({ params }: { params: Promise<{ sl
           {/* Standings table */}
           {isLeague && hasResults && (
             <section>
-              <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
+              <h2 className="text-xs font-bold uppercase tracking-widest text-dim mb-4">
                 Standings
               </h2>
-              <div className="bg-white border border-border overflow-x-auto">
+              <div className="bg-card border border-rim overflow-hidden rounded overflow-x-auto">
                 <table className="w-full text-sm" style={{ fontVariantNumeric: "tabular-nums" }}>
                   <thead>
-                    <tr className="border-b border-border bg-surface">
-                      <th className="text-left text-xs font-semibold text-muted uppercase tracking-wider px-4 py-2.5 w-8">#</th>
-                      <th className="text-left text-xs font-semibold text-muted uppercase tracking-wider px-3 py-2.5">Club</th>
-                      <th className="text-center text-xs font-semibold text-muted uppercase tracking-wider px-3 py-2.5">P</th>
-                      <th className="text-center text-xs font-semibold text-muted uppercase tracking-wider px-3 py-2.5">W</th>
-                      <th className="text-center text-xs font-semibold text-muted uppercase tracking-wider px-3 py-2.5">L</th>
-                      <th className="text-center text-xs font-semibold text-muted uppercase tracking-wider px-3 py-2.5">GD</th>
-                      <th className="text-center text-xs font-semibold text-muted uppercase tracking-wider px-3 py-2.5 pr-4">Pts</th>
+                    <tr className="border-b border-rim text-xs text-dim uppercase tracking-wider">
+                      <th className="text-left font-bold px-4 py-3 w-8">#</th>
+                      <th className="text-left font-bold px-3 py-3">Club</th>
+                      <th className="text-center font-bold px-3 py-3">P</th>
+                      <th className="text-center font-bold px-3 py-3">W</th>
+                      <th className="text-center font-bold px-3 py-3">L</th>
+                      <th className="text-center font-bold px-3 py-3">GD</th>
+                      <th className="text-center font-bold px-3 py-3 pr-4">Pts</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border">
+                  <tbody className="divide-y divide-rim">
                     {standings.map((row, i) => (
-                      <tr key={row.club_id} className={i === 0 ? "bg-gold/5" : ""}>
-                        <td className="px-4 py-3 text-xs text-muted">{i + 1}</td>
+                      <tr key={row.club_id} className={`hover:bg-white/5 transition-colors ${i === 0 ? "bg-gold/5" : ""}`}>
+                        <td className="px-4 py-3 text-xs text-dim">{i + 1}</td>
                         <td className="px-3 py-3">
                           <Link href={`/clubs/${row.slug}`} className="flex items-center gap-2 group">
                             <div
-                              className="w-6 h-6 rounded flex items-center justify-center text-white text-[9px] font-bold shrink-0"
+                              className="w-6 h-6 rounded flex items-center justify-center text-navy text-[9px] font-bold shrink-0"
                               style={{ backgroundColor: avatarColor(row.name) }}
                             >
                               {nameInitials(row.name)}
                             </div>
-                            <span className="font-semibold text-navy text-sm group-hover:text-cobalt transition-colors">
+                            <span className="font-semibold text-white text-sm group-hover:text-gold transition-colors">
                               {row.name}
                             </span>
                           </Link>
                         </td>
-                        <td className="px-3 py-3 text-center text-sm text-muted">{row.P}</td>
-                        <td className="px-3 py-3 text-center text-sm text-muted">{row.W}</td>
-                        <td className="px-3 py-3 text-center text-sm text-muted">{row.L}</td>
-                        <td className="px-3 py-3 text-center text-sm text-muted">{row.GF - row.GA > 0 ? "+" : ""}{row.GF - row.GA}</td>
-                        <td className="px-3 py-3 pr-4 text-center font-bold text-navy">{row.Pts}</td>
+                        <td className="px-3 py-3 text-center text-sm text-dim">{row.P}</td>
+                        <td className="px-3 py-3 text-center text-sm text-white">{row.W}</td>
+                        <td className="px-3 py-3 text-center text-sm text-dim">{row.L}</td>
+                        <td className="px-3 py-3 text-center text-sm text-dim">{row.GF - row.GA > 0 ? "+" : ""}{row.GF - row.GA}</td>
+                        <td className="px-3 py-3 pr-4 text-center font-display font-bold text-gold text-base">{row.Pts}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -252,26 +252,26 @@ export default async function CompetitionPage({ params }: { params: Promise<{ sl
 
           {/* Fixtures */}
           <section>
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-dim mb-4">
               Fixtures
             </h2>
 
             {fixtures.length === 0 ? (
-              <div className="border border-border bg-white p-8 text-center">
-                <p className="text-muted text-sm">No fixtures scheduled yet.</p>
+              <div className="border border-rim bg-card p-8 text-center rounded">
+                <p className="text-dim text-sm">No fixtures scheduled yet.</p>
               </div>
             ) : (
               <div className="grid sm:grid-cols-2 gap-3">
                 {fixtures.map((f) => (
-                  <div key={f.id} className="border border-border bg-white p-4">
+                  <div key={f.id} className="border border-rim bg-card p-4 rounded">
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-[10px] text-muted uppercase tracking-wider">
+                      <span className="text-[10px] text-dim uppercase tracking-wider">
                         {f.stage !== "N/A" ? f.stage : f.group_name}
                         {f.matchday ? ` · Day ${f.matchday}` : ""}
                       </span>
                       <div className="flex items-center gap-2">
                         {f.scheduled_at && (
-                          <span className="text-[10px] text-muted">{formatDate(f.scheduled_at)}</span>
+                          <span className="text-[10px] text-dim">{formatDate(f.scheduled_at)}</span>
                         )}
                         <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${statusStyles[f.status] ?? ""}`}>
                           {statusLabel[f.status] ?? f.status}
@@ -284,29 +284,29 @@ export default async function CompetitionPage({ params }: { params: Promise<{ sl
                         {f.club_a ? (
                           <Link href={`/clubs/${f.club_a.slug}`} className="flex flex-col items-center gap-1.5 group">
                             <div
-                              className="w-10 h-10 rounded flex items-center justify-center text-white text-xs font-bold"
+                              className="w-10 h-10 rounded flex items-center justify-center text-navy text-xs font-bold"
                               style={{ backgroundColor: avatarColor(f.club_a.name) }}
                             >
                               {nameInitials(f.club_a.name)}
                             </div>
-                            <p className="text-xs font-semibold text-navy text-center leading-tight line-clamp-2 group-hover:text-cobalt transition-colors">
+                            <p className="text-xs font-semibold text-white text-center leading-tight line-clamp-2 group-hover:text-gold transition-colors">
                               {f.club_a.name}
                             </p>
                           </Link>
                         ) : (
-                          <div className="w-10 h-10 rounded bg-border flex items-center justify-center">
-                            <span className="text-muted text-xs">TBC</span>
+                          <div className="w-10 h-10 rounded bg-rim flex items-center justify-center">
+                            <span className="text-dim text-xs">TBC</span>
                           </div>
                         )}
                       </div>
 
                       <div className="text-center px-1 shrink-0">
                         {f.confirmed_score ? (
-                          <p className="text-xl font-bold text-navy tabular-nums leading-none">
+                          <p className="font-display text-xl font-bold text-white tabular-nums leading-none">
                             {f.confirmed_score.score_a}&nbsp;&ndash;&nbsp;{f.confirmed_score.score_b}
                           </p>
                         ) : (
-                          <p className="text-xs font-bold text-muted tracking-widest">VS</p>
+                          <p className="text-xs font-bold text-dim tracking-widest">VS</p>
                         )}
                       </div>
 
@@ -314,18 +314,18 @@ export default async function CompetitionPage({ params }: { params: Promise<{ sl
                         {f.club_b ? (
                           <Link href={`/clubs/${f.club_b.slug}`} className="flex flex-col items-center gap-1.5 group">
                             <div
-                              className="w-10 h-10 rounded flex items-center justify-center text-white text-xs font-bold"
+                              className="w-10 h-10 rounded flex items-center justify-center text-navy text-xs font-bold"
                               style={{ backgroundColor: avatarColor(f.club_b.name) }}
                             >
                               {nameInitials(f.club_b.name)}
                             </div>
-                            <p className="text-xs font-semibold text-navy text-center leading-tight line-clamp-2 group-hover:text-cobalt transition-colors">
+                            <p className="text-xs font-semibold text-white text-center leading-tight line-clamp-2 group-hover:text-gold transition-colors">
                               {f.club_b.name}
                             </p>
                           </Link>
                         ) : (
-                          <div className="w-10 h-10 rounded bg-border flex items-center justify-center">
-                            <span className="text-muted text-xs">TBC</span>
+                          <div className="w-10 h-10 rounded bg-rim flex items-center justify-center">
+                            <span className="text-dim text-xs">TBC</span>
                           </div>
                         )}
                       </div>
@@ -339,34 +339,34 @@ export default async function CompetitionPage({ params }: { params: Promise<{ sl
 
         {/* Right: clubs entered */}
         <div>
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-dim mb-4">
             Clubs entered ({entries.length})
           </h2>
 
           {entries.length === 0 ? (
-            <div className="border border-border bg-white p-6 text-center">
-              <p className="text-muted text-sm">No clubs registered yet.</p>
+            <div className="border border-rim bg-card p-6 text-center rounded">
+              <p className="text-dim text-sm">No clubs registered yet.</p>
             </div>
           ) : (
-            <div className="bg-white border border-border divide-y divide-border">
+            <div className="bg-card border border-rim divide-y divide-rim rounded overflow-hidden">
               {entries.map(({ club }) =>
                 club ? (
                   <Link
                     key={club.id}
                     href={`/clubs/${club.slug}`}
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-surface transition-colors group"
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors group"
                   >
                     <div
-                      className="w-7 h-7 rounded flex items-center justify-center text-white text-xs font-bold shrink-0"
+                      className="w-7 h-7 rounded flex items-center justify-center text-navy text-xs font-bold shrink-0"
                       style={{ backgroundColor: avatarColor(club.name) }}
                     >
                       {nameInitials(club.name)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-navy text-sm group-hover:text-cobalt transition-colors truncate">
+                      <p className="font-semibold text-white text-sm group-hover:text-gold transition-colors truncate">
                         {club.name}
                       </p>
-                      <p className="text-xs text-muted truncate">{club.faculty}</p>
+                      <p className="text-xs text-dim truncate">{club.faculty}</p>
                     </div>
                   </Link>
                 ) : null

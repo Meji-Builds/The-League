@@ -37,7 +37,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
 
       <Link
         href="/news"
-        className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-navy transition-colors mb-8"
+        className="inline-flex items-center gap-1.5 text-sm text-dim hover:text-white transition-colors mb-8"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
           <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
@@ -45,13 +45,13 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
         All news
       </Link>
 
-      <p className="text-cobalt text-xs font-semibold uppercase tracking-[0.2em] mb-3">News</p>
+      <p className="text-cobalt text-xs font-bold uppercase tracking-[0.2em] mb-3">News</p>
 
-      <h1 className="text-3xl sm:text-4xl font-bold text-navy leading-tight mb-4">
+      <h1 className="font-display text-3xl sm:text-4xl font-bold text-white uppercase leading-tight mb-4">
         {post.title}
       </h1>
 
-      <p className="text-muted text-sm mb-8">
+      <p className="text-dim text-sm mb-8">
         {new Date(post.published_at).toLocaleDateString("en-GB", {
           day: "numeric",
           month: "long",
@@ -60,7 +60,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
       </p>
 
       {post.image_url && (
-        <div className="w-full mb-8 overflow-hidden bg-surface">
+        <div className="w-full mb-8 overflow-hidden rounded border border-rim">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={post.image_url}
@@ -70,9 +70,9 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
         </div>
       )}
 
-      <div className="prose prose-sm max-w-none text-navy leading-relaxed space-y-4">
+      <div className="space-y-4">
         {post.body.split("\n\n").map((paragraph, i) => (
-          <p key={i} className="text-navy text-sm leading-relaxed">
+          <p key={i} className="text-white/80 text-sm leading-relaxed">
             {paragraph}
           </p>
         ))}

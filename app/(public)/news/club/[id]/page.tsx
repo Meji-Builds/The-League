@@ -18,24 +18,33 @@ export default async function ClubPostPage({ params }: Props) {
     .single();
 
   if (!data) notFound();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const post = data as any;
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
-      <Link href="/news" className="text-xs text-muted hover:text-navy transition-colors mb-6 inline-block">
-        &larr; News
+      <Link
+        href="/news"
+        className="inline-flex items-center gap-1.5 text-sm text-dim hover:text-white transition-colors mb-8"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        News
       </Link>
 
       <div className="mb-3">
-        <span className="text-[10px] font-semibold uppercase tracking-wide text-gold bg-gold/10 px-1.5 py-0.5 rounded">
+        <span className="text-[10px] font-bold uppercase tracking-wide text-gold bg-gold/10 px-2 py-0.5 rounded">
           {post.club?.name ?? "Club"}
         </span>
       </div>
 
-      <h1 className="text-2xl font-bold text-navy mb-2 leading-snug">{post.title}</h1>
+      <h1 className="font-display text-2xl sm:text-3xl font-bold text-white uppercase leading-snug mb-2">
+        {post.title}
+      </h1>
 
       {post.published_at && (
-        <p className="text-xs text-muted mb-6">
+        <p className="text-xs text-dim mb-6">
           {new Date(post.published_at).toLocaleDateString("en-GB", {
             day: "numeric",
             month: "long",
@@ -45,14 +54,14 @@ export default async function ClubPostPage({ params }: Props) {
       )}
 
       {post.image_url && (
-        <div className="w-full overflow-hidden mb-6 border border-border">
+        <div className="w-full overflow-hidden mb-6 rounded border border-rim">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={post.image_url} alt={post.title} className="w-full h-auto" />
         </div>
       )}
 
       {post.body && (
-        <div className="prose prose-sm max-w-none text-navy/80 leading-relaxed whitespace-pre-wrap">
+        <div className="text-white/80 text-sm leading-relaxed whitespace-pre-wrap">
           {post.body}
         </div>
       )}

@@ -18,7 +18,7 @@ interface FixtureRow {
   competition:     { name: string; slug: string } | null;
 }
 
-const AVATAR_PALETTE = ["#2D4A7C", "#C9A227", "#2D7A4F", "#B91C1C", "#7C2D96", "#0369A1"];
+const AVATAR_PALETTE = ["#5B72FF", "#B4FF00", "#10B981", "#EF4444", "#8B5CF6", "#F59E0B"];
 
 function avatarColor(name: string): string {
   return AVATAR_PALETTE[name.charCodeAt(0) % AVATAR_PALETTE.length];
@@ -74,10 +74,9 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
-      {/* Back */}
       <Link
         href="/players"
-        className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-navy transition-colors mb-8"
+        className="inline-flex items-center gap-1.5 text-sm text-dim hover:text-white transition-colors mb-8"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
           <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
@@ -92,11 +91,11 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
           <img
             src={p.profile_picture_url}
             alt={p.gamer_tag}
-            className="w-20 h-20 rounded-full object-cover border border-border shrink-0"
+            className="w-20 h-20 rounded-full object-cover border border-rim shrink-0"
           />
         ) : (
           <div
-            className="w-20 h-20 rounded-full flex items-center justify-center shrink-0 text-white text-2xl font-bold"
+            className="w-20 h-20 rounded-full flex items-center justify-center shrink-0 text-navy text-2xl font-bold"
             style={{ backgroundColor: avatarColor(p.gamer_tag) }}
           >
             {nameInitials(p.gamer_tag)}
@@ -106,14 +105,14 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
           {p.club && (
             <Link
               href={`/clubs/${p.club.slug}`}
-              className="text-cobalt text-xs font-semibold uppercase tracking-[0.2em] mb-1 hover:underline block"
+              className="text-cobalt text-xs font-bold uppercase tracking-[0.2em] mb-1 hover:text-gold transition-colors block"
             >
               {p.club.name}
             </Link>
           )}
-          <h1 className="text-2xl sm:text-3xl font-bold text-navy leading-tight">{p.gamer_tag}</h1>
+          <h1 className="font-display text-2xl sm:text-3xl font-bold text-white uppercase leading-tight">{p.gamer_tag}</h1>
           {p.full_name && (
-            <p className="text-muted text-sm mt-0.5">{p.full_name}</p>
+            <p className="text-dim text-sm mt-0.5">{p.full_name}</p>
           )}
           {p.position && (
             <span className="mt-2 inline-block text-xs font-semibold px-2.5 py-1 rounded-full bg-cobalt/10 text-cobalt">
@@ -130,19 +129,19 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
 
           {/* Bio */}
           {p.bio && (
-            <section className="bg-white border border-border p-5">
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted mb-3">Bio</h2>
-              <p className="text-navy text-sm leading-relaxed">{p.bio}</p>
+            <section className="bg-card border border-rim p-5 rounded">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-dim mb-3">Bio</h2>
+              <p className="text-white/80 text-sm leading-relaxed">{p.bio}</p>
             </section>
           )}
 
           {/* Fixtures */}
           {playerFixtures.length > 0 && (
             <section>
-              <h2 className="text-sm font-semibold text-navy uppercase tracking-wider mb-4">
+              <h2 className="text-sm font-bold text-white uppercase tracking-wider mb-4">
                 Club Fixtures
               </h2>
-              <div className="divide-y divide-border bg-white border border-border">
+              <div className="divide-y divide-rim bg-card border border-rim rounded overflow-hidden">
                 {playerFixtures.map((f) => {
                   const clubIsA  = f.club_a?.id === p.club_id;
                   const myClub   = clubIsA ? f.club_a : f.club_b;
@@ -155,16 +154,16 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
                     : null;
 
                   return (
-                    <div key={f.id} className="px-4 py-3 flex items-center gap-3">
-                      <span className="hidden sm:block text-xs text-muted uppercase tracking-wider w-20 shrink-0">
+                    <div key={f.id} className="px-4 py-3 flex items-center gap-3 hover:bg-white/5 transition-colors">
+                      <span className="hidden sm:block text-xs text-dim uppercase tracking-wider w-20 shrink-0">
                         {f.stage}
                       </span>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-sm text-navy truncate">
+                          <span className="font-semibold text-sm text-white truncate">
                             {myClub?.name ?? "TBA"}
                           </span>
-                          <span className="text-muted text-xs shrink-0 font-medium">
+                          <span className="text-dim text-xs shrink-0 font-medium">
                             {myScore !== null && opScore !== null
                               ? `${myScore} – ${opScore}`
                               : "vs"}
@@ -172,16 +171,16 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
                           {opponent ? (
                             <Link
                               href={`/clubs/${opponent.slug}`}
-                              className="font-semibold text-sm text-navy hover:text-cobalt transition-colors truncate"
+                              className="font-semibold text-sm text-white hover:text-gold transition-colors truncate"
                             >
                               {opponent.name}
                             </Link>
                           ) : (
-                            <span className="text-sm text-muted">TBA</span>
+                            <span className="text-sm text-dim">TBA</span>
                           )}
                         </div>
                         {f.competition && (
-                          <p className="text-xs text-muted mt-0.5">{f.competition.name}</p>
+                          <p className="text-xs text-dim mt-0.5">{f.competition.name}</p>
                         )}
                       </div>
                       <span className={`shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full ${
@@ -193,7 +192,7 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
                         {FIXTURE_STATUS_LABEL[f.status]}
                       </span>
                       {f.scheduled_at && (
-                        <span className="hidden md:block text-xs text-muted shrink-0">
+                        <span className="hidden md:block text-xs text-dim shrink-0">
                           {new Date(f.scheduled_at).toLocaleDateString("en-GB", {
                             day: "numeric", month: "short",
                           })}
@@ -211,39 +210,39 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
         <div className="space-y-5">
 
           {/* Stats */}
-          <section className="bg-white border border-border p-5">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted mb-4">Season Stats</h2>
+          <section className="bg-card border border-rim p-5 rounded">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-dim mb-4">Season Stats</h2>
             <div className="grid grid-cols-2 gap-3 mb-4">
-              <div className="bg-surface p-3 text-center">
-                <p className="text-2xl font-bold text-navy">{p.stats.wins}</p>
-                <p className="text-xs text-muted mt-0.5">Wins</p>
+              <div className="bg-panel border border-rim p-3 text-center rounded">
+                <p className="font-display text-3xl font-bold text-gold">{p.stats.wins}</p>
+                <p className="text-xs text-dim mt-0.5">Wins</p>
               </div>
-              <div className="bg-surface p-3 text-center">
-                <p className="text-2xl font-bold text-navy">{p.stats.losses}</p>
-                <p className="text-xs text-muted mt-0.5">Losses</p>
+              <div className="bg-panel border border-rim p-3 text-center rounded">
+                <p className="font-display text-3xl font-bold text-white">{p.stats.losses}</p>
+                <p className="text-xs text-dim mt-0.5">Losses</p>
               </div>
             </div>
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted">Matches played</span>
-                <span className="text-sm font-bold text-navy">{p.stats.matches_played}</span>
+                <span className="text-sm text-dim">Matches played</span>
+                <span className="text-sm font-bold text-white">{p.stats.matches_played}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted">Win rate</span>
-                <span className="text-sm font-bold text-navy">{winRate}%</span>
+                <span className="text-sm text-dim">Win rate</span>
+                <span className="text-sm font-bold text-gold">{winRate}%</span>
               </div>
             </div>
           </section>
 
           {/* Club info */}
           {p.club && (
-            <section className="bg-white border border-border p-5">
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted mb-4">Club</h2>
+            <section className="bg-card border border-rim p-5 rounded">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-dim mb-4">Club</h2>
               <Link href={`/clubs/${p.club.slug}`} className="group">
-                <p className="font-semibold text-sm text-navy group-hover:text-cobalt transition-colors">
+                <p className="font-semibold text-sm text-white group-hover:text-gold transition-colors">
                   {p.club.name}
                 </p>
-                <p className="text-xs text-muted mt-0.5">{p.club.faculty}</p>
+                <p className="text-xs text-dim mt-0.5">{p.club.faculty}</p>
               </Link>
             </section>
           )}
