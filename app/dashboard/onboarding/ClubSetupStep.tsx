@@ -38,20 +38,6 @@ export function ClubSetupStep() {
         </div>
 
         <div>
-          <label htmlFor="department" className="block text-navy text-xs font-semibold mb-1.5 uppercase tracking-wide">
-            Department
-          </label>
-          <input
-            id="department"
-            name="department"
-            type="text"
-            required
-            placeholder="e.g. Computer Science"
-            className="w-full border border-border bg-white text-navy text-sm px-3 py-2.5 rounded focus:outline-none focus:border-cobalt transition-colors placeholder:text-muted/50"
-          />
-        </div>
-
-        <div>
           <label htmlFor="faculty" className="block text-navy text-xs font-semibold mb-1.5 uppercase tracking-wide">
             Faculty
           </label>

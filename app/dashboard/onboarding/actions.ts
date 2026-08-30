@@ -12,13 +12,13 @@ export async function setupClub(prevState: ActionState, formData: FormData): Pro
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const name      = (formData.get("name") as string)?.trim();
-  const department = (formData.get("department") as string)?.trim();
-  const faculty   = (formData.get("faculty") as string)?.trim();
-  const bio       = (formData.get("bio") as string)?.trim() || null;
+  const name       = (formData.get("name") as string)?.trim();
+  const department = (formData.get("department") as string)?.trim() || null;
+  const faculty    = (formData.get("faculty") as string)?.trim();
+  const bio        = (formData.get("bio") as string)?.trim() || null;
 
-  if (!name || !department || !faculty) {
-    return { error: "Club name, department, and faculty are required." };
+  if (!name || !faculty) {
+    return { error: "Club name and faculty are required." };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
