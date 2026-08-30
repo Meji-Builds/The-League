@@ -3,7 +3,6 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { uploadMedia } from "@/lib/supabase/upload-media";
 
 type ActionState = { error: string } | null;
 
@@ -23,8 +22,11 @@ export async function uploadClubLineup(prevState: ActionState, formData: FormDat
 
   if (!owner?.club_id) return { error: "No club associated with your account." };
 
-  const fixtureId = formData.get("fixture_id") as string;
+  const fixtureId      = formData.get("fixture_id") as string;
+  const lineupImageUrl = formData.get("lineup_image_url") as string;
+
   if (!fixtureId) return { error: "Invalid fixture." };
+  if (!lineupImageUrl) return { error: "No image URL provided." };
 
   const { data: fixture } = await db
     .from("fixtures")
@@ -40,14 +42,8 @@ export async function uploadClubLineup(prevState: ActionState, formData: FormDat
   if (!isClubA && !isClubB) return { error: "Your club is not part of this fixture." };
 
   const column = isClubA ? "lineup_image_a" : "lineup_image_b";
-  const file = formData.get("lineup_image") as File | null;
 
-  if (!file || file.size === 0) return { error: "Please select an image to upload." };
-
-  const url = await uploadMedia(supabase, file, `lineups/${fixtureId}`);
-  if (!url) return { error: "Upload failed. Please try again." };
-
-  const { error } = await db.from("fixtures").update({ [column]: url }).eq("id", fixtureId);
+  const { error } = await db.from("fixtures").update({ [column]: lineupImageUrl }).eq("id", fixtureId);
   if (error) {
     console.error("uploadClubLineup:", error);
     return { error: "Could not save lineup image. Please try again." };

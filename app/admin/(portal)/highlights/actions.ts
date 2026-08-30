@@ -1,7 +1,6 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { uploadMedia } from "@/lib/supabase/upload-media";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
@@ -21,15 +20,11 @@ export async function createHighlight(prevState: ActionState, formData: FormData
 
   const title          = (formData.get("title")          as string).trim();
   const video_url      = (formData.get("video_url")      as string).trim();
-  const thumbnailFile  = formData.get("thumbnail") as File | null;
+  const thumbnail_url  = (formData.get("thumbnail_url")  as string) || null;
   const competition_id = (formData.get("competition_id") as string).trim() || null;
 
   if (!title)     return { error: "Title is required." };
   if (!video_url) return { error: "Video URL is required." };
-
-  const thumbnail_url = thumbnailFile?.size
-    ? await uploadMedia(supabase, thumbnailFile, "highlights")
-    : null;
 
   const { error } = await db.from("highlights").insert({
     title,
