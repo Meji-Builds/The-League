@@ -22,7 +22,6 @@ async function getClubs(): Promise<Club[]> {
 export default async function ClubsPage() {
   const clubs = await getClubs();
 
-  // Group by faculty for display
   const byFaculty = clubs.reduce<Record<string, Club[]>>((acc, club) => {
     (acc[club.faculty] ??= []).push(club);
     return acc;
@@ -30,20 +29,26 @@ export default async function ClubsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="flex items-start justify-between mb-10">
-        <div>
-          <h1 className="text-3xl font-bold text-navy mb-2">Club Directory</h1>
-          <p className="text-muted text-sm">{clubs.length} registered club{clubs.length !== 1 ? "s" : ""}</p>
+      <div className="mb-10">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-5 h-0.5 bg-gold shrink-0" />
+          <p className="text-gold text-xs font-bold uppercase tracking-[0.25em]">Directory</p>
+        </div>
+        <div className="flex items-end justify-between">
+          <h1 className="font-display text-4xl font-bold text-white uppercase tracking-tight">
+            Club Directory
+          </h1>
+          <p className="text-dim text-sm">{clubs.length} club{clubs.length !== 1 ? "s" : ""}</p>
         </div>
       </div>
 
       {clubs.length === 0 ? (
-        <div className="border border-border bg-white px-8 py-14 text-center">
-          <p className="text-navy font-semibold">No clubs registered yet.</p>
-          <p className="text-muted text-sm mt-2">Be the first — register your club today.</p>
+        <div className="border border-rim bg-card px-8 py-14 text-center rounded">
+          <p className="text-white font-semibold">No clubs registered yet.</p>
+          <p className="text-dim text-sm mt-2">Be the first — register your club today.</p>
           <Link
             href="/register"
-            className="mt-6 inline-block bg-gold text-navy text-sm font-semibold px-5 py-2 rounded hover:bg-gold/90 transition-colors"
+            className="mt-6 inline-block bg-gold text-navy text-sm font-bold px-5 py-2.5 rounded hover:brightness-110 transition-all uppercase tracking-wide"
           >
             Register Club
           </Link>
@@ -51,17 +56,17 @@ export default async function ClubsPage() {
       ) : (
         Object.entries(byFaculty).map(([faculty, facultyClubs]) => (
           <section key={faculty} className="mb-12">
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-muted border-b border-border pb-2 mb-4">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-dim border-b border-rim pb-2 mb-4">
               {faculty}
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
               {facultyClubs.map((club) => (
                 <Link
                   key={club.id}
                   href={`/clubs/${club.slug}`}
-                  className="block bg-white border border-border p-4 hover:border-cobalt transition-colors group text-center"
+                  className="block bg-card border border-rim p-4 hover:border-cobalt/50 transition-all group text-center rounded"
                 >
-                  <div className="w-14 h-14 mx-auto mb-3 bg-surface border border-border flex items-center justify-center overflow-hidden">
+                  <div className="w-14 h-14 mx-auto mb-3 bg-panel border border-rim flex items-center justify-center overflow-hidden rounded">
                     {club.logo_url ? (
                       <Image
                         src={club.logo_url}
@@ -71,15 +76,15 @@ export default async function ClubsPage() {
                         className="object-contain"
                       />
                     ) : (
-                      <span className="text-2xl font-bold text-cobalt/30 select-none">
+                      <span className="text-2xl font-bold text-cobalt/40 select-none">
                         {club.name.charAt(0)}
                       </span>
                     )}
                   </div>
-                  <p className="text-sm font-semibold text-navy group-hover:text-cobalt transition-colors leading-tight">
+                  <p className="text-sm font-semibold text-white group-hover:text-gold transition-colors leading-tight">
                     {club.name}
                   </p>
-                  <p className="text-xs text-muted mt-1">{club.department}</p>
+                  <p className="text-xs text-dim mt-1">{club.department}</p>
                 </Link>
               ))}
             </div>

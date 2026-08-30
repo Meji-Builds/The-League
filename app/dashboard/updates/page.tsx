@@ -54,7 +54,7 @@ export default async function UpdatesPage() {
         </p>
       </div>
 
-      <CreatePostForm />
+      <CreatePostForm clubId={owner.club_id} />
 
       {posts.length > 0 && (
         <div className="mt-8">

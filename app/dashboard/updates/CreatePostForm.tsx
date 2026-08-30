@@ -1,15 +1,43 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { createClubPost } from "./actions";
+import { directUpload } from "@/lib/direct-upload";
 
-export function CreatePostForm() {
-  const [state, action, isPending] = useActionState(createClubPost, null);
+export function CreatePostForm({ clubId }: { clubId: string }) {
+  const [state, formAction, isPending] = useActionState(createClubPost, null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (state && "success" in state) formRef.current?.reset();
   }, [state]);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setUploadError(null);
+    const fd = new FormData(e.currentTarget);
+    const file = fileRef.current?.files?.[0];
+
+    if (file && file.size > 0) {
+      setUploading(true);
+      const url = await directUpload(file, `club-posts/${clubId}`);
+      setUploading(false);
+      if (!url) {
+        setUploadError("Image upload failed. Check your connection and try again.");
+        return;
+      }
+      fd.delete("image");
+      fd.set("image_url", url);
+    }
+
+    startTransition(() => formAction(fd));
+  }
+
+  const busy = isPending || uploading;
 
   return (
     <div className="bg-white border border-border rounded p-5">
@@ -20,13 +48,13 @@ export function CreatePostForm() {
           Update submitted — an admin will review it before it goes public.
         </div>
       )}
-      {state && "error" in state && (
+      {(uploadError || (state && "error" in state)) && (
         <div className="bg-danger/5 border border-danger/30 text-danger text-xs px-3 py-2 rounded mb-4">
-          {state.error}
+          {uploadError ?? (state && "error" in state ? state.error : "")}
         </div>
       )}
 
-      <form ref={formRef} action={action} className="space-y-4">
+      <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
             Title <span className="text-danger">*</span>
@@ -59,6 +87,7 @@ export function CreatePostForm() {
             Image <span className="text-muted font-normal normal-case">(optional)</span>
           </label>
           <input
+            ref={fileRef}
             name="image"
             type="file"
             accept="image/*"
@@ -68,10 +97,10 @@ export function CreatePostForm() {
 
         <button
           type="submit"
-          disabled={isPending}
+          disabled={busy}
           className="bg-gold text-navy font-semibold text-sm px-5 py-2 rounded hover:bg-gold/90 transition-colors disabled:opacity-60"
         >
-          {isPending ? "Submitting..." : "Submit for review"}
+          {uploading ? "Uploading image..." : isPending ? "Submitting..." : "Submit for review"}
         </button>
       </form>
     </div>

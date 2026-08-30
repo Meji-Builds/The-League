@@ -1,7 +1,6 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { uploadMedia } from "@/lib/supabase/upload-media";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
@@ -19,22 +18,17 @@ async function getOwnerClub() {
     .eq("user_id", user.id)
     .single();
   if (!owner?.club_id) redirect("/dashboard/onboarding");
-  return { supabase, db, clubId: owner.club_id as string };
+  return { db, clubId: owner.club_id as string };
 }
 
 export async function createClubPost(prevState: ActionState, formData: FormData): Promise<ActionState> {
-  const { supabase, db, clubId } = await getOwnerClub();
+  const { db, clubId } = await getOwnerClub();
 
-  const title = (formData.get("title") as string)?.trim();
-  const body  = (formData.get("body") as string)?.trim();
-  const file  = formData.get("image") as File | null;
+  const title    = (formData.get("title") as string)?.trim();
+  const body     = (formData.get("body") as string)?.trim();
+  const imageUrl = (formData.get("image_url") as string) || null;
 
   if (!title) return { error: "Title is required." };
-
-  let imageUrl: string | null = null;
-  if (file && file.size > 0) {
-    imageUrl = await uploadMedia(supabase, file, `club-posts/${clubId}`);
-  }
 
   const { error } = await db.from("club_posts").insert({
     club_id:   clubId,

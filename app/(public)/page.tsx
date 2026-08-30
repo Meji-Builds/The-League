@@ -23,6 +23,23 @@ interface AnnouncementRow {
   published_at: string;
 }
 
+interface ClubPostRow {
+  id:           string;
+  title:        string;
+  image_url:    string | null;
+  published_at: string;
+  club:         { name: string } | null;
+}
+
+interface NewsItem {
+  id:           string;
+  title:        string;
+  image_url:    string | null;
+  published_at: string;
+  href:         string;
+  source:       string;
+}
+
 interface ClubRow {
   id:         string;
   name:       string;
@@ -32,11 +49,11 @@ interface ClubRow {
 }
 
 interface PlayerRow {
-  id:       string;
+  id:        string;
   gamer_tag: string;
-  position: string | null;
-  stats:    { matches_played: number; wins: number; losses: number };
-  club:     { name: string; slug: string } | null;
+  position:  string | null;
+  stats:     { matches_played: number; wins: number; losses: number };
+  club:      { name: string; slug: string } | null;
 }
 
 interface FixtureRow {
@@ -52,7 +69,7 @@ interface FixtureRow {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
 
-const AVATAR_PALETTE = ["#2D4A7C", "#C9A227", "#2D7A4F", "#B91C1C", "#7C2D96", "#0369A1"];
+const AVATAR_PALETTE = ["#5B72FF", "#B4FF00", "#10B981", "#EF4444", "#8B5CF6", "#F59E0B"];
 
 function avatarColor(name: string): string {
   return AVATAR_PALETTE[name.charCodeAt(0) % AVATAR_PALETTE.length];
@@ -88,7 +105,7 @@ const FIXTURE_STATUS_LABEL: Record<string, string> = {
   disputed:  "Disputed",
 };
 
-// ─── SVG icons ────────────────────────────────────────────────────────────
+// ─── Icons ────────────────────────────────────────────────────────────────
 
 function TrophyIcon({ className }: { className?: string }) {
   return (
@@ -126,6 +143,7 @@ async function getPageData() {
     rPlayers,
     rSponsors,
     rLivestreams,
+    rClubPosts,
   ] = await Promise.allSettled([
     db.from("competitions")
       .select("*")
@@ -160,6 +178,11 @@ async function getPageData() {
       .select("id, url, title")
       .eq("is_active", true)
       .order("created_at", { ascending: true }),
+    db.from("club_posts")
+      .select("id, title, image_url, published_at, club:clubs(name)")
+      .eq("status", "approved")
+      .order("published_at", { ascending: false })
+      .limit(10),
   ]);
 
   const players = settled<PlayerRow[]>(rPlayers as PromiseSettledResult<{ data: PlayerRow[] | null }>) ?? [];
@@ -167,69 +190,100 @@ async function getPageData() {
     .sort((a, b) => (b.stats?.wins ?? 0) - (a.stats?.wins ?? 0))
     .slice(0, 5);
 
+  const announcements = (settled<AnnouncementRow[]>(rAnnouncements as PromiseSettledResult<{ data: AnnouncementRow[] | null }>) ?? []) as AnnouncementRow[];
+  const clubPosts     = (settled<ClubPostRow[]>(rClubPosts as PromiseSettledResult<{ data: ClubPostRow[] | null }>) ?? []) as ClubPostRow[];
+
+  const newsItems: NewsItem[] = [
+    ...announcements.map((a) => ({
+      id:           a.id,
+      title:        a.title,
+      image_url:    a.image_url,
+      published_at: a.published_at,
+      href:         `/news/${a.slug}`,
+      source:       "News",
+    })),
+    ...clubPosts.map((p) => ({
+      id:           p.id,
+      title:        p.title,
+      image_url:    p.image_url,
+      published_at: p.published_at,
+      href:         `/news/club/${p.id}`,
+      source:       p.club?.name ?? "Club Update",
+    })),
+  ]
+    .sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime())
+    .slice(0, 4);
+
   return {
-    competitions:  (settled<Competition[]>(rCompetitions as PromiseSettledResult<{ data: Competition[] | null }>) ?? []) as Competition[],
+    competitions: (settled<Competition[]>(rCompetitions as PromiseSettledResult<{ data: Competition[] | null }>) ?? []) as Competition[],
     summary: {
       clubs:        settledCount(rClubCount        as PromiseSettledResult<{ count: number | null }>),
       players:      settledCount(rPlayerCount       as PromiseSettledResult<{ count: number | null }>),
       competitions: settledCount(rCompetitionCount  as PromiseSettledResult<{ count: number | null }>),
       fixtures:     settledCount(rFixtureCount      as PromiseSettledResult<{ count: number | null }>),
     },
-    siteSettings:  (rSiteSettings.status === "fulfilled" ? rSiteSettings.value.data : null) as SiteSettings | null,
-    announcements: (settled<AnnouncementRow[]>(rAnnouncements as PromiseSettledResult<{ data: AnnouncementRow[] | null }>) ?? []) as AnnouncementRow[],
-    fixtures:      (settled<FixtureRow[]>(rFixtures as PromiseSettledResult<{ data: FixtureRow[] | null }>) ?? []) as FixtureRow[],
-    topClubs:      (settled<ClubRow[]>(rTopClubs as PromiseSettledResult<{ data: ClubRow[] | null }>) ?? []) as ClubRow[],
+    siteSettings: (rSiteSettings.status === "fulfilled" ? rSiteSettings.value.data : null) as SiteSettings | null,
+    newsItems,
+    fixtures:     (settled<FixtureRow[]>(rFixtures as PromiseSettledResult<{ data: FixtureRow[] | null }>) ?? []) as FixtureRow[],
+    topClubs:     (settled<ClubRow[]>(rTopClubs as PromiseSettledResult<{ data: ClubRow[] | null }>) ?? []) as ClubRow[],
     topPlayers,
-    sponsors:    (settled<GlobalSponsor[]>(rSponsors as PromiseSettledResult<{ data: GlobalSponsor[] | null }>) ?? []) as GlobalSponsor[],
-    livestreams: (settled<LivestreamRow[]>(rLivestreams as PromiseSettledResult<{ data: LivestreamRow[] | null }>) ?? []) as LivestreamRow[],
+    sponsors:     (settled<GlobalSponsor[]>(rSponsors as PromiseSettledResult<{ data: GlobalSponsor[] | null }>) ?? []) as GlobalSponsor[],
+    livestreams:  (settled<LivestreamRow[]>(rLivestreams as PromiseSettledResult<{ data: LivestreamRow[] | null }>) ?? []) as LivestreamRow[],
   };
 }
+
+// ─── Shared UI ────────────────────────────────────────────────────────────
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-3 mb-2">
+      <div className="w-5 h-0.5 bg-gold shrink-0" />
+      <p className="text-gold text-xs font-bold uppercase tracking-[0.25em]">{children}</p>
+    </div>
+  );
+}
+
+const gridBg: React.CSSProperties = {
+  backgroundImage:
+    "linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px)",
+  backgroundSize: "64px 64px",
+};
 
 // ─── Page ─────────────────────────────────────────────────────────────────
 
 export default async function HomePage() {
   const {
-    competitions, summary, siteSettings, announcements,
+    competitions, summary, siteSettings, newsItems,
     fixtures, topClubs, topPlayers, sponsors, livestreams,
   } = await getPageData();
 
   return (
     <>
       {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section className="bg-navy text-white relative overflow-hidden">
+      <section className="bg-navy text-white relative overflow-hidden min-h-[64vh] flex items-center">
         <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-          <div className="absolute -right-32 top-0 w-[500px] h-[500px] border border-white/5 rotate-12" />
-          <div className="absolute -right-16 top-10 w-[500px] h-[500px] border border-white/5 rotate-12" />
-          <div className="absolute right-40 -top-20 w-[300px] h-[300px] bg-cobalt/10 rotate-12 blur-3xl" />
+          <div className="absolute inset-0" style={gridBg} />
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
-          <p className="text-cobalt text-xs font-semibold uppercase tracking-[0.25em] mb-4">
-            University Esports
-          </p>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight tracking-tight max-w-2xl">
-            {siteSettings?.hero_title ?? "University Esports, Officially Organized."}
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-36 w-full">
+          <SectionLabel>University Esports</SectionLabel>
+          <h1 className="font-display text-6xl sm:text-7xl md:text-8xl font-bold leading-none tracking-tight uppercase mt-4 max-w-4xl whitespace-pre-line">
+            {siteSettings?.hero_title ?? "The League.\nWhere Champions\nAre Made."}
           </h1>
-          {(siteSettings?.hero_subtitle) && (
-            <p className="mt-5 text-white/55 text-base max-w-lg leading-relaxed">
-              {siteSettings.hero_subtitle}
-            </p>
-          )}
-          {!siteSettings?.hero_subtitle && (
-            <p className="mt-5 text-white/55 text-base max-w-lg leading-relaxed">
-              The League governs university esports competitions — from department
-              qualifiers to the University Championship final.
-            </p>
-          )}
+          <p className="mt-6 text-white/45 text-base max-w-lg leading-relaxed">
+            {siteSettings?.hero_subtitle
+              ? siteSettings.hero_subtitle
+              : "University esports competitions — from department qualifiers to the championship final."}
+          </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-3">
             <Link
               href="/register"
-              className="inline-block bg-gold text-navy font-semibold text-sm px-6 py-3 rounded hover:bg-gold/90 transition-colors text-center"
+              className="inline-block bg-gold text-navy font-bold text-sm px-7 py-3.5 rounded hover:brightness-110 transition-all text-center uppercase tracking-wider"
             >
               Register Your Club
             </Link>
             <Link
               href="/competitions"
-              className="inline-block border border-white/20 text-white font-medium text-sm px-6 py-3 rounded hover:border-white/40 hover:bg-white/5 transition-colors text-center"
+              className="inline-block border border-white/15 text-white font-medium text-sm px-7 py-3.5 rounded hover:border-white/30 hover:bg-white/5 transition-colors text-center"
             >
               View Competitions
             </Link>
@@ -238,18 +292,18 @@ export default async function HomePage() {
       </section>
 
       {/* ── Stats ────────────────────────────────────────────────────── */}
-      <section className="bg-navy border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-white/10">
+      <section className="bg-panel border-t border-rim">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-0 sm:divide-x sm:divide-rim">
             {[
-              { value: summary.clubs,        label: "Clubs" },
-              { value: summary.players,      label: "Players" },
+              { value: summary.clubs,        label: "Registered Clubs" },
+              { value: summary.players,      label: "Active Players" },
               { value: summary.competitions, label: "Competitions" },
-              { value: summary.fixtures,     label: "Fixtures" },
+              { value: summary.fixtures,     label: "Fixtures Played" },
             ].map(({ value, label }) => (
-              <div key={label} className="bg-navy px-6 py-8 text-center">
-                <p className="text-3xl font-bold text-gold">{value}</p>
-                <p className="text-white/50 text-xs uppercase tracking-wider mt-1">{label}</p>
+              <div key={label} className="sm:px-8 first:pl-0 last:pr-0">
+                <p className="font-display text-5xl font-bold text-gold leading-none">{value}</p>
+                <p className="text-dim text-xs uppercase tracking-wider mt-2">{label}</p>
               </div>
             ))}
           </div>
@@ -258,16 +312,14 @@ export default async function HomePage() {
 
       {/* ── Livestreams ──────────────────────────────────────────────── */}
       {livestreams.length > 0 && (
-        <section className="bg-navy border-t border-white/10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <section className="bg-navy border-t border-rim">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="flex items-center gap-3 mb-6">
               <span className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-danger opacity-75" />
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-danger" />
               </span>
-              <p className="text-white font-bold text-sm uppercase tracking-widest">
-                Live Now
-              </p>
+              <p className="text-white font-bold text-sm uppercase tracking-widest">Live Now</p>
             </div>
             <div className={`grid gap-6 ${livestreams.length > 1 ? "sm:grid-cols-2" : ""}`}>
               {livestreams.map((stream) => {
@@ -275,7 +327,7 @@ export default async function HomePage() {
                 return (
                   <div key={stream.id}>
                     {embedId ? (
-                      <div className="relative w-full bg-black" style={{ paddingTop: "56.25%" }}>
+                      <div className="relative w-full bg-black rounded overflow-hidden" style={{ paddingTop: "56.25%" }}>
                         <iframe
                           className="absolute inset-0 w-full h-full"
                           src={`https://www.youtube.com/embed/${embedId}?autoplay=0`}
@@ -289,13 +341,13 @@ export default async function HomePage() {
                         href={stream.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block bg-white/5 border border-white/10 px-5 py-4 text-sm text-cobalt hover:text-white transition-colors"
+                        className="block bg-card border border-rim px-5 py-4 text-sm text-cobalt hover:text-gold transition-colors rounded"
                       >
                         {stream.url}
                       </a>
                     )}
                     {livestreams.length > 1 && (
-                      <p className="text-white/60 text-xs mt-2 truncate">{stream.title}</p>
+                      <p className="text-dim text-xs mt-2 truncate">{stream.title}</p>
                     )}
                   </div>
                 );
@@ -306,27 +358,29 @@ export default async function HomePage() {
       )}
 
       {/* ── Active Competitions ───────────────────────────────────────── */}
-      <section className="py-16 bg-surface">
+      <section className="py-16 bg-panel border-t border-rim">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-8">
             <div>
-              <p className="text-cobalt text-xs font-semibold uppercase tracking-[0.2em] mb-1">Competitions</p>
-              <h2 className="text-2xl font-bold text-navy">Active Competitions</h2>
+              <SectionLabel>Competitions</SectionLabel>
+              <h2 className="font-display text-4xl font-bold text-white uppercase tracking-tight">
+                Active Competitions
+              </h2>
             </div>
-            <Link href="/competitions" className="text-sm text-cobalt hover:underline font-medium">
+            <Link href="/competitions" className="text-sm text-dim hover:text-white transition-colors font-medium">
               All competitions
             </Link>
           </div>
 
           {competitions.length === 0 ? (
-            <div className="border border-border bg-white px-8 py-14 text-center">
-              <p className="text-navy font-semibold">Season 1 is getting ready.</p>
-              <p className="text-muted text-sm mt-2">
+            <div className="border border-rim bg-card px-8 py-14 text-center rounded">
+              <p className="text-white font-semibold">Season 1 is getting ready.</p>
+              <p className="text-dim text-sm mt-2">
                 Competitions will appear here once registration opens.
               </p>
               <Link
                 href="/register"
-                className="mt-6 inline-block bg-gold text-navy text-sm font-semibold px-5 py-2 rounded hover:bg-gold/90 transition-colors"
+                className="mt-6 inline-block bg-gold text-navy text-sm font-bold px-5 py-2.5 rounded hover:brightness-110 transition-all uppercase tracking-wide"
               >
                 Register your club now
               </Link>
@@ -337,18 +391,18 @@ export default async function HomePage() {
                 <Link
                   key={c.id}
                   href={`/competitions/${c.slug}`}
-                  className="bg-white border border-border hover:border-cobalt transition-colors group p-5 block"
+                  className="bg-card border border-rim hover:border-cobalt/50 transition-all group p-5 block rounded"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 bg-navy rounded flex items-center justify-center shrink-0 mt-0.5">
+                      <div className="w-9 h-9 bg-gold/10 flex items-center justify-center shrink-0 mt-0.5 rounded">
                         <TrophyIcon className="w-4 h-4 text-gold" />
                       </div>
                       <div>
-                        <p className="font-semibold text-navy group-hover:text-cobalt transition-colors leading-snug">
+                        <p className="font-semibold text-white group-hover:text-gold transition-colors leading-snug">
                           {c.name}
                         </p>
-                        <p className="text-muted text-xs mt-0.5">{c.edition}</p>
+                        <p className="text-dim text-xs mt-0.5">{c.edition}</p>
                       </div>
                     </div>
                     <span className={`shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full ${
@@ -359,13 +413,13 @@ export default async function HomePage() {
                       {COMPETITION_STATUS_LABEL[c.status]}
                     </span>
                   </div>
-                  <div className="mt-4 flex items-center justify-between">
-                    <span className="text-xs text-muted font-medium uppercase tracking-wider">
+                  <div className="mt-4 flex items-center justify-between border-t border-rim pt-4">
+                    <span className="text-xs text-dim font-medium uppercase tracking-wider">
                       {FORMAT_LABEL[c.format] ?? c.format}
                     </span>
                     {c.entry_fee > 0 && (
-                      <span className="text-xs text-navy font-semibold">
-                        ₦{c.entry_fee.toLocaleString()} entry
+                      <span className="text-xs text-white font-semibold">
+                        {"₦"}{c.entry_fee.toLocaleString()} entry
                       </span>
                     )}
                   </div>
@@ -378,23 +432,25 @@ export default async function HomePage() {
 
       {/* ── Recent Fixtures ───────────────────────────────────────────── */}
       {fixtures.length > 0 && (
-        <section className="py-16 bg-white border-t border-border">
+        <section className="py-16 bg-navy border-t border-rim">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between mb-8">
               <div>
-                <p className="text-cobalt text-xs font-semibold uppercase tracking-[0.2em] mb-1">Schedule</p>
-                <h2 className="text-2xl font-bold text-navy">Recent Fixtures</h2>
+                <SectionLabel>Schedule</SectionLabel>
+                <h2 className="font-display text-4xl font-bold text-white uppercase tracking-tight">
+                  Recent Fixtures
+                </h2>
               </div>
-              <Link href="/fixtures" className="text-sm text-cobalt hover:underline font-medium">
+              <Link href="/fixtures" className="text-sm text-dim hover:text-white transition-colors font-medium">
                 All fixtures
               </Link>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-3">
               {fixtures.map((f) => (
-                <div key={f.id} className="bg-white border border-border p-4">
+                <div key={f.id} className="bg-card border border-rim p-4 rounded">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-cobalt truncate mr-2">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-dim truncate mr-2">
                       {f.competition?.name ?? ""}
                     </span>
                     <span className={`shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
@@ -409,25 +465,25 @@ export default async function HomePage() {
                   <div className="flex items-center gap-2">
                     <div className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
                       <div
-                        className="w-10 h-10 rounded flex items-center justify-center text-white text-xs font-bold shrink-0"
+                        className="w-10 h-10 rounded flex items-center justify-center text-navy text-xs font-bold shrink-0"
                         style={{ backgroundColor: avatarColor(f.club_a?.name ?? "A") }}
                       >
                         {nameInitials(f.club_a?.name ?? "A")}
                       </div>
-                      <p className="text-xs font-semibold text-navy text-center leading-tight line-clamp-2">
+                      <p className="text-xs font-semibold text-white text-center leading-tight line-clamp-2">
                         {f.club_a?.name ?? "TBA"}
                       </p>
                     </div>
                     <div className="text-center px-1 shrink-0">
                       {f.confirmed_score ? (
-                        <p className="text-xl font-bold text-navy tabular-nums leading-none">
+                        <p className="font-display text-2xl font-bold text-white tabular-nums leading-none">
                           {f.confirmed_score.score_a}&nbsp;&ndash;&nbsp;{f.confirmed_score.score_b}
                         </p>
                       ) : (
-                        <p className="text-xs font-bold text-muted tracking-widest">VS</p>
+                        <p className="text-xs font-bold text-dim tracking-widest">VS</p>
                       )}
                       {f.scheduled_at && (
-                        <p className="text-[10px] text-muted mt-1">
+                        <p className="text-[10px] text-dim mt-1">
                           {new Date(f.scheduled_at).toLocaleDateString("en-GB", {
                             day: "numeric", month: "short",
                           })}
@@ -436,18 +492,18 @@ export default async function HomePage() {
                     </div>
                     <div className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
                       <div
-                        className="w-10 h-10 rounded flex items-center justify-center text-white text-xs font-bold shrink-0"
+                        className="w-10 h-10 rounded flex items-center justify-center text-navy text-xs font-bold shrink-0"
                         style={{ backgroundColor: avatarColor(f.club_b?.name ?? "B") }}
                       >
                         {nameInitials(f.club_b?.name ?? "B")}
                       </div>
-                      <p className="text-xs font-semibold text-navy text-center leading-tight line-clamp-2">
+                      <p className="text-xs font-semibold text-white text-center leading-tight line-clamp-2">
                         {f.club_b?.name ?? "TBA"}
                       </p>
                     </div>
                   </div>
                   {f.stage && (
-                    <p className="text-[10px] text-muted text-center mt-2 uppercase tracking-wider">
+                    <p className="text-[10px] text-dim text-center mt-2 uppercase tracking-wider border-t border-rim pt-2">
                       {f.stage}
                     </p>
                   )}
@@ -460,38 +516,40 @@ export default async function HomePage() {
 
       {/* ── Top Clubs + Season Leaders ────────────────────────────────── */}
       {(topClubs.length > 0 || topPlayers.length > 0) && (
-        <section className="py-16 bg-surface border-t border-border">
+        <section className="py-16 bg-panel border-t border-rim">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid md:grid-cols-2 gap-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-12 md:gap-12">
 
               {topClubs.length > 0 && (
                 <div>
-                  <p className="text-cobalt text-xs font-semibold uppercase tracking-[0.2em] mb-1">Rankings</p>
+                  <SectionLabel>Rankings</SectionLabel>
                   <div className="flex items-end justify-between mb-5">
-                    <h2 className="text-2xl font-bold text-navy">Top Clubs</h2>
-                    <Link href="/clubs" className="text-sm text-cobalt hover:underline font-medium">
+                    <h2 className="font-display text-4xl font-bold text-white uppercase tracking-tight">Top Clubs</h2>
+                    <Link href="/clubs" className="text-sm text-dim hover:text-white transition-colors font-medium">
                       All clubs
                     </Link>
                   </div>
-                  <div className="divide-y divide-border bg-white border border-border">
+                  <div className="divide-y divide-rim bg-card border border-rim rounded overflow-hidden">
                     {topClubs.map((club, i) => (
                       <Link
                         key={club.id}
                         href={`/clubs/${club.slug}`}
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-surface transition-colors group"
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors group"
                       >
-                        <span className="text-xs text-muted w-4 text-right shrink-0">{i + 1}</span>
+                        <span className="font-display text-base font-bold text-gold w-5 text-right shrink-0">
+                          {i + 1}
+                        </span>
                         <div
-                          className="w-8 h-8 rounded flex items-center justify-center shrink-0 text-white text-xs font-bold"
+                          className="w-8 h-8 rounded flex items-center justify-center shrink-0 text-navy text-xs font-bold"
                           style={{ backgroundColor: avatarColor(club.name) }}
                         >
                           {nameInitials(club.name)}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm text-navy group-hover:text-cobalt transition-colors truncate">
+                          <p className="font-semibold text-sm text-white group-hover:text-gold transition-colors truncate">
                             {club.name}
                           </p>
-                          <p className="text-xs text-muted truncate">{club.faculty}</p>
+                          <p className="text-xs text-dim truncate">{club.faculty}</p>
                         </div>
                       </Link>
                     ))}
@@ -501,33 +559,35 @@ export default async function HomePage() {
 
               {topPlayers.length > 0 && (
                 <div>
-                  <p className="text-cobalt text-xs font-semibold uppercase tracking-[0.2em] mb-1">Season</p>
+                  <SectionLabel>Season</SectionLabel>
                   <div className="flex items-end justify-between mb-5">
-                    <h2 className="text-2xl font-bold text-navy">Season Leaders</h2>
-                    <Link href="/players" className="text-sm text-cobalt hover:underline font-medium">
+                    <h2 className="font-display text-4xl font-bold text-white uppercase tracking-tight">Season Leaders</h2>
+                    <Link href="/players" className="text-sm text-dim hover:text-white transition-colors font-medium">
                       All players
                     </Link>
                   </div>
-                  <div className="divide-y divide-border bg-white border border-border">
+                  <div className="divide-y divide-rim bg-card border border-rim rounded overflow-hidden">
                     {topPlayers.map((player, i) => (
                       <div key={player.id} className="flex items-center gap-3 px-4 py-3">
-                        <span className="text-xs text-muted w-4 text-right shrink-0">{i + 1}</span>
+                        <span className="font-display text-base font-bold text-gold w-5 text-right shrink-0">
+                          {i + 1}
+                        </span>
                         <div
-                          className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-white text-xs font-bold"
+                          className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-navy text-xs font-bold"
                           style={{ backgroundColor: avatarColor(player.gamer_tag) }}
                         >
                           {nameInitials(player.gamer_tag)}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm text-navy truncate">{player.gamer_tag}</p>
-                          <p className="text-xs text-muted truncate">
+                          <p className="font-semibold text-sm text-white truncate">{player.gamer_tag}</p>
+                          <p className="text-xs text-dim truncate">
                             {player.club?.name ?? "—"}
                             {player.position ? ` · ${player.position}` : ""}
                           </p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-sm font-bold text-navy">{player.stats.wins}</p>
-                          <p className="text-xs text-muted">wins</p>
+                          <p className="font-display text-xl font-bold text-gold">{player.stats.wins}</p>
+                          <p className="text-xs text-dim">wins</p>
                         </div>
                       </div>
                     ))}
@@ -540,50 +600,52 @@ export default async function HomePage() {
       )}
 
       {/* ── Latest News ───────────────────────────────────────────────── */}
-      {announcements.length > 0 && (
-        <section className="py-16 bg-white border-t border-border">
+      {newsItems.length > 0 && (
+        <section className="py-16 bg-navy border-t border-rim">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between mb-8">
               <div>
-                <p className="text-cobalt text-xs font-semibold uppercase tracking-[0.2em] mb-1">Updates</p>
-                <h2 className="text-2xl font-bold text-navy">Latest News</h2>
+                <SectionLabel>Updates</SectionLabel>
+                <h2 className="font-display text-4xl font-bold text-white uppercase tracking-tight">
+                  Latest News
+                </h2>
               </div>
-              <Link href="/news" className="text-sm text-cobalt hover:underline font-medium">
+              <Link href="/news" className="text-sm text-dim hover:text-white transition-colors font-medium">
                 All news
               </Link>
             </div>
-            <div className="divide-y divide-border">
-              {announcements.map((post) => (
+            <div className="grid sm:grid-cols-2 gap-4">
+              {newsItems.map((item) => (
                 <Link
-                  key={post.id}
-                  href={`/news/${post.slug}`}
-                  className="flex items-start gap-4 py-4 group"
+                  key={item.id}
+                  href={item.href}
+                  className="flex items-start gap-4 bg-card border border-rim hover:border-cobalt/40 transition-all group p-4 rounded"
                 >
-                  {post.image_url ? (
-                    <div className="w-20 h-14 shrink-0 overflow-hidden bg-surface">
+                  {item.image_url ? (
+                    <div className="w-20 h-16 shrink-0 overflow-hidden rounded bg-panel">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={post.image_url}
-                        alt={post.title}
+                        src={item.image_url}
+                        alt={item.title}
                         className="w-full h-full object-cover"
                       />
                     </div>
                   ) : (
-                    <div className="w-20 h-14 shrink-0 bg-cobalt/10 flex items-center justify-center">
-                      <span className="text-cobalt text-[9px] font-bold uppercase tracking-wider">News</span>
+                    <div className="w-20 h-16 shrink-0 bg-gold/5 border border-rim flex items-center justify-center rounded">
+                      <span className="text-gold text-[9px] font-bold uppercase tracking-wider">News</span>
                     </div>
                   )}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-semibold text-gold uppercase tracking-wider">News</span>
-                      <span className="text-muted text-xs">
-                        {new Date(post.published_at).toLocaleDateString("en-GB", {
+                  <div className="flex-1 min-w-0 py-0.5">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="text-[10px] font-bold text-gold uppercase tracking-wider">{item.source}</span>
+                      <span className="text-dim text-[10px]">
+                        {new Date(item.published_at).toLocaleDateString("en-GB", {
                           day: "numeric", month: "short", year: "numeric",
                         })}
                       </span>
                     </div>
-                    <h3 className="font-semibold text-navy text-sm leading-snug group-hover:text-cobalt transition-colors line-clamp-2">
-                      {post.title}
+                    <h3 className="font-semibold text-white text-sm leading-snug group-hover:text-gold transition-colors line-clamp-2">
+                      {item.title}
                     </h3>
                   </div>
                 </Link>
@@ -595,12 +657,10 @@ export default async function HomePage() {
 
       {/* ── Sponsors ─────────────────────────────────────────────────── */}
       {sponsors.length > 0 && (
-        <section className="py-12 bg-surface border-t border-border">
+        <section className="py-12 bg-panel border-t border-rim">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <p className="text-center text-muted text-xs uppercase tracking-[0.2em] mb-8">
-              Our Sponsors
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-8">
+            <p className="text-center text-dim text-xs uppercase tracking-[0.25em] mb-8">Our Sponsors</p>
+            <div className="flex flex-wrap items-center justify-center gap-10">
               {sponsors.map((s) =>
                 s.website_url ? (
                   <a
@@ -608,15 +668,15 @@ export default async function HomePage() {
                     href={s.website_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="opacity-50 hover:opacity-100 transition-opacity"
+                    className="opacity-35 hover:opacity-70 transition-opacity"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={s.logo_url} alt={s.name} className="h-8 object-contain" />
+                    <img src={s.logo_url} alt={s.name} className="h-8 object-contain brightness-0 invert" />
                   </a>
                 ) : (
-                  <div key={s.id} className="opacity-50">
+                  <div key={s.id} className="opacity-35">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={s.logo_url} alt={s.name} className="h-8 object-contain" />
+                    <img src={s.logo_url} alt={s.name} className="h-8 object-contain brightness-0 invert" />
                   </div>
                 )
               )}
@@ -626,28 +686,29 @@ export default async function HomePage() {
       )}
 
       {/* ── CTA ──────────────────────────────────────────────────────── */}
-      <section className="bg-navy text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <span className="inline-block text-xs font-semibold text-navy bg-gold px-4 py-1.5 rounded-full uppercase tracking-[0.15em] mb-6">
+      <section className="bg-navy border-t border-rim relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+          <div className="absolute inset-0" style={gridBg} />
+        </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+          <SectionLabel>Join The League</SectionLabel>
+          <h2 className="font-display text-5xl sm:text-6xl font-bold text-white uppercase tracking-tight mt-4 max-w-2xl leading-none">
             Represent Your University
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-bold max-w-xl leading-tight">
-            Join The League Today
           </h2>
-          <p className="text-white/50 mt-4 max-w-md text-sm leading-relaxed">
+          <p className="text-white/40 mt-5 max-w-md text-sm leading-relaxed">
             Register your club, compete for your department and faculty, and
             represent your university at the championship level.
           </p>
-          <div className="mt-8 flex flex-col sm:flex-row gap-3">
+          <div className="mt-10 flex flex-col sm:flex-row gap-3">
             <Link
               href="/register"
-              className="inline-block bg-gold text-navy font-semibold text-sm px-7 py-3 rounded hover:bg-gold/90 transition-colors text-center"
+              className="inline-block bg-gold text-navy font-bold text-sm px-7 py-3.5 rounded hover:brightness-110 transition-all text-center uppercase tracking-wider"
             >
               Register Your Club
             </Link>
             <Link
               href="/sponsors"
-              className="inline-block border border-white/20 text-white font-medium text-sm px-7 py-3 rounded hover:border-white/40 hover:bg-white/5 transition-colors text-center"
+              className="inline-block border border-white/15 text-white font-medium text-sm px-7 py-3.5 rounded hover:border-white/30 hover:bg-white/5 transition-colors text-center"
             >
               Sponsor The League
             </Link>

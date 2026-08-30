@@ -35,8 +35,10 @@ export async function confirmResult(prevState: ActionState, formData: FormData):
   if (error) { console.error("admin/confirmResult:", error); return { error: "Could not confirm result." }; }
 
   revalidatePath("/admin/results");
+  revalidatePath("/admin/standings");
   revalidatePath("/admin/disputes");
   revalidatePath("/fixtures");
+  revalidatePath("/standings");
   revalidatePath("/");
   return null;
 }

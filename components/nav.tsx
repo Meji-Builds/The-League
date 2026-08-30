@@ -26,34 +26,39 @@ export function Nav() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const active = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
+
   return (
-    <header className="bg-navy border-b border-white/10">
+    <header className="sticky top-0 z-50 bg-navy/95 backdrop-blur-md border-b border-rim">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center h-16 gap-6">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
-            <div className="w-8 h-8 bg-gold rounded flex items-center justify-center flex-shrink-0">
-              <ShieldIcon className="w-4 h-4 text-navy" />
+          <Link href="/" className="flex items-center gap-2.5 shrink-0 mr-2">
+            <div className="w-7 h-7 bg-gold flex items-center justify-center shrink-0">
+              <ShieldIcon className="w-3.5 h-3.5 text-navy" />
             </div>
             <div className="leading-none">
-              <p className="text-white font-bold text-sm tracking-widest uppercase leading-none">
+              <p className="font-display text-white font-bold text-sm tracking-widest uppercase leading-none">
                 The League
               </p>
-              <p className="text-white/40 text-[9px] tracking-[0.18em] uppercase mt-0.5 leading-none">
+              <p className="text-white/30 text-[9px] tracking-[0.18em] uppercase mt-0.5 leading-none">
                 University Esports
               </p>
             </div>
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-0.5 flex-1">
             {links.map(({ label, href }) => (
               <Link
                 key={href}
                 href={href}
-                className={`text-sm font-medium transition-colors ${
-                  pathname.startsWith(href) ? "text-gold" : "text-white/70 hover:text-white"
+                className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
+                  active(href)
+                    ? "text-gold"
+                    : "text-white/50 hover:text-white hover:bg-white/5"
                 }`}
               >
                 {label}
@@ -61,14 +66,17 @@ export function Nav() {
             ))}
           </nav>
 
-          {/* Desktop CTA */}
-          <div className="hidden md:flex items-center gap-3">
-            <Link href="/login" className="text-sm font-medium text-white/60 hover:text-white transition-colors">
+          {/* Desktop CTAs */}
+          <div className="hidden md:flex items-center gap-4 ml-auto">
+            <Link
+              href="/login"
+              className="text-sm font-medium text-white/45 hover:text-white transition-colors"
+            >
               Sign in
             </Link>
             <Link
               href="/register"
-              className="text-sm font-semibold bg-gold text-navy px-4 py-2 rounded hover:bg-gold/90 transition-colors"
+              className="text-sm font-bold bg-gold text-navy px-4 py-2 rounded hover:brightness-110 transition-all uppercase tracking-wide"
             >
               Register Club
             </Link>
@@ -76,7 +84,7 @@ export function Nav() {
 
           {/* Mobile toggle */}
           <button
-            className="md:hidden text-white/60 hover:text-white p-1"
+            className="md:hidden text-white/60 hover:text-white p-1 ml-auto"
             onClick={() => setMenuOpen((v) => !v)}
             aria-label="Toggle menu"
           >
@@ -95,33 +103,33 @@ export function Nav() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden border-t border-white/10 bg-navy">
-          <nav className="flex flex-col px-4 py-3 gap-0.5">
+        <div className="md:hidden border-t border-rim bg-navy">
+          <nav className="flex flex-col px-4 py-2">
             {links.map(({ label, href }) => (
               <Link
                 key={href}
                 href={href}
                 onClick={() => setMenuOpen(false)}
-                className={`py-3 text-sm font-medium border-b border-white/5 transition-colors ${
-                  pathname.startsWith(href) ? "text-gold" : "text-white/70"
+                className={`py-3 text-sm font-medium border-b border-rim/60 transition-colors ${
+                  active(href) ? "text-gold" : "text-white/55"
                 }`}
               >
                 {label}
               </Link>
             ))}
           </nav>
-          <div className="px-4 pb-4 pt-2 flex flex-col gap-2">
+          <div className="px-4 py-4 flex flex-col gap-2.5">
             <Link
               href="/login"
               onClick={() => setMenuOpen(false)}
-              className="text-sm font-medium text-center border border-white/20 text-white/70 py-2.5 rounded transition-colors"
+              className="text-sm font-medium text-center border border-rim text-white/55 py-2.5 rounded hover:text-white hover:border-white/25 transition-colors"
             >
               Sign in
             </Link>
             <Link
               href="/register"
               onClick={() => setMenuOpen(false)}
-              className="text-sm font-semibold bg-gold text-navy py-2.5 rounded text-center transition-colors hover:bg-gold/90"
+              className="text-sm font-bold bg-gold text-navy py-2.5 rounded text-center hover:brightness-110 transition-all uppercase tracking-wide"
             >
               Register Your Club
             </Link>

@@ -1,21 +1,49 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef, useState, useTransition } from "react";
 import { createAnnouncement } from "./actions";
+import { directUpload } from "@/lib/direct-upload";
 
 export function AnnouncementForm() {
-  const [state, action, isPending] = useActionState(createAnnouncement, null);
+  const [state, formAction, isPending] = useActionState(createAnnouncement, null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [, startTransition] = useTransition();
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setUploadError(null);
+    const fd = new FormData(e.currentTarget);
+    const file = fileRef.current?.files?.[0];
+
+    if (file && file.size > 0) {
+      setUploading(true);
+      const url = await directUpload(file, "announcements");
+      setUploading(false);
+      if (!url) {
+        setUploadError("Cover image upload failed. Try again.");
+        return;
+      }
+      fd.delete("image");
+      fd.set("image_url", url);
+    }
+
+    startTransition(() => formAction(fd));
+  }
+
+  const busy = isPending || uploading;
 
   return (
-    <form action={action} className="border border-border bg-white rounded p-5 space-y-4">
+    <form onSubmit={handleSubmit} className="border border-border bg-white rounded p-5 space-y-4">
       <h3 className="text-navy font-semibold text-sm">New announcement</h3>
 
-      {"error" in (state ?? {}) && (
+      {(uploadError || (state && "error" in state)) && (
         <div className="bg-danger/5 border border-danger/30 text-danger text-xs px-3 py-2 rounded">
-          {(state as { error: string }).error}
+          {uploadError ?? (state as { error: string }).error}
         </div>
       )}
-      {"success" in (state ?? {}) && (
+      {state && "success" in state && (
         <div className="bg-success/5 border border-success/30 text-success text-xs px-3 py-2 rounded">
           Announcement published.
         </div>
@@ -52,6 +80,7 @@ export function AnnouncementForm() {
           Cover image <span className="text-muted font-normal normal-case">(optional)</span>
         </label>
         <input
+          ref={fileRef}
           name="image"
           type="file"
           accept="image/*"
@@ -61,10 +90,10 @@ export function AnnouncementForm() {
 
       <button
         type="submit"
-        disabled={isPending}
+        disabled={busy}
         className="bg-gold text-navy font-semibold text-sm px-5 py-2 rounded hover:bg-gold/90 transition-colors disabled:opacity-60"
       >
-        {isPending ? "Publishing..." : "Publish announcement"}
+        {uploading ? "Uploading image..." : isPending ? "Publishing..." : "Publish announcement"}
       </button>
     </form>
   );

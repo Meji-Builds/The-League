@@ -60,10 +60,7 @@ export function NavHeader({ brand, badge, items }: Props) {
         {/* Desktop sign out */}
         <div className="hidden md:block ml-auto shrink-0">
           <form action="/api/auth/signout" method="POST">
-            <button
-              type="submit"
-              className="text-white/40 hover:text-white text-xs transition-colors"
-            >
+            <button type="submit" className="text-white/40 hover:text-white text-xs transition-colors">
               Sign out
             </button>
           </form>
