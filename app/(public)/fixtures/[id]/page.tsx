@@ -97,7 +97,7 @@ export default async function FixtureDetailPage({ params }: Props) {
       <div className="bg-card border border-rim p-6 mb-6 rounded">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-gold">
+            <p className="text-xs font-bold uppercase tracking-[0.15em] text-gold">
               {f.competition?.name}
             </p>
             <p className="text-xs text-dim">
@@ -126,7 +126,7 @@ export default async function FixtureDetailPage({ params }: Props) {
 
           <div className="text-center shrink-0">
             {f.confirmed_score ? (
-              <p className="font-display text-5xl font-bold text-white tabular-nums leading-none">
+              <p className="font-display text-5xl font-bold text-gold tabular-nums leading-none">
                 {f.confirmed_score.score_a}&nbsp;&ndash;&nbsp;{f.confirmed_score.score_b}
               </p>
             ) : (

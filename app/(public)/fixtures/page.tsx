@@ -104,7 +104,7 @@ export default async function FixturesPage() {
           {groups.map((g, gi) => (
             <div key={gi}>
               <div className="flex items-center gap-3 mb-2">
-                <p className="text-xs font-semibold text-dim uppercase tracking-wider">{g.label}</p>
+                <p className="text-xs font-semibold text-gold uppercase tracking-wider">{g.label}</p>
                 <div className="flex-1 h-px bg-rim" />
               </div>
 
@@ -131,7 +131,7 @@ export default async function FixturesPage() {
                     {/* Score / VS */}
                     <div className="w-20 text-center shrink-0">
                       {f.confirmed_score ? (
-                        <span className="font-display text-base font-bold text-white tabular-nums">
+                        <span className="font-display text-base font-bold text-gold tabular-nums">
                           {f.confirmed_score.score_a}&nbsp;&ndash;&nbsp;{f.confirmed_score.score_b}
                         </span>
                       ) : (

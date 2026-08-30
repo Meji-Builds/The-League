@@ -234,7 +234,7 @@ export default async function HomePage() {
         />
         <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-gradient-to-l from-cobalt/5 to-transparent pointer-events-none" aria-hidden="true" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 w-full">
-          <p className="text-cobalt text-xs font-semibold uppercase tracking-[0.3em] mb-5">
+          <p className="text-gold text-xs font-semibold uppercase tracking-[0.3em] mb-5">
             University Esports
           </p>
           <h1 className="font-display text-6xl sm:text-7xl md:text-8xl font-bold leading-none tracking-tight uppercase max-w-4xl whitespace-pre-line">
@@ -408,7 +408,7 @@ export default async function HomePage() {
                   {/* Score / VS */}
                   <div className="w-24 text-center shrink-0">
                     {f.confirmed_score ? (
-                      <span className="font-display text-base font-bold text-white tabular-nums">
+                      <span className="font-display text-base font-bold text-gold tabular-nums">
                         {f.confirmed_score.score_a}&nbsp;&ndash;&nbsp;{f.confirmed_score.score_b}
                       </span>
                     ) : (
@@ -623,7 +623,7 @@ export default async function HomePage() {
           }}
         />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <p className="text-cobalt text-xs font-semibold uppercase tracking-[0.3em] mb-4">Join The League</p>
+          <p className="text-gold text-xs font-semibold uppercase tracking-[0.3em] mb-4">Join The League</p>
           <h2 className="font-display text-5xl sm:text-6xl font-bold text-white uppercase tracking-tight max-w-2xl leading-none">
             Represent Your University
           </h2>

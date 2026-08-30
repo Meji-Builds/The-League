@@ -69,7 +69,7 @@ export default async function CompetitionsPage() {
         items.length > 0 ? (
           <section key={title} className="mb-12">
             <div className="flex items-center gap-3 mb-4">
-              <p className="text-xs font-semibold text-dim uppercase tracking-wider">{title}</p>
+              <p className="text-xs font-semibold text-gold uppercase tracking-wider">{title}</p>
               <div className="flex-1 h-px bg-rim" />
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

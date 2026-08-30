@@ -53,7 +53,7 @@ export default async function ClubsPage() {
         Object.entries(byFaculty).map(([faculty, facultyClubs]) => (
           <section key={faculty} className="mb-12">
             <div className="flex items-center gap-3 mb-4">
-              <p className="text-xs font-semibold text-dim uppercase tracking-wider whitespace-nowrap">{faculty}</p>
+              <p className="text-xs font-semibold text-gold uppercase tracking-wider whitespace-nowrap">{faculty}</p>
               <div className="flex-1 h-px bg-rim" />
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">

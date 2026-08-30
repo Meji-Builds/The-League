@@ -121,7 +121,7 @@ export default async function StandingsPage() {
             <section key={i} className="mb-10">
               <div className="flex items-center gap-3 mb-3">
                 <div className="min-w-0">
-                  <p className="text-xs text-dim truncate">{g.competition}</p>
+                  <p className="text-xs font-semibold text-gold uppercase tracking-wider truncate">{g.competition}</p>
                   <p className="text-sm font-semibold text-white">
                     {g.stage !== "N/A" ? `${g.stage} Stage` : g.group}
                   </p>

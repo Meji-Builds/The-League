@@ -98,11 +98,11 @@ export default async function NewsPage() {
               <div className="p-5">
                 <div className="flex items-center gap-2 mb-2">
                   {item.source === "club" ? (
-                    <span className="text-[10px] font-bold uppercase tracking-wide text-gold bg-gold/10 px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] font-bold uppercase tracking-wide text-cobalt bg-cobalt/10 px-1.5 py-0.5 rounded">
                       {item.club_name ?? "Club"}
                     </span>
                   ) : (
-                    <span className="text-[10px] font-bold uppercase tracking-wide text-cobalt bg-cobalt/10 px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] font-bold uppercase tracking-wide text-gold bg-gold/10 px-1.5 py-0.5 rounded">
                       Official
                     </span>
                   )}
