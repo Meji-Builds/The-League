@@ -197,10 +197,8 @@ export default async function HomePage() {
     <>
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section className="bg-navy text-white relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-          <div className="absolute -right-32 top-0 w-[500px] h-[500px] border border-white/5 rotate-12" />
-          <div className="absolute -right-16 top-10 w-[500px] h-[500px] border border-white/5 rotate-12" />
-          <div className="absolute right-40 -top-20 w-[300px] h-[300px] bg-cobalt/10 rotate-12 blur-3xl" />
+        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+          <div className="absolute right-0 top-0 w-80 h-80 bg-cobalt/10 rotate-12 blur-3xl translate-x-1/2 -translate-y-1/4" />
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
           <p className="text-cobalt text-xs font-semibold uppercase tracking-[0.25em] mb-4">
