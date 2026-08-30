@@ -23,6 +23,23 @@ interface AnnouncementRow {
   published_at: string;
 }
 
+interface ClubPostRow {
+  id:           string;
+  title:        string;
+  image_url:    string | null;
+  published_at: string;
+  club:         { name: string } | null;
+}
+
+interface NewsItem {
+  id:           string;
+  title:        string;
+  image_url:    string | null;
+  published_at: string;
+  href:         string;
+  source:       string;
+}
+
 interface ClubRow {
   id:         string;
   name:       string;
@@ -126,6 +143,7 @@ async function getPageData() {
     rPlayers,
     rSponsors,
     rLivestreams,
+    rClubPosts,
   ] = await Promise.allSettled([
     db.from("competitions")
       .select("*")
@@ -160,12 +178,41 @@ async function getPageData() {
       .select("id, url, title")
       .eq("is_active", true)
       .order("created_at", { ascending: true }),
+    db.from("club_posts")
+      .select("id, title, image_url, published_at, club:clubs(name)")
+      .eq("status", "approved")
+      .order("published_at", { ascending: false })
+      .limit(10),
   ]);
 
   const players = settled<PlayerRow[]>(rPlayers as PromiseSettledResult<{ data: PlayerRow[] | null }>) ?? [];
   const topPlayers = [...players]
     .sort((a, b) => (b.stats?.wins ?? 0) - (a.stats?.wins ?? 0))
     .slice(0, 5);
+
+  const announcements = (settled<AnnouncementRow[]>(rAnnouncements as PromiseSettledResult<{ data: AnnouncementRow[] | null }>) ?? []) as AnnouncementRow[];
+  const clubPosts     = (settled<ClubPostRow[]>(rClubPosts as PromiseSettledResult<{ data: ClubPostRow[] | null }>) ?? []) as ClubPostRow[];
+
+  const newsItems: NewsItem[] = [
+    ...announcements.map((a) => ({
+      id:           a.id,
+      title:        a.title,
+      image_url:    a.image_url,
+      published_at: a.published_at,
+      href:         `/news/${a.slug}`,
+      source:       "News",
+    })),
+    ...clubPosts.map((p) => ({
+      id:           p.id,
+      title:        p.title,
+      image_url:    p.image_url,
+      published_at: p.published_at,
+      href:         `/news/club/${p.id}`,
+      source:       p.club?.name ?? "Club Update",
+    })),
+  ]
+    .sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime())
+    .slice(0, 4);
 
   return {
     competitions:  (settled<Competition[]>(rCompetitions as PromiseSettledResult<{ data: Competition[] | null }>) ?? []) as Competition[],
@@ -176,7 +223,7 @@ async function getPageData() {
       fixtures:     settledCount(rFixtureCount      as PromiseSettledResult<{ count: number | null }>),
     },
     siteSettings:  (rSiteSettings.status === "fulfilled" ? rSiteSettings.value.data : null) as SiteSettings | null,
-    announcements: (settled<AnnouncementRow[]>(rAnnouncements as PromiseSettledResult<{ data: AnnouncementRow[] | null }>) ?? []) as AnnouncementRow[],
+    newsItems,
     fixtures:      (settled<FixtureRow[]>(rFixtures as PromiseSettledResult<{ data: FixtureRow[] | null }>) ?? []) as FixtureRow[],
     topClubs:      (settled<ClubRow[]>(rTopClubs as PromiseSettledResult<{ data: ClubRow[] | null }>) ?? []) as ClubRow[],
     topPlayers,
@@ -189,7 +236,7 @@ async function getPageData() {
 
 export default async function HomePage() {
   const {
-    competitions, summary, siteSettings, announcements,
+    competitions, summary, siteSettings, newsItems,
     fixtures, topClubs, topPlayers, sponsors, livestreams,
   } = await getPageData();
 
@@ -538,7 +585,7 @@ export default async function HomePage() {
       )}
 
       {/* ── Latest News ───────────────────────────────────────────────── */}
-      {announcements.length > 0 && (
+      {newsItems.length > 0 && (
         <section className="py-16 bg-white border-t border-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between mb-8">
@@ -551,18 +598,18 @@ export default async function HomePage() {
               </Link>
             </div>
             <div className="divide-y divide-border">
-              {announcements.map((post) => (
+              {newsItems.map((item) => (
                 <Link
-                  key={post.id}
-                  href={`/news/${post.slug}`}
+                  key={item.id}
+                  href={item.href}
                   className="flex items-start gap-4 py-4 group"
                 >
-                  {post.image_url ? (
+                  {item.image_url ? (
                     <div className="w-20 h-14 shrink-0 overflow-hidden bg-surface">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={post.image_url}
-                        alt={post.title}
+                        src={item.image_url}
+                        alt={item.title}
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -573,15 +620,15 @@ export default async function HomePage() {
                   )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-semibold text-gold uppercase tracking-wider">News</span>
+                      <span className="text-xs font-semibold text-gold uppercase tracking-wider">{item.source}</span>
                       <span className="text-muted text-xs">
-                        {new Date(post.published_at).toLocaleDateString("en-GB", {
+                        {new Date(item.published_at).toLocaleDateString("en-GB", {
                           day: "numeric", month: "short", year: "numeric",
                         })}
                       </span>
                     </div>
                     <h3 className="font-semibold text-navy text-sm leading-snug group-hover:text-cobalt transition-colors line-clamp-2">
-                      {post.title}
+                      {item.title}
                     </h3>
                   </div>
                 </Link>
