@@ -8,6 +8,7 @@ interface SiteSettings {
   hero_title:        string | null;
   hero_subtitle:     string | null;
   hero_bg_image_url: string | null;
+  about_text:        string | null;
 }
 
 interface LivestreamRow {
@@ -247,13 +248,13 @@ export default async function HomePage() {
           <div className="mt-8 flex flex-col sm:flex-row gap-3">
             <Link
               href="/register"
-              className="inline-block bg-gold text-navy font-bold text-sm px-6 py-3 hover:brightness-110 transition-all text-center uppercase tracking-wider"
+              className="inline-block bg-gold text-navy font-bold text-sm px-6 py-3 rounded hover:brightness-110 transition-all text-center uppercase tracking-wider"
             >
               Register Your Club
             </Link>
             <Link
               href="/competitions"
-              className="inline-block border border-white/12 text-white/70 text-sm px-6 py-3 hover:text-white hover:border-white/25 transition-colors text-center"
+              className="inline-block border border-white/12 text-white/70 text-sm px-6 py-3 rounded hover:text-white hover:border-white/25 transition-colors text-center"
             >
               View Competitions
             </Link>
@@ -292,7 +293,7 @@ export default async function HomePage() {
                         href={stream.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block bg-card border border-rim px-5 py-4 text-sm text-cobalt hover:text-gold transition-colors"
+                        className="block bg-card border border-rim rounded px-5 py-4 text-sm text-cobalt hover:text-gold transition-colors"
                       >
                         {stream.url}
                       </a>
@@ -321,12 +322,12 @@ export default async function HomePage() {
           </div>
 
           {competitions.length === 0 ? (
-            <div className="border border-rim bg-card px-8 py-12 text-center">
+            <div className="border border-rim bg-card rounded px-8 py-12 text-center">
               <p className="text-white font-semibold text-sm">Season 1 is getting ready.</p>
               <p className="text-dim text-xs mt-2">Competitions will appear here once registration opens.</p>
               <Link
                 href="/register"
-                className="mt-5 inline-block bg-gold text-navy text-xs font-bold px-5 py-2.5 hover:brightness-110 transition-all uppercase tracking-wide"
+                className="mt-5 inline-block bg-gold text-navy text-xs font-bold px-5 py-2.5 rounded hover:brightness-110 transition-all uppercase tracking-wide"
               >
                 Register your club now
               </Link>
@@ -337,7 +338,7 @@ export default async function HomePage() {
                 <Link
                   key={c.id}
                   href={`/competitions/${c.slug}`}
-                  className="bg-card border border-rim hover:bg-white/[0.03] transition-colors group p-5 block"
+                  className="bg-card border border-rim rounded hover:bg-white/[0.03] transition-colors group p-5 block"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
@@ -384,7 +385,7 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            <div className="bg-card border border-rim divide-y divide-rim">
+            <div className="bg-card border border-rim rounded overflow-hidden divide-y divide-rim">
               {fixtures.map((f) => (
                 <Link
                   key={f.id}
@@ -430,7 +431,7 @@ export default async function HomePage() {
 
                   {/* Meta */}
                   <div className="hidden sm:flex items-center gap-3 shrink-0">
-                    <span className={`text-[10px] font-semibold px-2 py-0.5 ${statusPill[f.status] ?? "bg-cobalt/15 text-cobalt"}`}>
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${statusPill[f.status] ?? "bg-cobalt/15 text-cobalt"}`}>
                       {statusLabel[f.status]}
                     </span>
                     {f.scheduled_at && (
@@ -462,7 +463,7 @@ export default async function HomePage() {
                       All clubs
                     </Link>
                   </div>
-                  <div className="divide-y divide-rim border border-rim">
+                  <div className="divide-y divide-rim border border-rim rounded overflow-hidden">
                     {topClubs.map((club, i) => (
                       <Link
                         key={club.id}
@@ -496,7 +497,7 @@ export default async function HomePage() {
                       All players
                     </Link>
                   </div>
-                  <div className="divide-y divide-rim border border-rim">
+                  <div className="divide-y divide-rim border border-rim rounded overflow-hidden">
                     {topPlayers.map((player, i) => (
                       <div key={player.id} className="flex items-center gap-3 px-4 py-3">
                         <span className="text-dim text-xs w-4 text-right shrink-0">{i + 1}</span>
@@ -539,7 +540,7 @@ export default async function HomePage() {
                 All news
               </Link>
             </div>
-            <div className="grid sm:grid-cols-2 gap-px bg-rim border border-rim">
+            <div className="grid sm:grid-cols-2 gap-px bg-rim border border-rim rounded overflow-hidden">
               {newsItems.map((item) => (
                 <Link
                   key={item.id}
@@ -547,7 +548,7 @@ export default async function HomePage() {
                   className="flex items-start gap-4 bg-card hover:bg-white/[0.035] transition-colors group p-4"
                 >
                   {item.image_url ? (
-                    <div className="w-20 h-16 shrink-0 overflow-hidden bg-panel">
+                    <div className="w-20 h-16 shrink-0 overflow-hidden rounded bg-panel">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={item.image_url}
@@ -556,7 +557,7 @@ export default async function HomePage() {
                       />
                     </div>
                   ) : (
-                    <div className="w-20 h-16 shrink-0 bg-panel border border-rim flex items-center justify-center">
+                    <div className="w-20 h-16 shrink-0 bg-panel border border-rim rounded flex items-center justify-center">
                       <span className="text-dim text-[9px] font-semibold uppercase tracking-wider">No image</span>
                     </div>
                   )}
@@ -610,6 +611,18 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* ── About Us ─────────────────────────────────────────────────── */}
+      {siteSettings?.about_text && (
+        <section className="py-16 bg-navy border-t border-rim">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-2xl">
+              <p className="text-gold text-xs font-semibold uppercase tracking-[0.3em] mb-4">About Us</p>
+              <p className="text-white/70 text-sm leading-relaxed">{siteSettings.about_text}</p>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ── CTA ──────────────────────────────────────────────────────── */}
       <section className="bg-navy border-t border-rim">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
@@ -624,13 +637,13 @@ export default async function HomePage() {
           <div className="mt-8 flex flex-col sm:flex-row gap-3">
             <Link
               href="/register"
-              className="inline-block bg-gold text-navy font-bold text-sm px-6 py-3 hover:brightness-110 transition-all text-center uppercase tracking-wider"
+              className="inline-block bg-gold text-navy font-bold text-sm px-6 py-3 rounded hover:brightness-110 transition-all text-center uppercase tracking-wider"
             >
               Register Your Club
             </Link>
             <Link
               href="/sponsors"
-              className="inline-block border border-white/12 text-white/60 text-sm px-6 py-3 hover:text-white hover:border-white/25 transition-colors text-center"
+              className="inline-block border border-white/12 text-white/60 text-sm px-6 py-3 rounded hover:text-white hover:border-white/25 transition-colors text-center"
             >
               Sponsor The League
             </Link>

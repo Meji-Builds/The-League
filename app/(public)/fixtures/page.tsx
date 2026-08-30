@@ -95,7 +95,7 @@ export default async function FixturesPage() {
       </div>
 
       {groups.length === 0 ? (
-        <div className="border border-rim bg-card px-8 py-14 text-center">
+        <div className="border border-rim bg-card rounded px-8 py-14 text-center">
           <p className="text-white font-semibold text-sm">No fixtures scheduled yet.</p>
           <p className="text-dim text-sm mt-2">Check back once the competition stage begins.</p>
         </div>
@@ -108,7 +108,7 @@ export default async function FixturesPage() {
                 <div className="flex-1 h-px bg-rim" />
               </div>
 
-              <div className="border border-rim divide-y divide-rim">
+              <div className="border border-rim rounded overflow-hidden divide-y divide-rim">
                 {g.fixtures.map((f) => (
                   <Link
                     key={f.id}

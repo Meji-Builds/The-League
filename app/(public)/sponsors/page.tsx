@@ -81,7 +81,7 @@ export default async function SponsorsPage() {
             return (
               <div
                 key={key}
-                className={`border bg-white p-6 ${
+                className={`border bg-white p-6 rounded ${
                   key === "title" ? "border-gold" : "border-border"
                 }`}
               >
@@ -122,7 +122,7 @@ export default async function SponsorsPage() {
         </div>
 
         {/* CTA */}
-        <div className="bg-surface border border-border p-8 text-center">
+        <div className="bg-surface border border-border p-8 text-center rounded">
           <h3 className="text-lg font-bold text-navy mb-2">Interested in partnering?</h3>
           <p className="text-muted text-sm mb-6 max-w-md mx-auto">
             We work with sponsors to build custom packages that fit your goals. Reach
