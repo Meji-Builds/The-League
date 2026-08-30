@@ -34,7 +34,7 @@ create table clubs (
   badge_url     text,
   department    text not null,
   faculty       text not null,
-  owner_id      uuid not null, -- references auth.users
+  owner_id      uuid not null references auth.users(id),
   bio           text,
   status        club_status not null default 'pending',
   merch         jsonb not null default '[]',
@@ -57,10 +57,6 @@ create table club_owners (
   club_id                             uuid references clubs(id),
   created_at                          timestamptz not null default now()
 );
-
-alter table clubs
-  add constraint clubs_owner_id_fkey
-  foreign key (owner_id) references club_owners(id);
 
 -- ------------------------------------------------------------------ --
 -- PLAYERS
@@ -241,22 +237,33 @@ create policy "Public can read highlights"
 create policy "Public can read global sponsors"
   on global_sponsors for select using (true);
 
+-- Authenticated users can create their own club (one per user enforced by club_owners.user_id unique)
+create policy "Owner can insert own club"
+  on clubs for insert with check (owner_id = auth.uid());
+
 -- Club owners can read/write their own club
 create policy "Owner can read own club"
-  on clubs for select using (
-    owner_id = (select id from club_owners where user_id = auth.uid())
-  );
+  on clubs for select using (owner_id = auth.uid());
 
 create policy "Owner can update own club"
-  on clubs for update using (
-    owner_id = (select id from club_owners where user_id = auth.uid())
-  );
+  on clubs for update using (owner_id = auth.uid());
+
+-- Club owners can insert and read their own owner record
+create policy "Owner can insert own owner record"
+  on club_owners for insert with check (user_id = auth.uid());
+
+create policy "Owner can read own owner record"
+  on club_owners for select using (user_id = auth.uid());
 
 -- Club owners can manage their own players
 create policy "Owner can manage own players"
   on players for all using (
     club_id = (select club_id from club_owners where user_id = auth.uid())
   );
+
+-- Anyone can read the fee settings (amounts are not sensitive)
+create policy "Anyone can read fee settings"
+  on fee_settings for select using (true);
 
 -- Club owners can read their own competition entries and payments
 create policy "Owner can read own entries"
