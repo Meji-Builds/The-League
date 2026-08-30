@@ -45,7 +45,9 @@ export default async function FixtureDetailPage({ params }: Props) {
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data } = await supabase
+  // Try with lineup images first; fall back to core fields if columns don't exist yet
+  let data: unknown = null;
+  const { data: full, error } = await supabase
     .from("fixtures")
     .select(`
       id, stage, group_name, matchday, status, scheduled_at,
@@ -56,6 +58,22 @@ export default async function FixtureDetailPage({ params }: Props) {
     `)
     .eq("id", id)
     .single();
+
+  if (error) {
+    const { data: core } = await supabase
+      .from("fixtures")
+      .select(`
+        id, stage, group_name, matchday, status, scheduled_at, confirmed_score,
+        club_a:clubs!fixtures_club_a_id_fkey(id, name, slug, logo_url),
+        club_b:clubs!fixtures_club_b_id_fkey(id, name, slug, logo_url),
+        competition:competitions(id, name, slug)
+      `)
+      .eq("id", id)
+      .single();
+    data = core;
+  } else {
+    data = full;
+  }
 
   if (!data) notFound();
   const f = data as unknown as FixtureDetail;
