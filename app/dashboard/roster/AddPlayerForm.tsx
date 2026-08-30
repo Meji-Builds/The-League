@@ -12,7 +12,7 @@ export function AddPlayerForm() {
   }, [state]);
 
   return (
-    <form ref={formRef} action={action} encType="multipart/form-data" className="border border-border bg-white rounded p-5">
+    <form ref={formRef} action={action} className="border border-border bg-white rounded p-5">
       <h3 className="text-navy font-semibold text-sm mb-4">Add a player</h3>
 
       {state?.error && (
