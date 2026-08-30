@@ -6,20 +6,19 @@ export const metadata = { title: "Standings" };
 // For each competition+stage+group, we compute W/D/L/GF/GA/GD/Pts.
 async function getStandings(): Promise<FixtureWithJoins[]> {
   try {
-    const supabase = await createClient();
-    const { data: fixtures } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db = (await createClient()) as any;
+    const { data: fixtures } = await db
       .from("fixtures")
       .select(`
-        *,
-        club_a:clubs!fixtures_club_a_id_fkey(id, name, slug),
-        club_b:clubs!fixtures_club_b_id_fkey(id, name, slug),
+        id, stage, group_name, matchday, status, confirmed_score,
+        club_a:clubs!club_a_id(id, name, slug),
+        club_b:clubs!club_b_id(id, name, slug),
         competition:competitions(id, name, slug)
       `)
       .eq("status", "confirmed");
 
-    // Join queries return a shape that isn't in the static Database type,
-    // so we use unknown[] and narrow at the call site.
-    return (fixtures ?? []) as unknown as FixtureWithJoins[];
+    return (fixtures ?? []) as FixtureWithJoins[];
   } catch {
     return [];
   }

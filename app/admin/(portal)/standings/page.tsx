@@ -81,7 +81,7 @@ export default async function AdminStandingsPage({ searchParams }: { searchParam
   const db = (await createClient()) as any;
 
   const [{ data: rawComps }, { data: rawClubs }] = await Promise.all([
-    db.from("competitions").select("id, name, format").in("status", ["in_progress", "completed"]).order("name"),
+    db.from("competitions").select("id, name, format").order("name"),
     db.from("clubs").select("id, name, slug").eq("status", "approved"),
   ]);
 
