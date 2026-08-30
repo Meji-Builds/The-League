@@ -70,13 +70,13 @@ export function HighlightForm({ competitions }: { competitions: Competition[] })
 
         <div>
           <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
-            Thumbnail URL <span className="text-muted font-normal normal-case">(optional)</span>
+            Thumbnail <span className="text-muted font-normal normal-case">(optional)</span>
           </label>
           <input
-            name="thumbnail_url"
-            type="url"
-            placeholder="https://..."
-            className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
+            name="thumbnail"
+            type="file"
+            accept="image/*"
+            className="w-full text-sm text-muted file:mr-3 file:py-1.5 file:px-4 file:rounded file:border file:border-border file:text-xs file:font-semibold file:text-navy file:bg-white hover:file:bg-surface transition-colors"
           />
         </div>
       </div>

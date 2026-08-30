@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { uploadMedia } from "@/lib/supabase/upload-media";
 import { revalidatePath } from "next/cache";
 
 async function requireAdmin() {
@@ -25,12 +26,16 @@ export async function createAnnouncement(prevState: ActionState, formData: FormD
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = supabase as any;
 
-  const title     = (formData.get("title")     as string).trim();
-  const body      = (formData.get("body")      as string).trim();
-  const image_url = (formData.get("image_url") as string).trim() || null;
+  const title     = (formData.get("title") as string).trim();
+  const body      = (formData.get("body")  as string).trim();
+  const imageFile = formData.get("image") as File | null;
 
   if (!title) return { error: "Title is required." };
   if (!body)  return { error: "Body is required." };
+
+  const image_url = imageFile?.size
+    ? await uploadMedia(supabase, imageFile, "announcements")
+    : null;
 
   const baseSlug = slugify(title);
   const slug     = `${baseSlug}-${Date.now().toString(36)}`;

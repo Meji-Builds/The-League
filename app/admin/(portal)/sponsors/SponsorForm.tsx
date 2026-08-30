@@ -55,14 +55,14 @@ export function SponsorForm() {
 
         <div>
           <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
-            Logo URL <span className="text-danger">*</span>
+            Logo <span className="text-danger">*</span>
           </label>
           <input
-            name="logo_url"
-            type="url"
+            name="logo"
+            type="file"
+            accept="image/*"
             required
-            placeholder="https://..."
-            className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
+            className="w-full text-sm text-muted file:mr-3 file:py-1.5 file:px-4 file:rounded file:border file:border-border file:text-xs file:font-semibold file:text-navy file:bg-white hover:file:bg-surface transition-colors"
           />
         </div>
 
