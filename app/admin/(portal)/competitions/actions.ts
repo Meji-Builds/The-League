@@ -68,6 +68,9 @@ export async function updateCompetitionBanner(prevState: ActionState, formData: 
 
   if (error) {
     console.error("admin/updateCompetitionBanner:", error);
+    if (error.message?.includes("banner_image_url")) {
+      return { error: "Column 'banner_image_url' not yet in DB. Add it to the competitions table first." };
+    }
     return { error: "Could not save banner. Please try again." };
   }
 

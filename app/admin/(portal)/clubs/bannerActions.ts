@@ -27,6 +27,9 @@ export async function updateClubBanner(prevState: ActionState, formData: FormDat
 
   if (error) {
     console.error("admin/updateClubBanner:", error);
+    if (error.message?.includes("banner_image_url")) {
+      return { error: "Column 'banner_image_url' not yet in DB. Add it to the clubs table first." };
+    }
     return { error: "Could not save banner. Please try again." };
   }
 
