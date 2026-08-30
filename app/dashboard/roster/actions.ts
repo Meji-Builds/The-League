@@ -47,14 +47,12 @@ export async function addPlayer(prevState: ActionState, formData: FormData): Pro
     return { error: "Could not upload ID card image. Please try again." };
   }
 
-  const { data: { publicUrl } } = supabase.storage.from("id-cards").getPublicUrl(storagePath);
-
   const { error } = await db.from("players").insert({
     club_id: clubId,
     gamer_tag: gamerTag,
     full_name: fullName,
     position,
-    id_card_url: publicUrl,
+    id_card_url: storagePath,
     id_card_status: "pending",
     stats: { matches_played: 0, wins: 0, losses: 0 },
   });

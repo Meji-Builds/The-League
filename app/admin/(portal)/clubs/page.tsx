@@ -45,9 +45,16 @@ function ActionForm({ action, clubId, label, className }: { action: typeof appro
   );
 }
 
+function idCardPath(urlOrPath: string): string {
+  const marker = "/id-cards/";
+  const idx = urlOrPath.indexOf(marker);
+  return idx >= 0 ? urlOrPath.slice(idx + marker.length) : urlOrPath;
+}
+
 export default async function AdminClubsPage() {
+  const supabase = await createClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const db = (await createClient()) as any;
+  const db = supabase as any;
 
   const { data: rawClubs } = await db
     .from("clubs")
@@ -62,7 +69,17 @@ export default async function AdminClubsPage() {
     .eq("id_card_status", "pending")
     .order("created_at", { ascending: false });
 
-  const pendingPlayers = (rawPlayers ?? []) as Player[];
+  const rawPendingPlayers = (rawPlayers ?? []) as Player[];
+
+  // Generate 1-hour signed URLs for each pending player's ID card (private bucket).
+  const pendingPlayers = await Promise.all(
+    rawPendingPlayers.map(async (player) => {
+      if (!player.id_card_url) return player;
+      const path = idCardPath(player.id_card_url);
+      const { data } = await supabase.storage.from("id-cards").createSignedUrl(path, 3600);
+      return { ...player, id_card_url: data?.signedUrl ?? null };
+    })
+  );
 
   const pending  = clubs.filter((c) => c.status === "pending");
   const approved = clubs.filter((c) => c.status === "approved");

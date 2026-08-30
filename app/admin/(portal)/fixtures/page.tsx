@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { CreateFixtureForm } from "./CreateFixtureForm";
+import { EditFixtureForm } from "./EditFixtureForm";
 
 export const metadata = { title: "Admin — Fixtures" };
 
@@ -77,20 +78,25 @@ export default async function AdminFixturesPage() {
       ) : (
         <div className="flex flex-col gap-3">
           {fixtures.map((f) => (
-            <div key={f.id} className="border border-border bg-white rounded p-4 flex flex-col sm:flex-row sm:items-center gap-3">
-              <div className="flex-1">
-                <p className="text-xs text-muted mb-0.5">
-                  {f.competition?.name} ({f.competition?.edition}) &middot; {f.stage} &middot; {f.group_name} &middot; Day {f.matchday}
-                </p>
-                <p className="font-semibold text-navy text-sm">
-                  {f.club_a?.name ?? "TBC"} vs {f.club_b?.name ?? "TBC"}
-                </p>
-              </div>
-              <div className="text-right flex-shrink-0">
-                <p className="text-xs text-muted">{formatDate(f.scheduled_at)}</p>
-                <span className={`inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded capitalize ${statusStyles[f.status] ?? ""}`}>
-                  {f.status}
-                </span>
+            <div key={f.id} className="border border-border bg-white rounded p-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex-1">
+                  <p className="text-xs text-muted mb-0.5">
+                    {f.competition?.name} ({f.competition?.edition}) &middot; {f.stage} &middot; {f.group_name} &middot; Day {f.matchday}
+                  </p>
+                  <p className="font-semibold text-navy text-sm">
+                    {f.club_a?.name ?? "TBC"} vs {f.club_b?.name ?? "TBC"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <div className="text-right">
+                    <p className="text-xs text-muted">{formatDate(f.scheduled_at)}</p>
+                    <span className={`inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded capitalize ${statusStyles[f.status] ?? ""}`}>
+                      {f.status}
+                    </span>
+                  </div>
+                  <EditFixtureForm fixture={f} />
+                </div>
               </div>
             </div>
           ))}

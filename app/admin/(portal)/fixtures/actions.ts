@@ -48,5 +48,34 @@ export async function createFixture(prevState: ActionState, formData: FormData):
   }
 
   revalidatePath("/admin/fixtures");
+  revalidatePath("/fixtures");
+  revalidatePath("/");
+  return null;
+}
+
+export async function updateFixture(prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const db = await requireAdminDb();
+
+  const fixtureId   = formData.get("fixture_id") as string;
+  const stage       = formData.get("stage") as string;
+  const groupName   = (formData.get("group_name") as string)?.trim() || "Open";
+  const matchday    = parseInt(formData.get("matchday") as string, 10) || 1;
+  const scheduledAt = (formData.get("scheduled_at") as string) || null;
+
+  if (!fixtureId) return { error: "Invalid fixture." };
+
+  const { error } = await db
+    .from("fixtures")
+    .update({ stage, group_name: groupName, matchday, scheduled_at: scheduledAt })
+    .eq("id", fixtureId);
+
+  if (error) {
+    console.error("admin/updateFixture:", error);
+    return { error: "Could not update fixture. Please try again." };
+  }
+
+  revalidatePath("/admin/fixtures");
+  revalidatePath("/fixtures");
+  revalidatePath("/");
   return null;
 }
