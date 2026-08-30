@@ -51,8 +51,6 @@ export async function updateSiteSettings(prevState: ActionState, formData: FormD
     social_twitter:   (formData.get("social_twitter")   as string).trim() || null,
     social_tiktok:    (formData.get("social_tiktok")    as string).trim() || null,
     social_discord:   (formData.get("social_discord")   as string).trim() || null,
-    livestream_url:   (formData.get("livestream_url")   as string).trim() || null,
-    livestream_title: (formData.get("livestream_title") as string).trim() || "Live Now",
     about_text:       (formData.get("about_text")       as string).trim() || null,
     contact_email:    (formData.get("contact_email")    as string).trim() || null,
     hero_title:       (formData.get("hero_title")       as string).trim() || "University Esports, Officially Organized.",

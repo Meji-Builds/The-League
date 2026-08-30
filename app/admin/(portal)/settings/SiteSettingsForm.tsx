@@ -9,8 +9,6 @@ interface SiteSettings {
   social_twitter:   string | null;
   social_tiktok:    string | null;
   social_discord:   string | null;
-  livestream_url:   string | null;
-  livestream_title: string;
   about_text:       string | null;
   contact_email:    string | null;
   hero_title:       string | null;
@@ -63,39 +61,6 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings | null }
           <Field label="Twitter / X" name="social_twitter" value={settings?.social_twitter   ?? null} placeholder="https://x.com/..." />
           <Field label="TikTok"    name="social_tiktok"    value={settings?.social_tiktok    ?? null} placeholder="https://tiktok.com/@..." />
           <Field label="Discord"   name="social_discord"   value={settings?.social_discord   ?? null} placeholder="https://discord.gg/..." />
-        </div>
-      </div>
-
-      <div className="border-t border-border pt-5">
-        <p className="text-navy text-xs font-semibold uppercase tracking-wide mb-3">Livestream</p>
-        <p className="text-muted text-xs mb-3">
-          Paste a YouTube video or live URL. Leave blank to hide the stream section.
-        </p>
-        <div className="space-y-3">
-          <div>
-            <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
-              Stream URL
-            </label>
-            <input
-              name="livestream_url"
-              type="url"
-              defaultValue={settings?.livestream_url ?? ""}
-              placeholder="https://www.youtube.com/watch?v=..."
-              className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
-            />
-          </div>
-          <div>
-            <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
-              Stream title
-            </label>
-            <input
-              name="livestream_title"
-              type="text"
-              defaultValue={settings?.livestream_title ?? "Live Now"}
-              placeholder="e.g. Season 1 — Grand Finals"
-              className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
-            />
-          </div>
         </div>
       </div>
 
