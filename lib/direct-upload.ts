@@ -1,47 +1,54 @@
-import { getSignedUploadUrl, getIdCardUploadUrl } from "@/app/actions/upload";
+import { createClient } from "@/lib/supabase/client";
 
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-async function putToSignedUrl(signedUrl: string, file: File): Promise<boolean> {
-  const res = await fetch(signedUrl, {
-    method: "PUT",
-    body: file,
-    headers: {
-      "Content-Type": file.type || "application/octet-stream",
-      "apikey": SUPABASE_ANON_KEY,
-      "x-upsert": "false",
-    },
-  });
-
-  if (!res.ok) {
-    console.error("directUpload: PUT failed", res.status, await res.text().catch(() => ""));
-  }
-
-  return res.ok;
+function randomPath(folder: string, ext: string): string {
+  return `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 }
 
 export async function directUpload(file: File, folder: string): Promise<string | null> {
+  const supabase = createClient();
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
-  const result = await getSignedUploadUrl(folder, ext);
+  const path = randomPath(folder, ext);
 
-  if ("error" in result) {
-    console.error("directUpload: signed URL error:", result.error);
+  const { error } = await supabase.storage.from("media").upload(path, file, {
+    contentType: file.type || "application/octet-stream",
+    upsert: false,
+  });
+
+  if (error) {
+    console.error("directUpload:", error.message);
     return null;
   }
 
-  const ok = await putToSignedUrl(result.signedUrl, file);
-  return ok ? result.publicUrl : null;
+  return supabase.storage.from("media").getPublicUrl(path).data.publicUrl;
 }
 
 export async function directUploadIdCard(file: File): Promise<string | null> {
-  const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
-  const result = await getIdCardUploadUrl(ext);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabase = createClient() as any;
 
-  if ("error" in result) {
-    console.error("directUploadIdCard: signed URL error:", result.error);
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data: owner } = await supabase
+    .from("club_owners")
+    .select("club_id")
+    .eq("user_id", user.id)
+    .single();
+
+  if (!owner?.club_id) return null;
+
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+  const path = `${owner.club_id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+  const { error } = await supabase.storage.from("id-cards").upload(path, file, {
+    contentType: file.type || "application/octet-stream",
+    upsert: false,
+  });
+
+  if (error) {
+    console.error("directUploadIdCard:", error.message);
     return null;
   }
 
-  const ok = await putToSignedUrl(result.signedUrl, file);
-  return ok ? result.storagePath : null;
+  return path;
 }

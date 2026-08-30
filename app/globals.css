@@ -21,14 +21,14 @@
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
-}
-
-*, *::before, *::after {
-  box-sizing: border-box;
 }
 
 body {
