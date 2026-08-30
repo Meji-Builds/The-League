@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { updateCompetitionStatus } from "./actions";
 import { CreateCompetitionForm } from "./CreateCompetitionForm";
+import { BannerUploadForm } from "./BannerUploadForm";
 
 export const metadata = { title: "Admin — Competitions" };
 
@@ -15,6 +16,7 @@ interface Competition {
   status: string;
   description: string | null;
   created_at: string;
+  banner_image_url: string | null;
 }
 
 const statusStyles: Record<string, string> = {
@@ -30,7 +32,7 @@ export default async function AdminCompetitionsPage() {
 
   const { data: rawComps } = await db
     .from("competitions")
-    .select("id, name, type, format, cycle, edition, entry_fee, status, description, created_at")
+    .select("id, name, type, format, cycle, edition, entry_fee, status, description, created_at, banner_image_url")
     .order("created_at", { ascending: false });
 
   const competitions = (rawComps ?? []) as Competition[];
@@ -87,6 +89,8 @@ export default async function AdminCompetitionsPage() {
                   </button>
                 </form>
               </div>
+
+              <BannerUploadForm competitionId={comp.id} currentBannerUrl={comp.banner_image_url} />
             </div>
           ))}
         </div>

@@ -53,3 +53,25 @@ export async function updateCompetitionStatus(formData: FormData) {
   await db.from("competitions").update({ status }).eq("id", competitionId);
   revalidatePath("/admin/competitions");
 }
+
+export async function updateCompetitionBanner(prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const db = await requireAdminDb();
+  const competitionId  = (formData.get("competition_id")  as string).trim();
+  const bannerImageUrl = (formData.get("banner_image_url") as string).trim() || null;
+
+  if (!competitionId) return { error: "Missing competition ID." };
+
+  const { error } = await db
+    .from("competitions")
+    .update({ banner_image_url: bannerImageUrl })
+    .eq("id", competitionId);
+
+  if (error) {
+    console.error("admin/updateCompetitionBanner:", error);
+    return { error: "Could not save banner. Please try again." };
+  }
+
+  revalidatePath("/admin/competitions");
+  revalidatePath("/competitions");
+  return null;
+}

@@ -161,6 +161,19 @@ export default async function CompetitionPage({ params }: { params: Promise<{ sl
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
+      {/* Competition banner */}
+      {competition.banner_image_url && (
+        <div className="relative w-full h-48 sm:h-64 overflow-hidden rounded mb-8">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={competition.banner_image_url}
+            alt={competition.name}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-navy/75 via-navy/20 to-transparent" />
+        </div>
+      )}
+
       <Link
         href="/competitions"
         className="inline-flex items-center gap-1.5 text-sm text-dim hover:text-white transition-colors mb-8"

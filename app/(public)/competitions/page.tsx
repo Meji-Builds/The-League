@@ -77,30 +77,47 @@ export default async function CompetitionsPage() {
                 <Link
                   key={c.id}
                   href={`/competitions/${c.slug}`}
-                  className="block bg-card border border-rim p-6 hover:border-cobalt/50 transition-all group rounded"
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  className="block bg-card border border-rim hover:border-cobalt/50 transition-all group rounded overflow-hidden"
                 >
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <span className="text-xs text-gold font-bold uppercase tracking-wider">
-                      {typeLabel[c.type]}
-                    </span>
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusStyle[c.status] ?? "bg-white/5 text-dim"}`}>
-                      {statusLabel[c.status]}
-                    </span>
+                  {/* Banner image */}
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                  {(c as any).banner_image_url ? (
+                    <div className="relative w-full h-32 overflow-hidden">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        src={(c as any).banner_image_url}
+                        alt={c.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-navy/80 to-transparent" />
+                    </div>
+                  ) : null}
+                  <div className="p-6">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <span className="text-xs text-gold font-bold uppercase tracking-wider">
+                        {typeLabel[c.type]}
+                      </span>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusStyle[c.status] ?? "bg-white/5 text-dim"}`}>
+                        {statusLabel[c.status]}
+                      </span>
+                    </div>
+                    <p className="font-bold text-white group-hover:text-gold transition-colors leading-snug">
+                      {c.name}
+                    </p>
+                    <p className="text-dim text-xs mt-1">{c.edition}</p>
+                    {c.description && (
+                      <p className="text-dim text-sm mt-3 leading-relaxed line-clamp-2">
+                        {c.description}
+                      </p>
+                    )}
+                    {c.entry_fee > 0 && (
+                      <p className="text-xs text-white font-semibold mt-4 border-t border-rim pt-4">
+                        {"₦"}{c.entry_fee.toLocaleString()} entry fee
+                      </p>
+                    )}
                   </div>
-                  <p className="font-bold text-white group-hover:text-gold transition-colors leading-snug">
-                    {c.name}
-                  </p>
-                  <p className="text-dim text-xs mt-1">{c.edition}</p>
-                  {c.description && (
-                    <p className="text-dim text-sm mt-3 leading-relaxed line-clamp-2">
-                      {c.description}
-                    </p>
-                  )}
-                  {c.entry_fee > 0 && (
-                    <p className="text-xs text-white font-semibold mt-4 border-t border-rim pt-4">
-                      {"₦"}{c.entry_fee.toLocaleString()} entry fee
-                    </p>
-                  )}
                 </Link>
               ))}
             </div>

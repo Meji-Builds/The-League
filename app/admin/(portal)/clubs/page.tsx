@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { approveClub, suspendClub, approvePlayer, rejectPlayer } from "./actions";
+import { BannerUploadForm } from "./BannerUploadForm";
 
 export const metadata = { title: "Admin — Clubs" };
 
@@ -9,6 +10,7 @@ interface Club {
   faculty: string;
   status: string;
   created_at: string;
+  banner_image_url: string | null;
   owner: { name: string; email: string } | null;
 }
 
@@ -58,7 +60,7 @@ export default async function AdminClubsPage() {
 
   const { data: rawClubs } = await db
     .from("clubs")
-    .select("id, name, faculty, status, created_at, owner:club_owners(name, email)")
+    .select("id, name, faculty, status, created_at, banner_image_url, owner:club_owners(name, email)")
     .order("created_at", { ascending: false });
 
   const clubs = (rawClubs ?? []) as Club[];
@@ -195,36 +197,40 @@ export default async function AdminClubsPage() {
 
 function ClubRow({ club }: { club: Club }) {
   return (
-    <div className="border border-border bg-white rounded p-4 flex flex-col sm:flex-row sm:items-center gap-4">
-      <div className="flex-1">
-        <div className="flex items-center gap-2 mb-0.5">
-          <p className="font-semibold text-navy text-sm">{club.name}</p>
-          <StatusBadge status={club.status} />
+    <div className="border border-border bg-white rounded p-4">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-0.5">
+            <p className="font-semibold text-navy text-sm">{club.name}</p>
+            <StatusBadge status={club.status} />
+          </div>
+          <p className="text-xs text-muted">{club.faculty}</p>
+          {club.owner && (
+            <p className="text-xs text-muted mt-0.5">{club.owner.name} &middot; {club.owner.email}</p>
+          )}
         </div>
-        <p className="text-xs text-muted">{club.faculty}</p>
-        {club.owner && (
-          <p className="text-xs text-muted mt-0.5">{club.owner.name} &middot; {club.owner.email}</p>
-        )}
+
+        <div className="flex gap-2">
+          {club.status !== "approved" && (
+            <ActionForm
+              action={approveClub}
+              clubId={club.id}
+              label="Approve"
+              className="bg-success/10 text-success hover:bg-success/20"
+            />
+          )}
+          {club.status !== "suspended" && (
+            <ActionForm
+              action={suspendClub}
+              clubId={club.id}
+              label="Suspend"
+              className="bg-danger/10 text-danger hover:bg-danger/20"
+            />
+          )}
+        </div>
       </div>
 
-      <div className="flex gap-2">
-        {club.status !== "approved" && (
-          <ActionForm
-            action={approveClub}
-            clubId={club.id}
-            label="Approve"
-            className="bg-success/10 text-success hover:bg-success/20"
-          />
-        )}
-        {club.status !== "suspended" && (
-          <ActionForm
-            action={suspendClub}
-            clubId={club.id}
-            label="Suspend"
-            className="bg-danger/10 text-danger hover:bg-danger/20"
-          />
-        )}
-      </div>
+      <BannerUploadForm clubId={club.id} currentBannerUrl={club.banner_image_url} />
     </div>
   );
 }
