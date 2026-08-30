@@ -65,7 +65,7 @@ export function Nav() {
             </Link>
             <Link
               href="/register"
-              className="text-[13px] font-medium text-white border border-rim px-3 py-1.5 hover:border-white/25 hover:text-white transition-colors"
+              className="text-[13px] font-medium text-white border border-rim px-3 py-1.5 rounded hover:border-white/25 hover:text-white transition-colors"
             >
               Register Club
             </Link>
@@ -111,14 +111,14 @@ export function Nav() {
             <Link
               href="/login"
               onClick={() => setMenuOpen(false)}
-              className="flex-1 text-sm text-center border border-rim text-white/50 py-2 hover:text-white hover:border-white/20 transition-colors"
+              className="flex-1 text-sm text-center border border-rim rounded text-white/50 py-2 hover:text-white hover:border-white/20 transition-colors"
             >
               Sign in
             </Link>
             <Link
               href="/register"
               onClick={() => setMenuOpen(false)}
-              className="flex-1 text-sm text-center bg-gold text-navy font-semibold py-2 hover:brightness-110 transition-all"
+              className="flex-1 text-sm text-center bg-gold text-navy font-semibold py-2 rounded hover:brightness-110 transition-all"
             >
               Register Club
             </Link>
