@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { AnnouncementForm } from "./AnnouncementForm";
 import { deleteAnnouncement } from "./actions";
+import { DeleteButton } from "@/app/admin/_components/DeleteButton";
 
 export const metadata = { title: "Admin — News" };
 
@@ -63,18 +64,7 @@ export default async function AdminAnnouncementsPage() {
                   View post
                 </a>
               </div>
-              <form action={deleteAnnouncement}>
-                <input type="hidden" name="id" value={post.id} />
-                <button
-                  type="submit"
-                  className="text-xs text-danger hover:text-danger/70 transition-colors"
-                  onClick={(e) => {
-                    if (!confirm("Delete this announcement?")) e.preventDefault();
-                  }}
-                >
-                  Delete
-                </button>
-              </form>
+              <DeleteButton action={deleteAnnouncement} id={post.id} confirm="Delete this announcement?" />
             </div>
           ))}
         </div>

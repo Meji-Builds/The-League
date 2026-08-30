@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { HighlightForm } from "./HighlightForm";
 import { deleteHighlight } from "./actions";
+import { DeleteButton } from "@/app/admin/_components/DeleteButton";
 
 export const metadata = { title: "Admin — Highlights" };
 
@@ -87,18 +88,7 @@ export default async function AdminHighlightsPage() {
                       })}
                     </p>
                   </div>
-                  <form action={deleteHighlight} className="shrink-0">
-                    <input type="hidden" name="id" value={h.id} />
-                    <button
-                      type="submit"
-                      className="text-xs text-danger hover:text-danger/70 transition-colors"
-                      onClick={(e) => {
-                        if (!confirm("Delete this highlight?")) e.preventDefault();
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </form>
+                  <DeleteButton action={deleteHighlight} id={h.id} confirm="Delete this highlight?" />
                 </div>
               </div>
             );
