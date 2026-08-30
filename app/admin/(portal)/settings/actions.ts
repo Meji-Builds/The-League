@@ -78,3 +78,75 @@ export async function updateSiteSettings(prevState: ActionState, formData: FormD
   revalidatePath("/admin/settings");
   return { success: true };
 }
+
+export async function updateTheme(prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const { supabase } = await requireAdmin();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any;
+
+  const newGold   = (formData.get("theme_gold")   as string).trim() || null;
+  const newCobalt = (formData.get("theme_cobalt") as string).trim() || null;
+  const newNavy   = (formData.get("theme_navy")   as string).trim() || null;
+
+  // Read current theme to push to history
+  const { data: current } = await db.from("site_settings").select("theme_gold, theme_cobalt, theme_navy, theme_history").eq("id", 1).single();
+  const history: Array<{gold: string|null; cobalt: string|null; navy: string|null; saved_at: string}> = current?.theme_history ?? [];
+
+  // Push current theme to history (keep last 5)
+  const snapshot = { gold: current?.theme_gold ?? null, cobalt: current?.theme_cobalt ?? null, navy: current?.theme_navy ?? null, saved_at: new Date().toISOString() };
+  const updatedHistory = [snapshot, ...history].slice(0, 5);
+
+  const { error } = await db.from("site_settings").upsert({
+    id: 1,
+    theme_gold:    newGold,
+    theme_cobalt:  newCobalt,
+    theme_navy:    newNavy,
+    theme_history: updatedHistory,
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "id" });
+
+  if (error) {
+    console.error("admin/updateTheme:", error);
+    if (error.message?.includes("theme_")) {
+      return { error: "Theme columns not yet in DB. Run the SQL migration first." };
+    }
+    return { error: "Could not save theme. Please try again." };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/admin/settings");
+  return { success: true };
+}
+
+export async function revertTheme(prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const { supabase } = await requireAdmin();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any;
+
+  const index = parseInt(formData.get("index") as string, 10);
+  const { data: current } = await db.from("site_settings").select("theme_history").eq("id", 1).single();
+  const history: Array<{gold: string|null; cobalt: string|null; navy: string|null}> = current?.theme_history ?? [];
+
+  const target = history[index];
+  if (!target) return { error: "Theme snapshot not found." };
+
+  const newHistory = history.filter((_, i) => i !== index);
+
+  const { error } = await db.from("site_settings").upsert({
+    id: 1,
+    theme_gold:    target.gold,
+    theme_cobalt:  target.cobalt,
+    theme_navy:    target.navy,
+    theme_history: newHistory,
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "id" });
+
+  if (error) {
+    console.error("admin/revertTheme:", error);
+    return { error: "Could not revert theme." };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/admin/settings");
+  return { success: true };
+}

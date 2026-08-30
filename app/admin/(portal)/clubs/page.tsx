@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { approveClub, suspendClub, approvePlayer, rejectPlayer } from "./actions";
+import { approveClub, suspendClub, approvePlayer, rejectPlayer, approveClubLogo, rejectClubLogo } from "./actions";
 import { BannerUploadForm } from "./BannerUploadForm";
 
 export const metadata = { title: "Admin — Clubs" };
@@ -11,6 +11,8 @@ interface Club {
   status: string;
   created_at: string;
   banner_image_url: string | null;
+  logo_url: string | null;
+  logo_status: string | null;
   owner: { name: string; email: string } | null;
 }
 
@@ -60,7 +62,7 @@ export default async function AdminClubsPage() {
 
   const { data: rawClubs } = await db
     .from("clubs")
-    .select("id, name, faculty, status, created_at, banner_image_url, owner:club_owners(name, email)")
+    .select("id, name, faculty, status, created_at, banner_image_url, logo_url, logo_status, owner:club_owners(name, email)")
     .order("created_at", { ascending: false });
 
   const clubs = (rawClubs ?? []) as Club[];
@@ -133,6 +135,47 @@ export default async function AdminClubsPage() {
                   </form>
                   <form action={rejectPlayer}>
                     <input type="hidden" name="player_id" value={player.id} />
+                    <button type="submit" className="text-xs font-semibold px-3 py-1 rounded bg-danger/10 text-danger hover:bg-danger/20 transition-colors w-full">
+                      Reject
+                    </button>
+                  </form>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Pending club logo approvals */}
+      {clubs.filter((c) => c.logo_status === "pending").length > 0 && (
+        <section className="mb-10">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
+            Club logos — awaiting review ({clubs.filter((c) => c.logo_status === "pending").length})
+          </h2>
+          <div className="flex flex-col gap-3">
+            {clubs.filter((c) => c.logo_status === "pending").map((club) => (
+              <div key={club.id} className="border border-warning/30 bg-white rounded p-4 flex flex-col sm:flex-row sm:items-center gap-4">
+                <div className="flex-1">
+                  <p className="font-semibold text-navy text-sm">{club.name}</p>
+                  <p className="text-muted text-xs mt-0.5">{club.faculty}</p>
+                </div>
+                {club.logo_url && (
+                  <a href={club.logo_url} target="_blank" rel="noopener noreferrer"
+                    className="block w-16 h-16 border border-border rounded overflow-hidden bg-surface flex-shrink-0 p-1"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={club.logo_url} alt="Club logo" className="w-full h-full object-contain" />
+                  </a>
+                )}
+                <div className="flex gap-2 sm:flex-col">
+                  <form action={approveClubLogo}>
+                    <input type="hidden" name="club_id" value={club.id} />
+                    <button type="submit" className="text-xs font-semibold px-3 py-1 rounded bg-success/10 text-success hover:bg-success/20 transition-colors w-full">
+                      Approve
+                    </button>
+                  </form>
+                  <form action={rejectClubLogo}>
+                    <input type="hidden" name="club_id" value={club.id} />
                     <button type="submit" className="text-xs font-semibold px-3 py-1 rounded bg-danger/10 text-danger hover:bg-danger/20 transition-colors w-full">
                       Reject
                     </button>
