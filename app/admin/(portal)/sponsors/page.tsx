@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { SponsorForm } from "./SponsorForm";
-import { deleteSponsor } from "./actions";
+import { DeleteSponsorButton } from "./DeleteSponsorButton";
 
 export const metadata = { title: "Admin — Sponsors" };
 
@@ -79,18 +79,7 @@ export default async function AdminSponsorsPage() {
                 )}
                 <p className="text-xs text-muted mt-0.5">Order: {s.display_order}</p>
               </div>
-              <form action={deleteSponsor} className="shrink-0">
-                <input type="hidden" name="id" value={s.id} />
-                <button
-                  type="submit"
-                  className="text-xs text-danger hover:text-danger/70 transition-colors"
-                  onClick={(e) => {
-                    if (!confirm(`Delete ${s.name}?`)) e.preventDefault();
-                  }}
-                >
-                  Delete
-                </button>
-              </form>
+              <DeleteSponsorButton id={s.id} name={s.name} />
             </div>
           ))}
         </div>
