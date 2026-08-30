@@ -61,7 +61,13 @@ export async function updateSiteSettings(prevState: ActionState, formData: FormD
     updated_by: user.id,
   };
 
-  const { error } = await db.from("site_settings").upsert(payload, { onConflict: "id" });
+  let { error } = await db.from("site_settings").upsert(payload, { onConflict: "id" });
+
+  // hero_bg_image_url column may not exist yet — retry without it
+  if (error?.message?.includes("hero_bg_image_url")) {
+    const { hero_bg_image_url: _omit, ...payloadWithout } = payload;
+    ({ error } = await db.from("site_settings").upsert(payloadWithout, { onConflict: "id" }));
+  }
 
   if (error) {
     console.error("admin/updateSiteSettings:", error);
