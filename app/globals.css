@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@theme {
+@theme inline {
   /* Brand - dark gaming palette */
   --color-navy:    #07070F;
   --color-gold:    #B4FF00;
