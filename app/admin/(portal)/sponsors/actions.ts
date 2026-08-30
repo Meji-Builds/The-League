@@ -1,7 +1,6 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { uploadMedia } from "@/lib/supabase/upload-media";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
@@ -19,18 +18,15 @@ export async function createSponsor(prevState: ActionState, formData: FormData):
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = supabase as any;
 
-  const name          = (formData.get("name")         as string).trim();
-  const logoFile      = formData.get("logo") as File | null;
-  const tier          = (formData.get("tier")         as string).trim();
-  const website_url   = (formData.get("website_url")  as string).trim() || null;
+  const name          = (formData.get("name")          as string).trim();
+  const logo_url      = (formData.get("logo_url")      as string).trim();
+  const tier          = (formData.get("tier")          as string).trim();
+  const website_url   = (formData.get("website_url")   as string).trim() || null;
   const display_order = parseInt(formData.get("display_order") as string) || 0;
 
-  if (!name) return { error: "Name is required." };
-  if (!tier) return { error: "Tier is required." };
-  if (!logoFile?.size) return { error: "Logo image is required." };
-
-  const logo_url = await uploadMedia(supabase, logoFile, "sponsors");
-  if (!logo_url) return { error: "Could not upload logo. Please try again." };
+  if (!name)    return { error: "Name is required." };
+  if (!tier)    return { error: "Tier is required." };
+  if (!logo_url) return { error: "Logo image is required." };
 
   const { error } = await db.from("global_sponsors").insert({
     name,

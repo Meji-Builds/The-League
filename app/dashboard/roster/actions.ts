@@ -19,47 +19,32 @@ async function getOwnerContext() {
     .eq("user_id", user.id)
     .single();
 
-  return { supabase, db, clubId: owner?.club_id as string | null };
+  return { db, clubId: owner?.club_id as string | null };
 }
 
 export async function addPlayer(prevState: ActionState, formData: FormData): Promise<ActionState> {
-  const { supabase, db, clubId } = await getOwnerContext();
+  const { db, clubId } = await getOwnerContext();
   if (!clubId) return { error: "No club found. Please complete onboarding first." };
 
-  const gamerTag = (formData.get("gamer_tag") as string)?.trim();
-  const fullName = (formData.get("full_name") as string)?.trim() || null;
-  const position = (formData.get("position") as string)?.trim() || null;
-  const idCardFile = formData.get("id_card") as File | null;
+  const gamerTag    = (formData.get("gamer_tag")   as string)?.trim();
+  const fullName    = (formData.get("full_name")   as string)?.trim() || null;
+  const position    = (formData.get("position")    as string)?.trim() || null;
+  const idCardPath  = (formData.get("id_card_url") as string)?.trim();
 
-  if (!gamerTag) return { error: "Gamer tag is required." };
-  if (!idCardFile || idCardFile.size === 0) return { error: "Student ID card image is required." };
-
-  // Upload the ID card image to Supabase Storage.
-  const ext = idCardFile.name.split(".").pop() ?? "jpg";
-  const storagePath = `${clubId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-
-  const { error: uploadError } = await supabase.storage
-    .from("id-cards")
-    .upload(storagePath, idCardFile, { contentType: idCardFile.type, upsert: false });
-
-  if (uploadError) {
-    console.error("roster/addPlayer: storage upload failed", uploadError);
-    return { error: "Could not upload ID card image. Please try again." };
-  }
+  if (!gamerTag)   return { error: "Gamer tag is required." };
+  if (!idCardPath) return { error: "Student ID card image is required." };
 
   const { error } = await db.from("players").insert({
-    club_id: clubId,
-    gamer_tag: gamerTag,
-    full_name: fullName,
+    club_id:        clubId,
+    gamer_tag:      gamerTag,
+    full_name:      fullName,
     position,
-    id_card_url: storagePath,
+    id_card_url:    idCardPath,
     id_card_status: "pending",
-    stats: { matches_played: 0, wins: 0, losses: 0 },
+    stats:          { matches_played: 0, wins: 0, losses: 0 },
   });
 
   if (error) {
-    // Clean up the uploaded file if the DB insert fails.
-    await supabase.storage.from("id-cards").remove([storagePath]);
     if (error.code === "23505") return { error: "A player with that gamer tag already exists in your roster." };
     console.error("roster/addPlayer:", error);
     return { error: "Could not add player. Please try again." };
