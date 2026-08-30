@@ -7,6 +7,8 @@ import type { Competition, GlobalSponsor } from "@/types/database";
 interface SiteSettings {
   livestream_url:   string | null;
   livestream_title: string;
+  hero_title:       string | null;
+  hero_subtitle:    string | null;
 }
 
 interface AnnouncementRow {
@@ -122,7 +124,7 @@ async function getPageData() {
       supabase.from("players").select("*", { count: "exact", head: true }),
       supabase.from("competitions").select("*", { count: "exact", head: true }),
       supabase.from("fixtures").select("*", { count: "exact", head: true }),
-      db.from("site_settings").select("livestream_url, livestream_title").eq("id", 1).single(),
+      db.from("site_settings").select("livestream_url, livestream_title, hero_title, hero_subtitle").eq("id", 1).single(),
       db.from("announcements")
         .select("id, title, slug, image_url, published_at")
         .order("published_at", { ascending: false })
@@ -203,12 +205,19 @@ export default async function HomePage() {
             University Esports
           </p>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight tracking-tight max-w-2xl">
-            University Esports,<br />Officially Organized.
+            {siteSettings?.hero_title ?? "University Esports, Officially Organized."}
           </h1>
-          <p className="mt-5 text-white/55 text-base max-w-lg leading-relaxed">
-            The League governs university esports competitions — from department
-            qualifiers to the University Championship final.
-          </p>
+          {(siteSettings?.hero_subtitle) && (
+            <p className="mt-5 text-white/55 text-base max-w-lg leading-relaxed">
+              {siteSettings.hero_subtitle}
+            </p>
+          )}
+          {!siteSettings?.hero_subtitle && (
+            <p className="mt-5 text-white/55 text-base max-w-lg leading-relaxed">
+              The League governs university esports competitions — from department
+              qualifiers to the University Championship final.
+            </p>
+          )}
           <div className="mt-10 flex flex-col sm:flex-row gap-3">
             <Link
               href="/register"
@@ -356,42 +365,66 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            <div className="divide-y divide-border">
+            <div className="grid sm:grid-cols-2 gap-3">
               {fixtures.map((f) => (
-                <div key={f.id} className="py-3.5 flex items-center gap-3 sm:gap-4">
-                  <span className="hidden sm:block text-xs text-muted font-medium uppercase tracking-wider w-20 shrink-0">
-                    {f.stage}
-                  </span>
-                  <div className="flex-1 flex items-center gap-2 min-w-0">
-                    <span className="font-semibold text-sm text-navy truncate">
-                      {f.club_a?.name ?? "TBA"}
+                <div key={f.id} className="bg-white border border-border p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-cobalt truncate mr-2">
+                      {f.competition?.name ?? ""}
                     </span>
-                    <span className="text-muted text-xs shrink-0 font-medium">
-                      {f.confirmed_score
-                        ? `${f.confirmed_score.score_a} – ${f.confirmed_score.score_b}`
-                        : "vs"}
-                    </span>
-                    <span className="font-semibold text-sm text-navy truncate">
-                      {f.club_b?.name ?? "TBA"}
+                    <span className={`shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                      f.status === "confirmed" ? "bg-success/10 text-success" :
+                      f.status === "disputed"  ? "bg-danger/10 text-danger"   :
+                      f.status === "reported"  ? "bg-gold/10 text-gold"       :
+                      "bg-cobalt/10 text-cobalt"
+                    }`}>
+                      {FIXTURE_STATUS_LABEL[f.status]}
                     </span>
                   </div>
-                  <span className="hidden md:block text-xs text-muted truncate max-w-[140px] shrink-0">
-                    {f.competition?.name}
-                  </span>
-                  <span className={`shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full ${
-                    f.status === "confirmed" ? "bg-success/10 text-success" :
-                    f.status === "disputed"  ? "bg-danger/10 text-danger"   :
-                    f.status === "reported"  ? "bg-gold/10 text-gold"       :
-                    "bg-cobalt/10 text-cobalt"
-                  }`}>
-                    {FIXTURE_STATUS_LABEL[f.status]}
-                  </span>
-                  {f.scheduled_at && (
-                    <span className="hidden lg:block text-xs text-muted shrink-0">
-                      {new Date(f.scheduled_at).toLocaleDateString("en-GB", {
-                        day: "numeric", month: "short",
-                      })}
-                    </span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
+                      <div
+                        className="w-10 h-10 rounded flex items-center justify-center text-white text-xs font-bold shrink-0"
+                        style={{ backgroundColor: avatarColor(f.club_a?.name ?? "A") }}
+                      >
+                        {nameInitials(f.club_a?.name ?? "A")}
+                      </div>
+                      <p className="text-xs font-semibold text-navy text-center leading-tight line-clamp-2">
+                        {f.club_a?.name ?? "TBA"}
+                      </p>
+                    </div>
+                    <div className="text-center px-1 shrink-0">
+                      {f.confirmed_score ? (
+                        <p className="text-xl font-bold text-navy tabular-nums leading-none">
+                          {f.confirmed_score.score_a}&nbsp;&ndash;&nbsp;{f.confirmed_score.score_b}
+                        </p>
+                      ) : (
+                        <p className="text-xs font-bold text-muted tracking-widest">VS</p>
+                      )}
+                      {f.scheduled_at && (
+                        <p className="text-[10px] text-muted mt-1">
+                          {new Date(f.scheduled_at).toLocaleDateString("en-GB", {
+                            day: "numeric", month: "short",
+                          })}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
+                      <div
+                        className="w-10 h-10 rounded flex items-center justify-center text-white text-xs font-bold shrink-0"
+                        style={{ backgroundColor: avatarColor(f.club_b?.name ?? "B") }}
+                      >
+                        {nameInitials(f.club_b?.name ?? "B")}
+                      </div>
+                      <p className="text-xs font-semibold text-navy text-center leading-tight line-clamp-2">
+                        {f.club_b?.name ?? "TBA"}
+                      </p>
+                    </div>
+                  </div>
+                  {f.stage && (
+                    <p className="text-[10px] text-muted text-center mt-2 uppercase tracking-wider">
+                      {f.stage}
+                    </p>
                   )}
                 </div>
               ))}

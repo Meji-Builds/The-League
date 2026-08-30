@@ -34,6 +34,8 @@ async function getFixtures(): Promise<FixtureRow[]> {
   }
 }
 
+const AVATAR_PALETTE = ["#2D4A7C", "#C9A227", "#2D7A4F", "#B91C1C", "#7C2D96", "#0369A1"];
+
 const statusLabel: Record<string, string> = {
   scheduled: "Scheduled",
   reported:  "Reported",
@@ -41,11 +43,11 @@ const statusLabel: Record<string, string> = {
   confirmed: "Confirmed",
 };
 
-const statusColor: Record<string, string> = {
-  scheduled: "text-muted border-border",
-  reported:  "text-cobalt border-cobalt",
-  disputed:  "text-warning border-warning",
-  confirmed: "text-success border-success",
+const statusPill: Record<string, string> = {
+  scheduled: "bg-cobalt/10 text-cobalt",
+  reported:  "bg-gold/10 text-gold",
+  disputed:  "bg-danger/10 text-danger",
+  confirmed: "bg-success/10 text-success",
 };
 
 export default async function FixturesPage() {
@@ -62,48 +64,63 @@ export default async function FixturesPage() {
           <p className="text-muted text-sm mt-2">Check back once the competition stage begins.</p>
         </div>
       ) : (
-        <div className="bg-white border border-border divide-y divide-border">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {fixtures.map((f) => (
-            <div key={f.id} className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3">
-              {/* Competition + stage */}
-              <div className="sm:w-40 shrink-0">
-                <p className="text-xs font-medium text-cobalt">{f.competition?.name}</p>
-                <p className="text-xs text-muted">{f.stage !== "N/A" ? `${f.stage} Stage` : f.group_name}</p>
-                <p className="text-xs text-muted">Matchday {f.matchday}</p>
+            <div key={f.id} className="bg-white border border-border p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="min-w-0 mr-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-cobalt truncate">
+                    {f.competition?.name}
+                  </p>
+                  <p className="text-[10px] text-muted">
+                    {f.stage !== "N/A" ? f.stage : f.group_name}
+                    {f.matchday ? ` · Day ${f.matchday}` : ""}
+                  </p>
+                </div>
+                <span className={`shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full ${statusPill[f.status] ?? "bg-cobalt/10 text-cobalt"}`}>
+                  {statusLabel[f.status]}
+                </span>
               </div>
 
-              {/* Match */}
-              <div className="flex-1 flex items-center justify-between sm:justify-center gap-4">
-                <span className="font-semibold text-navy text-sm text-right sm:text-left flex-1">
-                  {f.club_a?.name}
-                </span>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
+                  <div
+                    className="w-10 h-10 rounded flex items-center justify-center text-white text-xs font-bold shrink-0"
+                    style={{ backgroundColor: AVATAR_PALETTE[(f.club_a?.name.charCodeAt(0) ?? 0) % AVATAR_PALETTE.length] }}
+                  >
+                    {(f.club_a?.name ?? "A").split(" ").map((w: string) => w[0] ?? "").join("").slice(0, 2).toUpperCase()}
+                  </div>
+                  <p className="text-xs font-semibold text-navy text-center leading-tight line-clamp-2">
+                    {f.club_a?.name ?? "TBC"}
+                  </p>
+                </div>
 
-                <div className="text-center shrink-0">
+                <div className="text-center px-1 shrink-0">
                   {f.confirmed_score ? (
-                    <span className="font-bold text-lg text-navy tabular-nums">
-                      {f.confirmed_score.score_a} &ndash; {f.confirmed_score.score_b}
-                    </span>
+                    <p className="text-xl font-bold text-navy tabular-nums leading-none">
+                      {f.confirmed_score.score_a}&nbsp;&ndash;&nbsp;{f.confirmed_score.score_b}
+                    </p>
                   ) : (
-                    <span className="text-muted text-xs font-medium">vs</span>
+                    <p className="text-xs font-bold text-muted tracking-widest">VS</p>
+                  )}
+                  {f.scheduled_at && (
+                    <p className="text-[10px] text-muted mt-1">
+                      {new Date(f.scheduled_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                    </p>
                   )}
                 </div>
 
-                <span className="font-semibold text-navy text-sm flex-1">{f.club_b?.name}</span>
-              </div>
-
-              {/* Status + date */}
-              <div className="sm:w-36 shrink-0 flex sm:flex-col items-center sm:items-end gap-2">
-                <span className={`text-xs border px-2 py-0.5 ${statusColor[f.status]}`}>
-                  {statusLabel[f.status]}
-                </span>
-                {f.scheduled_at && (
-                  <span className="text-xs text-muted">
-                    {new Date(f.scheduled_at).toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "short",
-                    })}
-                  </span>
-                )}
+                <div className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
+                  <div
+                    className="w-10 h-10 rounded flex items-center justify-center text-white text-xs font-bold shrink-0"
+                    style={{ backgroundColor: AVATAR_PALETTE[(f.club_b?.name.charCodeAt(0) ?? 3) % AVATAR_PALETTE.length] }}
+                  >
+                    {(f.club_b?.name ?? "B").split(" ").map((w: string) => w[0] ?? "").join("").slice(0, 2).toUpperCase()}
+                  </div>
+                  <p className="text-xs font-semibold text-navy text-center leading-tight line-clamp-2">
+                    {f.club_b?.name ?? "TBC"}
+                  </p>
+                </div>
               </div>
             </div>
           ))}
