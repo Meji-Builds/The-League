@@ -5,10 +5,14 @@ import type { Competition, GlobalSponsor } from "@/types/database";
 // ─── Local interfaces ──────────────────────────────────────────────────────
 
 interface SiteSettings {
-  livestream_url:   string | null;
-  livestream_title: string;
-  hero_title:       string | null;
-  hero_subtitle:    string | null;
+  hero_title:    string | null;
+  hero_subtitle: string | null;
+}
+
+interface LivestreamRow {
+  id:    string;
+  url:   string;
+  title: string;
 }
 
 interface AnnouncementRow {
@@ -121,6 +125,7 @@ async function getPageData() {
     rTopClubs,
     rPlayers,
     rSponsors,
+    rLivestreams,
   ] = await Promise.allSettled([
     db.from("competitions")
       .select("*")
@@ -151,6 +156,10 @@ async function getPageData() {
     db.from("global_sponsors")
       .select("*")
       .order("display_order", { ascending: true }),
+    db.from("livestreams")
+      .select("id, url, title")
+      .eq("is_active", true)
+      .order("created_at", { ascending: true }),
   ]);
 
   const players = settled<PlayerRow[]>(rPlayers as PromiseSettledResult<{ data: PlayerRow[] | null }>) ?? [];
@@ -171,7 +180,8 @@ async function getPageData() {
     fixtures:      (settled<FixtureRow[]>(rFixtures as PromiseSettledResult<{ data: FixtureRow[] | null }>) ?? []) as FixtureRow[],
     topClubs:      (settled<ClubRow[]>(rTopClubs as PromiseSettledResult<{ data: ClubRow[] | null }>) ?? []) as ClubRow[],
     topPlayers,
-    sponsors:      (settled<GlobalSponsor[]>(rSponsors as PromiseSettledResult<{ data: GlobalSponsor[] | null }>) ?? []) as GlobalSponsor[],
+    sponsors:    (settled<GlobalSponsor[]>(rSponsors as PromiseSettledResult<{ data: GlobalSponsor[] | null }>) ?? []) as GlobalSponsor[],
+    livestreams: (settled<LivestreamRow[]>(rLivestreams as PromiseSettledResult<{ data: LivestreamRow[] | null }>) ?? []) as LivestreamRow[],
   };
 }
 
@@ -180,12 +190,8 @@ async function getPageData() {
 export default async function HomePage() {
   const {
     competitions, summary, siteSettings, announcements,
-    fixtures, topClubs, topPlayers, sponsors,
+    fixtures, topClubs, topPlayers, sponsors, livestreams,
   } = await getPageData();
-
-  const streamEmbedId = siteSettings?.livestream_url
-    ? youtubeEmbedId(siteSettings.livestream_url)
-    : null;
 
   return (
     <>
@@ -250,27 +256,50 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Livestream ───────────────────────────────────────────────── */}
-      {streamEmbedId && (
+      {/* ── Livestreams ──────────────────────────────────────────────── */}
+      {livestreams.length > 0 && (
         <section className="bg-navy border-t border-white/10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3 mb-6">
               <span className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-danger opacity-75" />
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-danger" />
               </span>
               <p className="text-white font-bold text-sm uppercase tracking-widest">
-                {siteSettings?.livestream_title ?? "Live Now"}
+                Live Now
               </p>
             </div>
-            <div className="relative w-full bg-black" style={{ paddingTop: "56.25%" }}>
-              <iframe
-                className="absolute inset-0 w-full h-full"
-                src={`https://www.youtube.com/embed/${streamEmbedId}?autoplay=0`}
-                title={siteSettings?.livestream_title ?? "Live stream"}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
+            <div className={`grid gap-6 ${livestreams.length > 1 ? "sm:grid-cols-2" : ""}`}>
+              {livestreams.map((stream) => {
+                const embedId = youtubeEmbedId(stream.url);
+                return (
+                  <div key={stream.id}>
+                    {embedId ? (
+                      <div className="relative w-full bg-black" style={{ paddingTop: "56.25%" }}>
+                        <iframe
+                          className="absolute inset-0 w-full h-full"
+                          src={`https://www.youtube.com/embed/${embedId}?autoplay=0`}
+                          title={stream.title}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                    ) : (
+                      <a
+                        href={stream.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block bg-white/5 border border-white/10 px-5 py-4 text-sm text-cobalt hover:text-white transition-colors"
+                      >
+                        {stream.url}
+                      </a>
+                    )}
+                    {livestreams.length > 1 && (
+                      <p className="text-white/60 text-xs mt-2 truncate">{stream.title}</p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>

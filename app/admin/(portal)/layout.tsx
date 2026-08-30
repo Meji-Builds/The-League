@@ -16,10 +16,13 @@ const navItems = [
   { label: "Clubs",         href: "/admin/clubs" },
   { label: "Competitions",  href: "/admin/competitions" },
   { label: "Fixtures",      href: "/admin/fixtures" },
+  { label: "Results",       href: "/admin/results" },
   { label: "Disputes",      href: "/admin/disputes" },
+  { label: "Standings",     href: "/admin/standings" },
   { label: "News",          href: "/admin/announcements" },
   { label: "Highlights",    href: "/admin/highlights" },
   { label: "Sponsors",      href: "/admin/sponsors" },
+  { label: "Streams",       href: "/admin/livestreams" },
   { label: "Settings",      href: "/admin/settings" },
 ];
 
