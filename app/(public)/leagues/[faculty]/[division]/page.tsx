@@ -112,16 +112,17 @@ function buildStandings(fixtures: FixtureRow[]): Standing[] {
 export default async function DivisionStandingsPage({
   params,
 }: {
-  params: { faculty: string; division: string };
+  params: Promise<{ faculty: string; division: string }>;
 }) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = (await createClient()) as any;
+  const { faculty: facultySlug, division: divisionSlug } = await params;
 
   // Resolve faculty + division sequentially (division needs faculty.id)
   const { data: facultyData } = await db
     .from("faculties")
     .select("id, name, slug, logo_url")
-    .eq("slug", params.faculty)
+    .eq("slug", facultySlug)
     .single();
 
   if (!facultyData) notFound();
@@ -132,7 +133,7 @@ export default async function DivisionStandingsPage({
       .from("faculty_divisions")
       .select("id, name, slug, logo_url")
       .eq("faculty_id", faculty.id)
-      .eq("slug", params.division)
+      .eq("slug", divisionSlug)
       .single(),
     getSiteSettings(),
   ]);

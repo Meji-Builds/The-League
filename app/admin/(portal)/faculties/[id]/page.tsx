@@ -33,14 +33,15 @@ interface DivisionClubRow {
   club: { id: string; name: string; faculty: string } | null;
 }
 
-export default async function AdminFacultyDetailPage({ params }: { params: { id: string } }) {
+export default async function AdminFacultyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = (await createClient()) as any;
+  const { id } = await params;
 
   const { data: facultyData } = await db
     .from("faculties")
     .select("id, name, short_name, slug, logo_url, display_order")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (!facultyData) notFound();
