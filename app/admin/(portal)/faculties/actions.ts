@@ -160,6 +160,16 @@ export async function addClubToDivision(formData: FormData) {
 
   if (!division_id || !club_id) return;
 
+  // Reject if the club is already assigned to any division in the same faculty
+  const { data: existing } = await db
+    .from("division_clubs")
+    .select("division_id, faculty_divisions!inner(faculty_id)")
+    .eq("club_id", club_id)
+    .eq("faculty_divisions.faculty_id", faculty_id)
+    .maybeSingle();
+
+  if (existing) return; // already in a division — silently ignore
+
   await db.from("division_clubs").upsert({ division_id, club_id }, { onConflict: "division_id,club_id" });
 
   revalidatePath(`/admin/faculties/${faculty_id}`);

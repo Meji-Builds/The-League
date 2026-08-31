@@ -90,6 +90,11 @@ export default async function AdminFacultyDetailPage({ params }: { params: Promi
     }
   }
 
+  // All club IDs assigned to any division in this faculty
+  const allAssignedClubIds = new Set(
+    [...clubsByDivision.values()].flatMap((clubs) => clubs.map((c) => c.id))
+  );
+
   return (
     <div>
       {/* Breadcrumb */}
@@ -132,6 +137,7 @@ export default async function AdminFacultyDetailPage({ params }: { params: Promi
                 facultyId={faculty.id}
                 facultyClubs={facultyClubs}
                 assignedClubs={clubsByDivision.get(div.id) ?? []}
+                allAssignedClubIds={allAssignedClubIds}
               />
             ))}
           </div>
