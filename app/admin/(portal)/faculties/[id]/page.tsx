@@ -38,12 +38,16 @@ export default async function AdminFacultyDetailPage({ params }: { params: Promi
   const db = (await createClient()) as any;
   const { id } = await params;
 
-  const { data: facultyData } = await db
+  const { data: facultyData, error: facultyError } = await db
     .from("faculties")
     .select("id, name, short_name, slug, logo_url, display_order")
     .eq("id", id)
-    .single();
+    .maybeSingle();
 
+  if (facultyError) {
+    console.error("admin/faculties/[id]: DB error", facultyError);
+    throw new Error(`Database error: ${facultyError.message}`);
+  }
   if (!facultyData) notFound();
   const faculty = facultyData as Faculty;
 
@@ -59,7 +63,11 @@ export default async function AdminFacultyDetailPage({ params }: { params: Promi
       .from("clubs")
       .select("id, name, faculty")
       .eq("status", "approved")
-      .or(`faculty.eq.${faculty.name},faculty.eq.${faculty.short_name}`),
+      .or(
+        faculty.short_name && faculty.short_name !== faculty.name
+          ? `faculty.eq.${faculty.name},faculty.eq.${faculty.short_name}`
+          : `faculty.eq.${faculty.name}`
+      ),
   ]);
 
   const divisions = (divisionsData ?? []) as Division[];
