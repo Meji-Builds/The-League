@@ -28,15 +28,11 @@
   --font-mono:    'JetBrains Mono', 'Fira Code', monospace;
 }
 
-html, body {
+html {
   overflow-x: hidden;
   max-width: 100%;
-}
-
-html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Eliminate tap highlight flash on iOS */
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -51,6 +47,13 @@ body {
 button, a, [role="button"] {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* iOS Safari auto-zooms when input font-size < 16px — floor at 16px */
+input:not([type="hidden"]),
+textarea,
+select {
+  font-size: max(16px, 1em) !important;
 }
 
 ::selection {

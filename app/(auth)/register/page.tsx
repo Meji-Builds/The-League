@@ -120,7 +120,7 @@ export default function RegisterPage() {
             required
             autoComplete="name"
             placeholder="Your full name"
-            className="w-full bg-white/5 border border-white/15 text-white text-sm px-3 py-2.5 rounded placeholder:text-white/30 focus:outline-none focus:border-gold transition-colors"
+            className="w-full bg-white/5 border border-white/15 text-white text-base px-3 py-2.5 rounded placeholder:text-white/30 focus:outline-none focus:border-gold transition-colors"
           />
         </div>
 
@@ -136,7 +136,7 @@ export default function RegisterPage() {
             required
             autoComplete="email"
             placeholder="you@university.edu"
-            className="w-full bg-white/5 border border-white/15 text-white text-sm px-3 py-2.5 rounded placeholder:text-white/30 focus:outline-none focus:border-gold transition-colors"
+            className="w-full bg-white/5 border border-white/15 text-white text-base px-3 py-2.5 rounded placeholder:text-white/30 focus:outline-none focus:border-gold transition-colors"
           />
         </div>
 
@@ -151,7 +151,7 @@ export default function RegisterPage() {
             onChange={(e) => setPhone(e.target.value)}
             autoComplete="tel"
             placeholder="+234 800 000 0000"
-            className="w-full bg-white/5 border border-white/15 text-white text-sm px-3 py-2.5 rounded placeholder:text-white/30 focus:outline-none focus:border-gold transition-colors"
+            className="w-full bg-white/5 border border-white/15 text-white text-base px-3 py-2.5 rounded placeholder:text-white/30 focus:outline-none focus:border-gold transition-colors"
           />
         </div>
 
@@ -167,7 +167,7 @@ export default function RegisterPage() {
             required
             autoComplete="new-password"
             placeholder="At least 8 characters"
-            className="w-full bg-white/5 border border-white/15 text-white text-sm px-3 py-2.5 rounded placeholder:text-white/30 focus:outline-none focus:border-gold transition-colors"
+            className="w-full bg-white/5 border border-white/15 text-white text-base px-3 py-2.5 rounded placeholder:text-white/30 focus:outline-none focus:border-gold transition-colors"
           />
         </div>
 
@@ -183,7 +183,7 @@ export default function RegisterPage() {
             required
             autoComplete="new-password"
             placeholder="••••••••"
-            className="w-full bg-white/5 border border-white/15 text-white text-sm px-3 py-2.5 rounded placeholder:text-white/30 focus:outline-none focus:border-gold transition-colors"
+            className="w-full bg-white/5 border border-white/15 text-white text-base px-3 py-2.5 rounded placeholder:text-white/30 focus:outline-none focus:border-gold transition-colors"
           />
         </div>
 
