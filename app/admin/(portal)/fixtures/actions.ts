@@ -65,6 +65,7 @@ export async function updateFixture(prevState: ActionState, formData: FormData):
   const groupName     = (formData.get("group_name") as string)?.trim() || "Open";
   const matchday      = parseInt(formData.get("matchday") as string, 10) || 1;
   const scheduledAt   = (formData.get("scheduled_at") as string) || null;
+  const status        = formData.get("status") as string;
 
   if (!fixtureId) return { error: "Invalid fixture." };
   if (clubAId && clubBId && clubAId === clubBId) return { error: "A club cannot play against itself." };
@@ -79,6 +80,7 @@ export async function updateFixture(prevState: ActionState, formData: FormData):
       group_name: groupName,
       matchday,
       scheduled_at: scheduledAt,
+      ...(status && { status }),
     })
     .eq("id", fixtureId);
 
