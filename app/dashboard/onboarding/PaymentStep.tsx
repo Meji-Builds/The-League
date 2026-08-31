@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { initiatePayment } from "./actions";
 
 interface Props {
@@ -10,6 +10,12 @@ interface Props {
 
 export function PaymentStep({ feeNaira, clubName }: Props) {
   const [state, action, isPending] = useActionState(initiatePayment, null);
+
+  useEffect(() => {
+    if (state && "redirect" in state) {
+      window.location.href = state.redirect;
+    }
+  }, [state]);
 
   return (
     <div className="max-w-lg">
@@ -21,9 +27,9 @@ export function PaymentStep({ feeNaira, clubName }: Props) {
         </p>
       </div>
 
-      {state?.error && (
+      {state && "error" in state && (
         <div className="bg-danger/5 border border-danger/30 text-danger text-sm px-4 py-3 mb-6">
-          {state.error}
+          {"error" in state ? state.error : null}
         </div>
       )}
 
