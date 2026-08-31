@@ -2,132 +2,189 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 
-const links = [
+const desktopLinks = [
   { label: "Live",         href: "/live" },
   { label: "Competitions", href: "/competitions" },
   { label: "Fixtures",     href: "/fixtures" },
   { label: "Standings",    href: "/standings" },
   { label: "Clubs",        href: "/clubs" },
   { label: "Players",      href: "/players" },
+  { label: "Highlights",   href: "/highlights" },
   { label: "News",         href: "/news" },
+];
+
+// Mobile bottom navigation — 5 primary tabs
+const bottomTabs = [
+  {
+    label: "Home",
+    href: "/",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+        <polyline points="9 22 9 12 15 12 15 22" />
+      </svg>
+    ),
+  },
+  {
+    label: "League",
+    href: "/competitions",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+        <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+        <path d="M4 22h16" />
+        <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+        <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+        <path d="M18 2H6v7a6 6 0 0 0 12 0V2z" />
+      </svg>
+    ),
+  },
+  {
+    label: "Matches",
+    href: "/fixtures",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="4" width="18" height="18" />
+        <line x1="16" y1="2" x2="16" y2="6" />
+        <line x1="8" y1="2" x2="8" y2="6" />
+        <line x1="3" y1="10" x2="21" y2="10" />
+      </svg>
+    ),
+  },
+  {
+    label: "News",
+    href: "/news",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2" />
+        <line x1="18" y1="14" x2="10" y2="14" />
+        <line x1="15" y1="18" x2="10" y2="18" />
+        <rect x="10" y="6" width="8" height="4" />
+      </svg>
+    ),
+  },
+  {
+    label: "Clubs",
+    href: "/clubs",
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+      </svg>
+    ),
+  },
 ];
 
 export function Nav() {
   const pathname = usePathname();
-  const [menuOpen, setMenuOpen] = useState(false);
 
   const active = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
-    <header className="sticky top-0 z-50 bg-navy/90 backdrop-blur-xl border-b border-white/6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center h-14 gap-6">
+    <>
+      {/* ── Top header ────────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-50 bg-navy/90 backdrop-blur-xl border-b border-white/6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center h-14 gap-6">
 
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 shrink-0 mr-2">
-            <div
-              className="w-5 h-5 bg-gold shrink-0"
-              style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
-            />
-            <span className="font-display font-black text-white text-sm tracking-[0.18em] uppercase">
-              The League
-            </span>
-          </Link>
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-2.5 shrink-0 mr-2">
+              <div
+                className="w-5 h-5 bg-gold shrink-0"
+                style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
+              />
+              <span className="font-display font-black text-white text-sm tracking-[0.18em] uppercase">
+                The League
+              </span>
+            </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center flex-1">
-            {links.map(({ label, href }) => (
+            {/* Desktop nav links */}
+            <nav className="hidden md:flex items-center flex-1">
+              {desktopLinks.map(({ label, href }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`relative px-3.5 py-4 text-[13px] transition-colors ${
+                    active(href)
+                      ? "text-white"
+                      : "text-white/35 hover:text-white/75"
+                  }`}
+                >
+                  {label}
+                  {active(href) && (
+                    <span className="absolute bottom-0 left-3.5 right-3.5 h-[2px] bg-gold" />
+                  )}
+                </Link>
+              ))}
+            </nav>
+
+            {/* Desktop auth */}
+            <div className="hidden md:flex items-center gap-1 ml-auto">
+              <Link
+                href="/login"
+                className="text-[13px] text-white/30 hover:text-white/65 transition-colors px-3 py-2"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/register"
+                className="text-[11px] font-black uppercase tracking-[0.12em] bg-gold text-navy px-4 py-2 hover:brightness-105 transition-all"
+              >
+                Register
+              </Link>
+            </div>
+
+            {/* Mobile: auth buttons only — bottom nav handles main navigation */}
+            <div className="md:hidden ml-auto flex items-center gap-2">
+              <Link
+                href="/login"
+                className="text-[12px] text-white/35 hover:text-white/70 transition-colors px-2 py-1.5"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/register"
+                className="text-[10px] font-black uppercase tracking-[0.1em] bg-gold text-navy px-3 py-1.5 hover:brightness-105 transition-all"
+              >
+                Register
+              </Link>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* ── Mobile bottom navigation ──────────────────────────────────── */}
+      <nav
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-navy border-t border-white/10"
+        style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+      >
+        <div className="flex h-16">
+          {bottomTabs.map(({ label, href, icon }) => {
+            const isActive = active(href);
+            return (
               <Link
                 key={href}
                 href={href}
-                className={`relative px-3.5 py-4 text-[13px] transition-colors ${
-                  active(href)
-                    ? "text-white"
-                    : "text-white/35 hover:text-white/75"
+                className={`relative flex-1 flex flex-col items-center justify-center gap-[3px] transition-colors ${
+                  isActive ? "text-gold" : "text-white/30 active:text-white/60"
                 }`}
               >
-                {label}
-                {active(href) && (
-                  <span className="absolute bottom-0 left-3.5 right-3.5 h-[2px] bg-gold" />
+                {isActive && (
+                  <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[2px] bg-gold" />
                 )}
+                {icon}
+                <span className="text-[9px] font-bold uppercase tracking-[0.07em]">
+                  {label}
+                </span>
               </Link>
-            ))}
-          </nav>
-
-          {/* Desktop auth */}
-          <div className="hidden md:flex items-center gap-1 ml-auto">
-            <Link
-              href="/login"
-              className="text-[13px] text-white/30 hover:text-white/65 transition-colors px-3 py-2"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/register"
-              className="text-[11px] font-black uppercase tracking-[0.12em] bg-gold text-navy px-4 py-2 hover:brightness-105 transition-all"
-            >
-              Register
-            </Link>
-          </div>
-
-          {/* Mobile toggle */}
-          <button
-            className="md:hidden text-white/40 hover:text-white p-1.5 ml-auto transition-colors"
-            onClick={() => setMenuOpen((v) => !v)}
-            aria-label="Toggle menu"
-          >
-            {menuOpen ? (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M18 6L6 18M6 6l12 12" />
-              </svg>
-            ) : (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 12h18M3 6h18M3 18h18" />
-              </svg>
-            )}
-          </button>
+            );
+          })}
         </div>
-      </div>
-
-      {/* Mobile menu */}
-      {menuOpen && (
-        <div className="md:hidden border-t border-white/6 bg-navy/95 backdrop-blur-xl">
-          <nav className="flex flex-col px-4 py-2">
-            {links.map(({ label, href }) => (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => setMenuOpen(false)}
-                className={`py-3.5 text-sm border-b border-white/5 last:border-0 transition-colors flex items-center justify-between ${
-                  active(href) ? "text-white font-medium" : "text-white/40"
-                }`}
-              >
-                {label}
-                {active(href) && <span className="w-1.5 h-1.5 bg-gold rounded-full" />}
-              </Link>
-            ))}
-          </nav>
-          <div className="px-4 py-4 flex gap-2 border-t border-white/5">
-            <Link
-              href="/login"
-              onClick={() => setMenuOpen(false)}
-              className="flex-1 text-sm text-center border border-white/10 text-white/40 py-2.5 hover:text-white hover:border-white/20 transition-colors"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/register"
-              onClick={() => setMenuOpen(false)}
-              className="flex-1 text-[11px] font-black uppercase tracking-[0.12em] text-center bg-gold text-navy py-2.5 hover:brightness-105 transition-all"
-            >
-              Register Club
-            </Link>
-          </div>
-        </div>
-      )}
-    </header>
+      </nav>
+    </>
   );
 }

@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
 export async function enterCompetition(competitionId: string): Promise<{ error: string } | null> {
   const supabase = await createClient();
@@ -73,7 +74,10 @@ export async function enterCompetition(competitionId: string): Promise<{ error: 
   });
   if (paymentError) return { error: "Could not create payment record. Please try again." };
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const headersList = await headers();
+  const host = headersList.get("host") ?? "localhost:3000";
+  const proto = host.includes("localhost") ? "http" : "https";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? `${proto}://${host}`;
 
   const paystackRes = await fetch("https://api.paystack.co/transaction/initialize", {
     method: "POST",

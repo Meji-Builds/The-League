@@ -73,7 +73,7 @@ export default async function PublicLayout({ children }: { children: React.React
         <style dangerouslySetInnerHTML={{ __html: themeCSS }} />
       )}
       <Nav />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 pb-16 md:pb-0">{children}</main>
       <Footer />
     </>
   );
