@@ -43,11 +43,13 @@ interface NewsItem {
 }
 
 interface ClubRow {
-  id:         string;
-  name:       string;
-  slug:       string;
-  faculty:    string;
-  department: string;
+  id:          string;
+  name:        string;
+  slug:        string;
+  faculty:     string;
+  department:  string;
+  logo_url:    string | null;
+  logo_status: string | null;
 }
 
 interface PlayerRow {
@@ -64,8 +66,8 @@ interface FixtureRow {
   status:          string;
   scheduled_at:    string | null;
   confirmed_score: { score_a: number; score_b: number } | null;
-  club_a:          { id: string; name: string; slug: string } | null;
-  club_b:          { id: string; name: string; slug: string } | null;
+  club_a:          { id: string; name: string; slug: string; logo_url: string | null; logo_status: string | null } | null;
+  club_b:          { id: string; name: string; slug: string; logo_url: string | null; logo_status: string | null } | null;
   competition:     { name: string; slug: string } | null;
 }
 
@@ -147,11 +149,11 @@ async function getPageData() {
       .order("published_at", { ascending: false })
       .limit(6),
     db.from("fixtures")
-      .select("id, stage, status, scheduled_at, confirmed_score, club_a:clubs!club_a_id(id, name, slug), club_b:clubs!club_b_id(id, name, slug), competition:competitions(name, slug)")
+      .select("id, stage, status, scheduled_at, confirmed_score, club_a:clubs!club_a_id(id, name, slug, logo_url, logo_status), club_b:clubs!club_b_id(id, name, slug, logo_url, logo_status), competition:competitions(name, slug)")
       .order("scheduled_at", { ascending: false })
       .limit(6),
     db.from("clubs")
-      .select("id, name, slug, faculty, department")
+      .select("id, name, slug, faculty, department, logo_url, logo_status")
       .eq("status", "approved")
       .order("created_at", { ascending: true })
       .limit(5),
@@ -431,12 +433,17 @@ export default async function HomePage() {
                     <p className="text-[13px] font-medium text-white/80 group-hover:text-white transition-colors truncate text-right">
                       {f.club_a?.name ?? "TBA"}
                     </p>
-                    <div
-                      className="w-7 h-7 shrink-0 flex items-center justify-center text-navy text-[9px] font-black"
-                      style={{ backgroundColor: avatarColor(f.club_a?.name ?? "A") }}
-                    >
-                      {nameInitials(f.club_a?.name ?? "A")}
-                    </div>
+                    {f.club_a?.logo_status === "approved" && f.club_a?.logo_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={f.club_a.logo_url} alt={f.club_a.name} className="w-7 h-7 shrink-0 object-contain" />
+                    ) : (
+                      <div
+                        className="w-7 h-7 shrink-0 flex items-center justify-center text-navy text-[9px] font-black"
+                        style={{ backgroundColor: avatarColor(f.club_a?.name ?? "A") }}
+                      >
+                        {nameInitials(f.club_a?.name ?? "A")}
+                      </div>
+                    )}
                   </div>
 
                   {/* Score */}
@@ -452,12 +459,17 @@ export default async function HomePage() {
 
                   {/* Club B */}
                   <div className="flex items-center gap-2.5 flex-1 justify-start min-w-0">
-                    <div
-                      className="w-7 h-7 shrink-0 flex items-center justify-center text-navy text-[9px] font-black"
-                      style={{ backgroundColor: avatarColor(f.club_b?.name ?? "B") }}
-                    >
-                      {nameInitials(f.club_b?.name ?? "B")}
-                    </div>
+                    {f.club_b?.logo_status === "approved" && f.club_b?.logo_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={f.club_b.logo_url} alt={f.club_b.name} className="w-7 h-7 shrink-0 object-contain" />
+                    ) : (
+                      <div
+                        className="w-7 h-7 shrink-0 flex items-center justify-center text-navy text-[9px] font-black"
+                        style={{ backgroundColor: avatarColor(f.club_b?.name ?? "B") }}
+                      >
+                        {nameInitials(f.club_b?.name ?? "B")}
+                      </div>
+                    )}
                     <p className="text-[13px] font-medium text-white/80 group-hover:text-white transition-colors truncate">
                       {f.club_b?.name ?? "TBA"}
                     </p>
@@ -509,12 +521,17 @@ export default async function HomePage() {
                         className="flex items-center gap-4 px-4 py-3.5 hover:bg-white/[0.03] transition-colors group"
                       >
                         <span className="text-white/15 text-xs w-5 text-right shrink-0 tabular-nums font-mono">{i + 1}</span>
-                        <div
-                          className="w-7 h-7 shrink-0 flex items-center justify-center text-navy text-[9px] font-black"
-                          style={{ backgroundColor: avatarColor(club.name) }}
-                        >
-                          {nameInitials(club.name)}
-                        </div>
+                        {club.logo_status === "approved" && club.logo_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={club.logo_url} alt={club.name} className="w-7 h-7 shrink-0 object-contain" />
+                        ) : (
+                          <div
+                            className="w-7 h-7 shrink-0 flex items-center justify-center text-navy text-[9px] font-black"
+                            style={{ backgroundColor: avatarColor(club.name) }}
+                          >
+                            {nameInitials(club.name)}
+                          </div>
+                        )}
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-sm text-white group-hover:text-gold transition-colors truncate">
                             {club.name}
