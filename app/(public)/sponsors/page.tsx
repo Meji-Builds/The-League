@@ -45,6 +45,13 @@ const tiers: { key: GlobalSponsor["tier"]; label: string; description: string }[
   },
 ];
 
+const tierAccent: Record<string, string> = {
+  title:  "border-gold",
+  gold:   "border-warning/60",
+  silver: "border-white/20",
+  bronze: "border-white/10",
+};
+
 export default async function SponsorsPage() {
   const sponsors = await getSponsors();
   const byTier = (tier: GlobalSponsor["tier"]) => sponsors.filter((s) => s.tier === tier);
@@ -52,49 +59,46 @@ export default async function SponsorsPage() {
   return (
     <div>
       {/* Header */}
-      <div className="bg-navy text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <p className="text-gold text-xs font-semibold uppercase tracking-[0.2em] mb-3">
-            Partnerships
-          </p>
-          <h1 className="text-4xl font-bold mb-4">Sponsor The League</h1>
-          <p className="text-white/60 max-w-xl text-base leading-relaxed">
+      <section className="bg-navy border-b border-white/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-6">Partnerships</p>
+          <h1 className="font-display font-black uppercase leading-none text-white" style={{ fontSize: "clamp(3rem, 10vw, 8rem)" }}>
+            Sponsor<br />The League
+          </h1>
+          <p className="text-white/40 max-w-xl text-[15px] leading-relaxed mt-6">
             The League is the official governing body for university esports. We
             run structured competitions across departments, faculties, and the
             university — with a growing audience of students, alumni, and fans.
           </p>
           <a
             href="mailto:sponsorship@theleague.ng"
-            className="mt-8 inline-block border border-gold text-gold text-sm font-semibold px-6 py-3 rounded hover:bg-gold hover:text-navy transition-colors"
+            className="mt-10 inline-block text-[11px] font-black uppercase tracking-[0.15em] border border-gold text-gold px-7 py-3.5 hover:bg-gold hover:text-navy transition-all"
           >
             Get in touch
           </a>
         </div>
-      </div>
+      </section>
 
       {/* Tier breakdown */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h2 className="text-xl font-bold text-navy mb-8">Sponsorship Tiers</h2>
-        <div className="grid sm:grid-cols-2 gap-4 mb-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="mb-10">
+          <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">Packages</p>
+          <h2 className="font-display font-black text-[2rem] text-white uppercase leading-none">Sponsorship Tiers</h2>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-px bg-white/5 border border-white/5 mb-20">
           {tiers.map(({ key, label, description }) => {
             const tierSponsors = byTier(key);
             return (
               <div
                 key={key}
-                className={`border bg-white p-6 rounded ${
-                  key === "title" ? "border-gold" : "border-border"
-                }`}
+                className={`bg-card p-7 relative border-l-[3px] ${tierAccent[key] ?? "border-white/10"}`}
               >
-                <div className="flex items-center gap-2 mb-3">
-                  {key === "title" && (
-                    <span className="w-2 h-2 bg-gold inline-block" />
-                  )}
-                  <h3 className="font-bold text-navy">{label}</h3>
-                </div>
-                <p className="text-muted text-sm leading-relaxed mb-4">{description}</p>
+                <h3 className="font-display font-black text-lg text-white uppercase mb-3">{label}</h3>
+                <p className="text-white/40 text-sm leading-relaxed mb-5">{description}</p>
 
                 {tierSponsors.length > 0 ? (
-                  <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-border">
+                  <div className="flex flex-wrap gap-6 pt-5 border-t border-white/6">
                     {tierSponsors.map((s) =>
                       s.website_url ? (
                         <a
@@ -102,17 +106,17 @@ export default async function SponsorsPage() {
                           href={s.website_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="opacity-80 hover:opacity-100 transition-opacity"
+                          className="opacity-60 hover:opacity-100 transition-opacity"
                         >
                           <Image src={s.logo_url} alt={s.name} width={100} height={40} className="object-contain h-10" />
                         </a>
                       ) : (
-                        <Image key={s.id} src={s.logo_url} alt={s.name} width={100} height={40} className="object-contain h-10 opacity-80" />
+                        <Image key={s.id} src={s.logo_url} alt={s.name} width={100} height={40} className="object-contain h-10 opacity-60" />
                       )
                     )}
                   </div>
                 ) : (
-                  <p className="text-xs text-muted italic mt-4 pt-4 border-t border-border">
+                  <p className="text-[11px] text-white/20 italic pt-5 border-t border-white/6">
                     Available — contact us to learn more.
                   </p>
                 )}
@@ -122,15 +126,16 @@ export default async function SponsorsPage() {
         </div>
 
         {/* CTA */}
-        <div className="bg-surface border border-border p-8 text-center rounded">
-          <h3 className="text-lg font-bold text-navy mb-2">Interested in partnering?</h3>
-          <p className="text-muted text-sm mb-6 max-w-md mx-auto">
+        <div className="border border-white/6 p-10 text-center bg-card">
+          <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">Partner with us</p>
+          <h3 className="font-display font-black text-2xl text-white uppercase mb-3">Interested in partnering?</h3>
+          <p className="text-white/35 text-sm mb-8 max-w-md mx-auto leading-relaxed">
             We work with sponsors to build custom packages that fit your goals. Reach
             out and we will put together a proposal.
           </p>
           <a
             href="mailto:sponsorship@theleague.ng"
-            className="inline-block bg-gold text-navy text-sm font-semibold px-6 py-3 rounded hover:bg-gold/90 transition-colors"
+            className="inline-block text-[11px] font-black uppercase tracking-[0.15em] bg-gold text-navy px-7 py-3.5 hover:brightness-105 transition-all"
           >
             Email us
           </a>

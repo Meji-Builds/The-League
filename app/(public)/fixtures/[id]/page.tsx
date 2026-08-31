@@ -23,29 +23,32 @@ interface FixtureDetail {
 
 const AVATAR_PALETTE = ["#5B72FF", "#B4FF00", "#10B981", "#EF4444", "#8B5CF6", "#F59E0B"];
 
-const statusPill: Record<string, string> = {
-  scheduled: "bg-cobalt/10 text-cobalt",
-  reported:  "bg-gold/10 text-gold",
-  disputed:  "bg-danger/10 text-danger",
-  confirmed: "bg-success/10 text-success",
+const STATUS_DOT: Record<string, string> = {
+  scheduled: "bg-cobalt",
+  reported:  "bg-gold",
+  disputed:  "bg-danger",
+  confirmed: "bg-success",
 };
 
 const statusLabel: Record<string, string> = {
   scheduled: "Scheduled",
   reported:  "Reported",
   disputed:  "Disputed",
-  confirmed: "Confirmed",
+  confirmed: "Full Time",
 };
 
 function initials(name: string) {
   return name.split(" ").map((w) => w[0] ?? "").join("").slice(0, 2).toUpperCase();
 }
 
+function avatarColor(name: string) {
+  return AVATAR_PALETTE[name.charCodeAt(0) % AVATAR_PALETTE.length];
+}
+
 export default async function FixtureDetailPage({ params }: Props) {
   const { id } = await params;
   const supabase = await createClient();
 
-  // Try with lineup images first; fall back to core fields if columns don't exist yet
   let data: unknown = null;
   const { data: full, error } = await supabase
     .from("fixtures")
@@ -78,62 +81,69 @@ export default async function FixtureDetailPage({ params }: Props) {
   if (!data) notFound();
   const f = data as unknown as FixtureDetail;
 
-  const colorA = AVATAR_PALETTE[(f.club_a?.name.charCodeAt(0) ?? 0) % AVATAR_PALETTE.length];
-  const colorB = AVATAR_PALETTE[(f.club_b?.name.charCodeAt(0) ?? 3) % AVATAR_PALETTE.length];
+  const colorA = avatarColor(f.club_a?.name ?? "A");
+  const colorB = avatarColor(f.club_b?.name ?? "B");
+
+  const stageLabel = [
+    f.competition?.name,
+    f.stage && f.stage !== "N/A" ? f.stage : f.group_name || null,
+    f.matchday ? `Day ${f.matchday}` : null,
+  ].filter(Boolean).join(" · ");
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
       <Link
         href="/fixtures"
-        className="inline-flex items-center gap-1.5 text-sm text-dim hover:text-white transition-colors mb-8"
+        className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.15em] text-white/30 hover:text-white transition-colors mb-12"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
           <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
         All Fixtures
       </Link>
 
-      {/* Header card */}
-      <div className="bg-card border border-rim p-6 mb-6 rounded">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.15em] text-gold">
-              {f.competition?.name}
-            </p>
-            <p className="text-xs text-dim">
-              {f.stage !== "N/A" ? f.stage : f.group_name}
-              {f.matchday ? ` · Day ${f.matchday}` : ""}
-            </p>
+      {/* Match header */}
+      <div className="bg-card border border-white/6 mb-1">
+        {/* Meta bar */}
+        <div className="px-6 pt-5 pb-4 border-b border-white/5 flex items-center justify-between gap-4">
+          <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim truncate">{stageLabel}</p>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${STATUS_DOT[f.status] ?? "bg-cobalt"}`} />
+            <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-white/40">
+              {statusLabel[f.status] ?? f.status}
+            </span>
           </div>
-          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${statusPill[f.status] ?? "bg-cobalt/10 text-cobalt"}`}>
-            {statusLabel[f.status] ?? f.status}
-          </span>
         </div>
 
         {/* Scoreline */}
-        <div className="flex items-center gap-4">
-          <div className="flex-1 flex flex-col items-center gap-2">
+        <div className="px-6 py-10 flex items-center gap-6">
+          {/* Club A */}
+          <div className="flex-1 flex flex-col items-center gap-3 min-w-0">
             <div
-              className="w-14 h-14 rounded flex items-center justify-center text-navy font-bold text-sm"
+              className="w-16 h-16 flex items-center justify-center text-navy font-black text-lg"
               style={{ backgroundColor: colorA }}
             >
               {initials(f.club_a?.name ?? "A")}
             </div>
-            <p className="text-sm font-semibold text-white text-center leading-snug">
+            <Link
+              href={f.club_a?.slug ? `/clubs/${f.club_a.slug}` : "#"}
+              className="font-display font-black text-lg text-white uppercase text-center leading-tight hover:text-gold transition-colors line-clamp-2"
+            >
               {f.club_a?.name ?? "TBC"}
-            </p>
+            </Link>
           </div>
 
-          <div className="text-center shrink-0">
+          {/* Score / VS */}
+          <div className="text-center shrink-0 min-w-[100px]">
             {f.confirmed_score ? (
-              <p className="font-display text-5xl font-bold text-gold tabular-nums leading-none">
+              <p className="font-display font-black text-gold tabular-nums leading-none" style={{ fontSize: "clamp(2.5rem, 8vw, 4rem)" }}>
                 {f.confirmed_score.score_a}&nbsp;&ndash;&nbsp;{f.confirmed_score.score_b}
               </p>
             ) : (
-              <p className="font-display text-2xl font-bold text-dim tracking-widest">VS</p>
+              <p className="font-display font-black text-white/15 tracking-[0.4em] text-2xl">VS</p>
             )}
             {f.scheduled_at && (
-              <p className="text-xs text-dim mt-2">
+              <p className="text-[11px] text-white/25 mt-3 tabular-nums">
                 {new Date(f.scheduled_at).toLocaleDateString("en-GB", {
                   weekday: "short", day: "numeric", month: "short", year: "numeric",
                 })}
@@ -145,28 +155,35 @@ export default async function FixtureDetailPage({ params }: Props) {
             )}
           </div>
 
-          <div className="flex-1 flex flex-col items-center gap-2">
+          {/* Club B */}
+          <div className="flex-1 flex flex-col items-center gap-3 min-w-0">
             <div
-              className="w-14 h-14 rounded flex items-center justify-center text-navy font-bold text-sm"
+              className="w-16 h-16 flex items-center justify-center text-navy font-black text-lg"
               style={{ backgroundColor: colorB }}
             >
               {initials(f.club_b?.name ?? "B")}
             </div>
-            <p className="text-sm font-semibold text-white text-center leading-snug">
+            <Link
+              href={f.club_b?.slug ? `/clubs/${f.club_b.slug}` : "#"}
+              className="font-display font-black text-lg text-white uppercase text-center leading-tight hover:text-gold transition-colors line-clamp-2"
+            >
               {f.club_b?.name ?? "TBC"}
-            </p>
+            </Link>
           </div>
         </div>
       </div>
 
       {/* Lineup Graphics */}
       {(f.lineup_image_a || f.lineup_image_b) && (
-        <div className="mb-6">
-          <h2 className="text-sm font-bold text-white uppercase tracking-wide mb-3">Lineup Graphics</h2>
-          <div className={`grid gap-4 ${f.lineup_image_a && f.lineup_image_b ? "sm:grid-cols-2" : "grid-cols-1"}`}>
+        <div className="mt-10">
+          <div className="flex items-center gap-4 mb-5">
+            <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim">Lineup Graphics</p>
+            <div className="flex-1 h-px bg-white/5" />
+          </div>
+          <div className={`grid gap-px bg-white/5 border border-white/5 ${f.lineup_image_a && f.lineup_image_b ? "sm:grid-cols-2" : "grid-cols-1"}`}>
             {f.lineup_image_a && (
-              <div className="bg-card border border-rim overflow-hidden rounded">
-                <p className="text-xs font-semibold text-dim px-3 pt-3 pb-1">
+              <div className="bg-card overflow-hidden">
+                <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-dim px-5 pt-4 pb-3">
                   {f.club_a?.name ?? "Club A"}
                 </p>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -178,8 +195,8 @@ export default async function FixtureDetailPage({ params }: Props) {
               </div>
             )}
             {f.lineup_image_b && (
-              <div className="bg-card border border-rim overflow-hidden rounded">
-                <p className="text-xs font-semibold text-dim px-3 pt-3 pb-1">
+              <div className="bg-card overflow-hidden">
+                <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-dim px-5 pt-4 pb-3">
                   {f.club_b?.name ?? "Club B"}
                 </p>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -195,8 +212,8 @@ export default async function FixtureDetailPage({ params }: Props) {
       )}
 
       {!f.lineup_image_a && !f.lineup_image_b && f.status === "scheduled" && (
-        <div className="bg-card border border-rim px-6 py-8 text-center rounded">
-          <p className="text-sm text-dim">Lineup graphics will appear here once uploaded by the admin.</p>
+        <div className="mt-10 border border-white/6 bg-card px-6 py-10 text-center">
+          <p className="text-[13px] text-white/20">Lineup graphics will appear here once uploaded.</p>
         </div>
       )}
     </div>

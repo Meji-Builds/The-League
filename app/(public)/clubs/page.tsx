@@ -19,6 +19,9 @@ async function getClubs(): Promise<Club[]> {
   }
 }
 
+const AVATAR_PALETTE = ["#5B72FF", "#B4FF00", "#10B981", "#EF4444", "#8B5CF6", "#F59E0B"];
+function avatarColor(name: string) { return AVATAR_PALETTE[name.charCodeAt(0) % AVATAR_PALETTE.length]; }
+
 export default async function ClubsPage() {
   const clubs = await getClubs();
 
@@ -28,23 +31,22 @@ export default async function ClubsPage() {
   }, {});
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="mb-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="mb-14">
+        <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">Season 2025</p>
         <div className="flex items-end justify-between">
-          <h1 className="font-display text-4xl font-bold text-white uppercase tracking-tight">
-            Club Directory
-          </h1>
-          <p className="text-dim text-sm">{clubs.length} club{clubs.length !== 1 ? "s" : ""}</p>
+          <h1 className="font-display font-black text-[3rem] text-white uppercase leading-none">Club Directory</h1>
+          <p className="text-white/25 text-sm pb-1">{clubs.length} club{clubs.length !== 1 ? "s" : ""}</p>
         </div>
       </div>
 
       {clubs.length === 0 ? (
-        <div className="border border-rim bg-card px-8 py-14 text-center rounded">
+        <div className="border border-white/8 bg-card px-8 py-16 text-center">
           <p className="text-white font-semibold">No clubs registered yet.</p>
-          <p className="text-dim text-sm mt-2">Be the first — register your club today.</p>
+          <p className="text-white/35 text-sm mt-2">Be the first — register your club today.</p>
           <Link
             href="/register"
-            className="mt-6 inline-block bg-gold text-navy text-sm font-bold px-5 py-2.5 rounded hover:brightness-110 transition-all uppercase tracking-wide"
+            className="mt-6 inline-block text-[11px] font-black uppercase tracking-[0.15em] bg-gold text-navy px-6 py-3 hover:brightness-105 transition-all"
           >
             Register Club
           </Link>
@@ -52,36 +54,39 @@ export default async function ClubsPage() {
       ) : (
         Object.entries(byFaculty).map(([faculty, facultyClubs]) => (
           <section key={faculty} className="mb-12">
-            <div className="flex items-center gap-3 mb-4">
-              <p className="text-xs font-semibold text-gold uppercase tracking-wider whitespace-nowrap">{faculty}</p>
-              <div className="flex-1 h-px bg-rim" />
+            <div className="flex items-center gap-4 mb-5">
+              <p className="text-[9px] font-bold text-white/35 uppercase tracking-[0.4em] whitespace-nowrap">{faculty}</p>
+              <div className="flex-1 h-px bg-white/5" />
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-px bg-white/5 border border-white/5">
               {facultyClubs.map((club) => (
                 <Link
                   key={club.id}
                   href={`/clubs/${club.slug}`}
-                  className="block bg-card border border-rim p-4 hover:border-cobalt/50 transition-all group text-center rounded"
+                  className="block bg-card p-5 hover:bg-white/[0.03] transition-colors group text-center"
                 >
-                  <div className="w-14 h-14 mx-auto mb-3 bg-panel border border-rim flex items-center justify-center overflow-hidden rounded">
+                  <div className="w-12 h-12 mx-auto mb-3 bg-panel border border-white/6 flex items-center justify-center overflow-hidden">
                     {club.logo_url && club.logo_status === "approved" ? (
                       <Image
                         src={club.logo_url}
                         alt={`${club.name} logo`}
-                        width={56}
-                        height={56}
+                        width={48}
+                        height={48}
                         className="object-contain"
                       />
                     ) : (
-                      <span className="text-2xl font-bold text-cobalt/40 select-none">
+                      <span
+                        className="text-lg font-black select-none"
+                        style={{ color: avatarColor(club.name) }}
+                      >
                         {club.name.charAt(0)}
                       </span>
                     )}
                   </div>
-                  <p className="text-sm font-semibold text-white group-hover:text-gold transition-colors leading-tight">
+                  <p className="text-[13px] font-semibold text-white group-hover:text-gold transition-colors leading-tight">
                     {club.name}
                   </p>
-                  <p className="text-xs text-dim mt-1">{club.department}</p>
+                  <p className="text-[11px] text-white/25 mt-1 truncate">{club.department}</p>
                 </Link>
               ))}
             </div>

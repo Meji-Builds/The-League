@@ -30,11 +30,18 @@ const statusLabel: Record<string, string> = {
   completed:         "Completed",
 };
 
-const statusStyle: Record<string, string> = {
-  in_progress:       "bg-success/10 text-success",
-  registration_open: "bg-gold/10 text-gold",
-  upcoming:          "bg-cobalt/10 text-cobalt",
-  completed:         "bg-white/5 text-dim",
+const statusAccent: Record<string, string> = {
+  in_progress:       "bg-success",
+  registration_open: "bg-gold",
+  upcoming:          "bg-cobalt",
+  completed:         "bg-white/20",
+};
+
+const statusText: Record<string, string> = {
+  in_progress:       "text-success",
+  registration_open: "text-gold",
+  upcoming:          "text-cobalt",
+  completed:         "text-white/35",
 };
 
 export default async function CompetitionsPage() {
@@ -45,75 +52,80 @@ export default async function CompetitionsPage() {
   const completed = competitions.filter((c) => c.status === "completed");
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="mb-10">
-        <h1 className="font-display text-4xl font-bold text-white uppercase tracking-tight">Competitions</h1>
-        <p className="text-dim text-sm mt-2 max-w-lg">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="mb-14">
+        <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">Season 2025</p>
+        <h1 className="font-display font-black text-[3rem] text-white uppercase leading-none">Competitions</h1>
+        <p className="text-white/35 text-[15px] mt-4 max-w-lg leading-relaxed">
           Multiple competitions run concurrently — from the flagship
           University Championship to standalone cups.
         </p>
       </div>
 
       {competitions.length === 0 && (
-        <div className="border border-rim bg-card px-8 py-14 text-center rounded">
+        <div className="border border-white/8 bg-card px-8 py-16 text-center">
           <p className="text-white font-semibold">No competitions yet.</p>
-          <p className="text-dim text-sm mt-2">Check back once Season 1 kicks off.</p>
+          <p className="text-white/35 text-sm mt-2">Check back once Season 1 kicks off.</p>
         </div>
       )}
 
       {[
-        { title: "Active",    items: active },
-        { title: "Upcoming",  items: upcoming },
-        { title: "Completed", items: completed },
-      ].map(({ title, items }) =>
+        { title: "Active",    subtitle: "Running now",  items: active },
+        { title: "Upcoming",  subtitle: "Coming soon",  items: upcoming },
+        { title: "Completed", subtitle: "Past seasons", items: completed },
+      ].map(({ title, subtitle, items }) =>
         items.length > 0 ? (
-          <section key={title} className="mb-12">
-            <div className="flex items-center gap-3 mb-4">
-              <p className="text-xs font-semibold text-gold uppercase tracking-wider">{title}</p>
-              <div className="flex-1 h-px bg-rim" />
+          <section key={title} className="mb-14">
+            <div className="flex items-center gap-4 mb-6">
+              <div>
+                <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-dim">{subtitle}</p>
+                <p className="text-lg font-display font-black text-white uppercase mt-0.5">{title}</p>
+              </div>
+              <div className="flex-1 h-px bg-white/5" />
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-white/5 border border-white/5">
               {items.map((c) => (
                 <Link
                   key={c.id}
                   href={`/competitions/${c.slug}`}
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  className="block bg-card border border-rim hover:border-cobalt/50 transition-all group rounded overflow-hidden"
+                  className="block bg-card hover:bg-white/[0.03] transition-colors group relative overflow-hidden"
                 >
-                  {/* Banner image */}
                   {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   {(c as any).banner_image_url ? (
-                    <div className="relative w-full h-32 overflow-hidden">
+                    <div className="relative w-full h-36 overflow-hidden">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         src={(c as any).banner_image_url}
                         alt={c.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-navy/80 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-card to-transparent" />
                     </div>
                   ) : null}
-                  <div className="p-6">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <span className="text-xs text-gold font-bold uppercase tracking-wider">
+
+                  <div className={`absolute left-0 top-0 bottom-0 w-[3px] ${statusAccent[c.status] ?? "bg-white/20"}`} />
+
+                  <div className="p-6 pl-7">
+                    <div className="flex items-start justify-between gap-3 mb-4">
+                      <span className="text-[9px] font-bold uppercase tracking-[0.25em] text-white/35">
                         {typeLabel[c.type]}
                       </span>
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusStyle[c.status] ?? "bg-white/5 text-dim"}`}>
+                      <span className={`text-[9px] font-bold uppercase tracking-[0.15em] ${statusText[c.status] ?? "text-white/35"}`}>
                         {statusLabel[c.status]}
                       </span>
                     </div>
-                    <p className="font-bold text-white group-hover:text-gold transition-colors leading-snug">
+                    <p className="font-display font-black text-xl text-white group-hover:text-gold transition-colors uppercase leading-tight">
                       {c.name}
                     </p>
-                    <p className="text-dim text-xs mt-1">{c.edition}</p>
+                    <p className="text-white/30 text-xs mt-1">{c.edition}</p>
                     {c.description && (
-                      <p className="text-dim text-sm mt-3 leading-relaxed line-clamp-2">
+                      <p className="text-white/40 text-sm mt-3 leading-relaxed line-clamp-2">
                         {c.description}
                       </p>
                     )}
                     {c.entry_fee > 0 && (
-                      <p className="text-xs text-white font-semibold mt-4 border-t border-rim pt-4">
+                      <p className="text-xs text-white/30 mt-4 pt-4 border-t border-white/5">
                         {"₦"}{c.entry_fee.toLocaleString()} entry fee
                       </p>
                     )}
