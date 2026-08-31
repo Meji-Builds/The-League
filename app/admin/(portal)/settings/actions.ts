@@ -51,19 +51,22 @@ export async function updateSiteSettings(prevState: ActionState, formData: FormD
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = supabase as any;
 
+  const str = (key: string, fallback?: string) =>
+    (formData.get(key) as string | null)?.trim() || fallback || null;
+
   const payload = {
     id: 1,
-    current_season:     (formData.get("current_season")     as string).trim() || "Season 2026",
-    social_youtube:     (formData.get("social_youtube")     as string).trim() || null,
-    social_instagram:   (formData.get("social_instagram")   as string).trim() || null,
-    social_twitter:     (formData.get("social_twitter")     as string).trim() || null,
-    social_tiktok:      (formData.get("social_tiktok")      as string).trim() || null,
-    social_discord:     (formData.get("social_discord")     as string).trim() || null,
-    about_text:         (formData.get("about_text")         as string).trim() || null,
-    contact_email:      (formData.get("contact_email")      as string).trim() || null,
-    hero_title:         (formData.get("hero_title")         as string).trim() || "University Esports, Officially Organized.",
-    hero_subtitle:      (formData.get("hero_subtitle")      as string).trim() || null,
-    hero_bg_image_url:  (formData.get("hero_bg_image_url")  as string).trim() || null,
+    current_season:     str("current_season",    "Season 2026"),
+    social_youtube:     str("social_youtube"),
+    social_instagram:   str("social_instagram"),
+    social_twitter:     str("social_twitter"),
+    social_tiktok:      str("social_tiktok"),
+    social_discord:     str("social_discord"),
+    about_text:         str("about_text"),
+    contact_email:      str("contact_email"),
+    hero_title:         str("hero_title",        "University Esports, Officially Organized."),
+    hero_subtitle:      str("hero_subtitle"),
+    hero_bg_image_url:  str("hero_bg_image_url"),
     updated_at: new Date().toISOString(),
     updated_by: user.id,
   };
@@ -148,9 +151,9 @@ export async function updateTheme(prevState: ActionState, formData: FormData): P
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = supabase as any;
 
-  const newGold   = (formData.get("theme_gold")   as string).trim() || null;
-  const newCobalt = (formData.get("theme_cobalt") as string).trim() || null;
-  const newNavy   = (formData.get("theme_navy")   as string).trim() || null;
+  const newGold   = (formData.get("theme_gold")   as string | null)?.trim() || null;
+  const newCobalt = (formData.get("theme_cobalt") as string | null)?.trim() || null;
+  const newNavy   = (formData.get("theme_navy")   as string | null)?.trim() || null;
 
   // Read current theme to push to history
   const { data: current } = await db.from("site_settings").select("theme_gold, theme_cobalt, theme_navy, theme_history").eq("id", 1).single();
