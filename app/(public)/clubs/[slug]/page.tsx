@@ -207,7 +207,7 @@ export default async function ClubPage({ params }: { params: Promise<{ slug: str
                 <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim">Fixtures</p>
                 <div className="flex-1 h-px bg-white/5" />
               </div>
-              <div className="border border-white/6 divide-y divide-white/5">
+              <div className="border border-white/6 divide-y divide-white/5 overflow-hidden">
                 {clubFixtures.map((f) => {
                   const isClubA = f.club_a?.id === c.id;
                   const opponent = isClubA ? f.club_b : f.club_a;
@@ -218,7 +218,7 @@ export default async function ClubPage({ params }: { params: Promise<{ slug: str
                     <Link
                       key={f.id}
                       href={`/fixtures/${f.id}`}
-                      className="flex items-center gap-4 px-5 py-4 hover:bg-white/[0.03] transition-colors group"
+                      className="flex items-center gap-3 px-4 py-4 hover:bg-white/[0.03] transition-colors group overflow-hidden"
                     >
                       {/* This club */}
                       <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
@@ -232,7 +232,7 @@ export default async function ClubPage({ params }: { params: Promise<{ slug: str
                       </div>
 
                       {/* Score / VS */}
-                      <div className="w-20 text-center shrink-0">
+                      <div className="w-16 text-center shrink-0">
                         {myScore !== null && opScore !== null ? (
                           <span className={`font-display font-black text-lg tabular-nums leading-none ${
                             myScore > opScore ? "text-success" : myScore < opScore ? "text-danger" : "text-white/50"
@@ -353,7 +353,7 @@ export default async function ClubPage({ params }: { params: Promise<{ slug: str
               ].map(({ label, value }) => (
                 <div key={label} className="flex items-center justify-between border-b border-white/5 pb-5 last:border-0 last:pb-0">
                   <span className="text-[13px] text-white/40">{label}</span>
-                  <span className="font-display font-black text-2xl text-gold">{value}</span>
+                  <span className="font-display font-black text-2xl text-white">{value}</span>
                 </div>
               ))}
             </div>

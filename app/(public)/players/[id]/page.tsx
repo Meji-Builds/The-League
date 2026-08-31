@@ -28,10 +28,17 @@ function nameInitials(name: string): string {
   return name.split(" ").map((w) => w[0] ?? "").join("").slice(0, 2).toUpperCase();
 }
 
+const STATUS_DOT: Record<string, string> = {
+  scheduled: "bg-cobalt",
+  reported:  "bg-gold",
+  disputed:  "bg-danger",
+  confirmed: "bg-success",
+};
+
 const FIXTURE_STATUS_LABEL: Record<string, string> = {
-  scheduled: "Scheduled",
+  scheduled: "Upcoming",
   reported:  "Reported",
-  confirmed: "Confirmed",
+  confirmed: "FT",
   disputed:  "Disputed",
 };
 
@@ -71,32 +78,34 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
     ? Math.round((p.stats.wins / p.stats.matches_played) * 100)
     : 0;
 
+  const playerColor = avatarColor(p.gamer_tag);
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
 
       <Link
         href="/players"
-        className="inline-flex items-center gap-1.5 text-sm text-dim hover:text-white transition-colors mb-8"
+        className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.15em] text-white/30 hover:text-white transition-colors mb-12"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
           <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
         All players
       </Link>
 
       {/* Header */}
-      <div className="flex items-start gap-5 mb-10">
+      <div className="flex items-start gap-5 mb-14">
         {p.profile_picture_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={p.profile_picture_url}
             alt={p.gamer_tag}
-            className="w-20 h-20 rounded-full object-cover border border-rim shrink-0"
+            className="w-16 h-16 object-cover shrink-0"
           />
         ) : (
           <div
-            className="w-20 h-20 rounded-full flex items-center justify-center shrink-0 text-navy text-2xl font-bold"
-            style={{ backgroundColor: avatarColor(p.gamer_tag) }}
+            className="w-16 h-16 flex items-center justify-center shrink-0 text-navy text-xl font-black"
+            style={{ backgroundColor: playerColor }}
           >
             {nameInitials(p.gamer_tag)}
           </div>
@@ -105,43 +114,44 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
           {p.club && (
             <Link
               href={`/clubs/${p.club.slug}`}
-              className="text-cobalt text-xs font-bold uppercase tracking-[0.2em] mb-1 hover:text-gold transition-colors block"
+              className="text-[9px] font-bold uppercase tracking-[0.5em] text-cobalt hover:text-white transition-colors block mb-2"
             >
               {p.club.name}
             </Link>
           )}
-          <h1 className="font-display text-2xl sm:text-3xl font-bold text-white uppercase leading-tight">{p.gamer_tag}</h1>
+          <h1 className="font-display font-black text-[2rem] text-white uppercase leading-none">
+            {p.gamer_tag}
+          </h1>
           {p.full_name && (
-            <p className="text-dim text-sm mt-0.5">{p.full_name}</p>
+            <p className="text-white/30 text-[13px] mt-1.5">{p.full_name}</p>
           )}
           {p.position && (
-            <span className="mt-2 inline-block text-xs font-semibold px-2.5 py-1 rounded-full bg-cobalt/10 text-cobalt">
-              {p.position}
-            </span>
+            <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/25 mt-2">{p.position}</p>
           )}
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
+      <div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
 
         {/* Left column */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-2 space-y-14">
 
           {/* Bio */}
           {p.bio && (
-            <section className="bg-card border border-rim p-5 rounded">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-dim mb-3">Bio</h2>
-              <p className="text-white/80 text-sm leading-relaxed">{p.bio}</p>
+            <section className="bg-card border border-white/6 p-7">
+              <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">Bio</p>
+              <p className="text-white/60 text-[14px] leading-relaxed">{p.bio}</p>
             </section>
           )}
 
-          {/* Fixtures */}
+          {/* Club Fixtures */}
           {playerFixtures.length > 0 && (
             <section>
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider mb-4">
-                Club Fixtures
-              </h2>
-              <div className="divide-y divide-rim bg-card border border-rim rounded overflow-hidden">
+              <div className="flex items-center gap-4 mb-5">
+                <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim">Club Fixtures</p>
+                <div className="flex-1 h-px bg-white/5" />
+              </div>
+              <div className="border border-white/6 divide-y divide-white/5 overflow-hidden">
                 {playerFixtures.map((f) => {
                   const clubIsA  = f.club_a?.id === p.club_id;
                   const myClub   = clubIsA ? f.club_a : f.club_b;
@@ -154,51 +164,72 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
                     : null;
 
                   return (
-                    <div key={f.id} className="px-4 py-3 flex items-center gap-3 hover:bg-white/5 transition-colors">
-                      <span className="hidden sm:block text-xs text-dim uppercase tracking-wider w-20 shrink-0">
-                        {f.stage}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-sm text-white truncate">
-                            {myClub?.name ?? "TBA"}
-                          </span>
-                          <span className="text-dim text-xs shrink-0 font-medium">
-                            {myScore !== null && opScore !== null
-                              ? `${myScore} – ${opScore}`
-                              : "vs"}
-                          </span>
-                          {opponent ? (
-                            <Link
-                              href={`/clubs/${opponent.slug}`}
-                              className="font-semibold text-sm text-white hover:text-gold transition-colors truncate"
-                            >
-                              {opponent.name}
-                            </Link>
-                          ) : (
-                            <span className="text-sm text-dim">TBA</span>
-                          )}
+                    <Link
+                      key={f.id}
+                      href={`/fixtures/${f.id}`}
+                      className="flex items-center gap-3 px-4 py-4 hover:bg-white/[0.03] transition-colors group overflow-hidden"
+                    >
+                      {/* My club */}
+                      <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
+                        <p className="text-[13px] text-white/70 group-hover:text-white transition-colors truncate text-right">
+                          {myClub?.name ?? "TBA"}
+                        </p>
+                        <div
+                          className="w-6 h-6 shrink-0 flex items-center justify-center text-navy text-[9px] font-black"
+                          style={{ backgroundColor: playerColor }}
+                        >
+                          {nameInitials(myClub?.name ?? "?")}
                         </div>
-                        {f.competition && (
-                          <p className="text-xs text-dim mt-0.5">{f.competition.name}</p>
+                      </div>
+
+                      {/* Score / VS */}
+                      <div className="w-16 text-center shrink-0">
+                        {myScore !== null && opScore !== null ? (
+                          <span className={`font-display font-black text-lg tabular-nums leading-none ${
+                            myScore > opScore ? "text-success" : myScore < opScore ? "text-danger" : "text-white/50"
+                          }`}>
+                            {myScore}&nbsp;&ndash;&nbsp;{opScore}
+                          </span>
+                        ) : (
+                          <span className="text-[11px] text-white/15 font-bold tracking-[0.3em]">vs</span>
                         )}
                       </div>
-                      <span className={`shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full ${
-                        f.status === "confirmed" ? "bg-success/10 text-success" :
-                        f.status === "disputed"  ? "bg-danger/10 text-danger"   :
-                        f.status === "reported"  ? "bg-gold/10 text-gold"       :
-                        "bg-cobalt/10 text-cobalt"
-                      }`}>
-                        {FIXTURE_STATUS_LABEL[f.status]}
-                      </span>
-                      {f.scheduled_at && (
-                        <span className="hidden md:block text-xs text-dim shrink-0">
-                          {new Date(f.scheduled_at).toLocaleDateString("en-GB", {
-                            day: "numeric", month: "short",
-                          })}
-                        </span>
-                      )}
-                    </div>
+
+                      {/* Opponent */}
+                      <div className="flex items-center gap-2 flex-1 justify-start min-w-0">
+                        {opponent ? (
+                          <>
+                            <div
+                              className="w-6 h-6 shrink-0 flex items-center justify-center text-navy text-[9px] font-black"
+                              style={{ backgroundColor: avatarColor(opponent.name) }}
+                            >
+                              {nameInitials(opponent.name)}
+                            </div>
+                            <p className="text-[13px] text-white/70 group-hover:text-white transition-colors truncate">
+                              {opponent.name}
+                            </p>
+                          </>
+                        ) : (
+                          <p className="text-[13px] text-white/20">TBA</p>
+                        )}
+                      </div>
+
+                      {/* Meta */}
+                      <div className="hidden sm:flex items-center gap-3 shrink-0">
+                        {f.competition?.name && (
+                          <span className="text-[11px] text-white/20 truncate max-w-[90px]">{f.competition.name}</span>
+                        )}
+                        <div className="flex items-center gap-1.5">
+                          <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[f.status] ?? "bg-cobalt"}`} />
+                          <span className="text-[11px] text-white/30">{FIXTURE_STATUS_LABEL[f.status] ?? f.status}</span>
+                        </div>
+                        {f.scheduled_at && (
+                          <span className="text-[11px] text-white/20 tabular-nums">
+                            {new Date(f.scheduled_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                          </span>
+                        )}
+                      </div>
+                    </Link>
                   );
                 })}
               </div>
@@ -207,42 +238,53 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
         </div>
 
         {/* Right column */}
-        <div className="space-y-5">
+        <div className="space-y-8">
 
-          {/* Stats */}
-          <section className="bg-card border border-rim p-5 rounded">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-dim mb-4">Season Stats</h2>
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <div className="bg-panel border border-rim p-3 text-center rounded">
-                <p className="font-display text-3xl font-bold text-gold">{p.stats.wins}</p>
-                <p className="text-xs text-dim mt-0.5">Wins</p>
+          {/* Season stats */}
+          <section className="bg-card border border-white/6 p-7">
+            <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-6">Season Stats</p>
+            <div className="grid grid-cols-2 gap-px bg-white/5 mb-6">
+              <div className="bg-card p-5 text-center">
+                <p className="font-display font-black text-4xl text-gold tabular-nums leading-none">{p.stats.wins}</p>
+                <p className="text-[9px] font-bold uppercase tracking-[0.35em] text-dim mt-2">Wins</p>
               </div>
-              <div className="bg-panel border border-rim p-3 text-center rounded">
-                <p className="font-display text-3xl font-bold text-white">{p.stats.losses}</p>
-                <p className="text-xs text-dim mt-0.5">Losses</p>
+              <div className="bg-card p-5 text-center">
+                <p className="font-display font-black text-4xl text-white tabular-nums leading-none">{p.stats.losses}</p>
+                <p className="text-[9px] font-bold uppercase tracking-[0.35em] text-dim mt-2">Losses</p>
               </div>
             </div>
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-dim">Matches played</span>
-                <span className="text-sm font-bold text-white">{p.stats.matches_played}</span>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                <span className="text-[13px] text-white/40">Matches played</span>
+                <span className="font-display font-black text-lg text-white">{p.stats.matches_played}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-dim">Win rate</span>
-                <span className="text-sm font-bold text-gold">{winRate}%</span>
+                <span className="text-[13px] text-white/40">Win rate</span>
+                <span className="font-display font-black text-lg text-gold">{winRate}%</span>
               </div>
             </div>
           </section>
 
           {/* Club info */}
           {p.club && (
-            <section className="bg-card border border-rim p-5 rounded">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-dim mb-4">Club</h2>
-              <Link href={`/clubs/${p.club.slug}`} className="group">
-                <p className="font-semibold text-sm text-white group-hover:text-gold transition-colors">
-                  {p.club.name}
-                </p>
-                <p className="text-xs text-dim mt-0.5">{p.club.faculty}</p>
+            <section>
+              <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">Club</p>
+              <Link
+                href={`/clubs/${p.club.slug}`}
+                className="flex items-center gap-3 bg-card border border-white/6 px-5 py-4 hover:bg-white/[0.03] transition-colors group"
+              >
+                <div
+                  className="w-8 h-8 flex items-center justify-center text-navy text-[10px] font-black shrink-0"
+                  style={{ backgroundColor: avatarColor(p.club.name) }}
+                >
+                  {nameInitials(p.club.name)}
+                </div>
+                <div className="min-w-0">
+                  <p className="font-medium text-[13px] text-white/80 group-hover:text-white transition-colors truncate">
+                    {p.club.name}
+                  </p>
+                  <p className="text-[11px] text-white/25">{p.club.faculty}</p>
+                </div>
               </Link>
             </section>
           )}

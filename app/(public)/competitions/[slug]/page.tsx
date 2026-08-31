@@ -280,12 +280,12 @@ export default async function CompetitionPage({ params }: { params: Promise<{ sl
                 <p className="text-[13px] text-white/20">No fixtures scheduled yet.</p>
               </div>
             ) : (
-              <div className="border border-white/6 divide-y divide-white/5">
+              <div className="border border-white/6 divide-y divide-white/5 overflow-hidden">
                 {fixtures.map((f) => (
                   <Link
                     key={f.id}
                     href={`/fixtures/${f.id}`}
-                    className="flex items-center gap-4 px-5 py-4 hover:bg-white/[0.03] transition-colors group"
+                    className="flex items-center gap-3 px-4 py-4 hover:bg-white/[0.03] transition-colors group overflow-hidden"
                   >
                     {/* Club A */}
                     <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
@@ -301,7 +301,7 @@ export default async function CompetitionPage({ params }: { params: Promise<{ sl
                     </div>
 
                     {/* Score / VS */}
-                    <div className="w-20 text-center shrink-0">
+                    <div className="w-16 text-center shrink-0">
                       {f.confirmed_score ? (
                         <span className="font-display font-black text-lg text-gold tabular-nums leading-none">
                           {f.confirmed_score.score_a}&nbsp;&ndash;&nbsp;{f.confirmed_score.score_b}
