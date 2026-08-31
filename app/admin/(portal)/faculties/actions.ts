@@ -79,7 +79,7 @@ export async function deleteFaculty(prevState: ActionState, formData: FormData):
 
   revalidatePath("/admin/faculties");
   revalidatePath("/leagues");
-  return null;
+  redirect("/admin/faculties");
 }
 
 // ── Divisions ──────────────────────────────────────────────────────────────
