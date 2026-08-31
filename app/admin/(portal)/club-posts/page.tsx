@@ -107,13 +107,13 @@ export default async function AdminClubPostsPage({ searchParams }: { searchParam
                     <>
                       <form action={approveClubPost}>
                         <input type="hidden" name="id" value={p.id} />
-                        <button type="submit" className="text-xs font-semibold px-4 py-1.5 bg-success/10 text-success hover:bg-success/20 transition-colors">
+                        <button type="submit" className="text-xs font-semibold px-4 py-1.5 bg-success/10 text-success hover:bg-success/20 transition-colors rounded">
                           Approve
                         </button>
                       </form>
                       <form action={rejectClubPost}>
                         <input type="hidden" name="id" value={p.id} />
-                        <button type="submit" className="text-xs font-semibold px-4 py-1.5 bg-danger/10 text-danger hover:bg-danger/20 transition-colors">
+                        <button type="submit" className="text-xs font-semibold px-4 py-1.5 bg-danger/10 text-danger hover:bg-danger/20 transition-colors rounded">
                           Reject
                         </button>
                       </form>

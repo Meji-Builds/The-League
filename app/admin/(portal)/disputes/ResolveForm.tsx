@@ -55,7 +55,7 @@ export function ResolveForm({ fixtureId, clubAId, clubBId, clubAName, clubBName 
       <button
         type="submit"
         disabled={isPending}
-        className="bg-white/10 text-white font-semibold text-sm px-5 py-2 hover:bg-white/20 transition-colors disabled:opacity-60"
+        className="bg-white/10 text-white font-semibold text-sm px-5 py-2 rounded hover:bg-white/20 transition-colors disabled:opacity-60"
       >
         {isPending ? "Saving..." : "Set official score"}
       </button>

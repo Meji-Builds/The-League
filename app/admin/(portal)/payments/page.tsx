@@ -112,7 +112,7 @@ export default async function AdminPaymentsPage() {
                       <input type="hidden" name="competition_id" value={entry.competition_id} />
                       <button
                         type="submit"
-                        className="text-xs font-bold px-4 py-2 bg-success/10 text-success hover:bg-success/20 transition-colors uppercase tracking-[0.1em]"
+                        className="text-xs font-bold px-4 py-2 bg-success/10 text-success hover:bg-success/20 transition-colors rounded uppercase tracking-[0.1em]"
                       >
                         Confirm Paid
                       </button>

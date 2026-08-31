@@ -57,22 +57,52 @@ export async function createFixture(prevState: ActionState, formData: FormData):
 export async function updateFixture(prevState: ActionState, formData: FormData): Promise<ActionState> {
   const db = await requireAdminDb();
 
-  const fixtureId   = formData.get("fixture_id") as string;
-  const stage       = formData.get("stage") as string;
-  const groupName   = (formData.get("group_name") as string)?.trim() || "Open";
-  const matchday    = parseInt(formData.get("matchday") as string, 10) || 1;
-  const scheduledAt = (formData.get("scheduled_at") as string) || null;
+  const fixtureId     = formData.get("fixture_id") as string;
+  const competitionId = formData.get("competition_id") as string;
+  const clubAId       = formData.get("club_a_id") as string;
+  const clubBId       = formData.get("club_b_id") as string;
+  const stage         = formData.get("stage") as string;
+  const groupName     = (formData.get("group_name") as string)?.trim() || "Open";
+  const matchday      = parseInt(formData.get("matchday") as string, 10) || 1;
+  const scheduledAt   = (formData.get("scheduled_at") as string) || null;
 
   if (!fixtureId) return { error: "Invalid fixture." };
+  if (clubAId && clubBId && clubAId === clubBId) return { error: "A club cannot play against itself." };
 
   const { error } = await db
     .from("fixtures")
-    .update({ stage, group_name: groupName, matchday, scheduled_at: scheduledAt })
+    .update({
+      ...(competitionId && { competition_id: competitionId }),
+      ...(clubAId       && { club_a_id: clubAId }),
+      ...(clubBId       && { club_b_id: clubBId }),
+      stage,
+      group_name: groupName,
+      matchday,
+      scheduled_at: scheduledAt,
+    })
     .eq("id", fixtureId);
 
   if (error) {
     console.error("admin/updateFixture:", error);
     return { error: "Could not update fixture. Please try again." };
+  }
+
+  revalidatePath("/admin/fixtures");
+  revalidatePath("/fixtures");
+  revalidatePath("/");
+  return null;
+}
+
+export async function deleteFixture(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const db = await requireAdminDb();
+
+  const fixtureId = formData.get("fixture_id") as string;
+  if (!fixtureId) return { error: "Invalid fixture." };
+
+  const { error } = await db.from("fixtures").delete().eq("id", fixtureId);
+  if (error) {
+    console.error("admin/deleteFixture:", error);
+    return { error: "Could not delete fixture. Please try again." };
   }
 
   revalidatePath("/admin/fixtures");

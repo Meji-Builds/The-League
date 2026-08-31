@@ -52,7 +52,7 @@ function ActionForm({ action, clubId, label, className }: { action: typeof appro
   return (
     <form action={action}>
       <input type="hidden" name="club_id" value={clubId} />
-      <button type="submit" className={`text-xs font-semibold px-3 py-1 transition-colors ${className}`}>
+      <button type="submit" className={`text-xs font-semibold px-3 py-1 rounded transition-colors ${className}`}>
         {label}
       </button>
     </form>
@@ -147,13 +147,13 @@ export default async function AdminClubsPage() {
                 <div className="flex gap-2 sm:flex-col">
                   <form action={approvePlayer}>
                     <input type="hidden" name="player_id" value={player.id} />
-                    <button type="submit" className="text-xs font-semibold px-3 py-1 bg-success/10 text-success hover:bg-success/20 transition-colors w-full">
+                    <button type="submit" className="text-xs font-semibold px-3 py-1 bg-success/10 text-success hover:bg-success/20 transition-colors rounded w-full">
                       Approve
                     </button>
                   </form>
                   <form action={rejectPlayer}>
                     <input type="hidden" name="player_id" value={player.id} />
-                    <button type="submit" className="text-xs font-semibold px-3 py-1 bg-danger/10 text-danger hover:bg-danger/20 transition-colors w-full">
+                    <button type="submit" className="text-xs font-semibold px-3 py-1 bg-danger/10 text-danger hover:bg-danger/20 transition-colors rounded w-full">
                       Reject
                     </button>
                   </form>
@@ -196,13 +196,13 @@ export default async function AdminClubsPage() {
                 <div className="flex gap-2 sm:flex-col">
                   <form action={approvePlayerPhoto}>
                     <input type="hidden" name="player_id" value={player.id} />
-                    <button type="submit" className="text-xs font-semibold px-3 py-1 bg-success/10 text-success hover:bg-success/20 transition-colors w-full">
+                    <button type="submit" className="text-xs font-semibold px-3 py-1 bg-success/10 text-success hover:bg-success/20 transition-colors rounded w-full">
                       Approve
                     </button>
                   </form>
                   <form action={rejectPlayerPhoto}>
                     <input type="hidden" name="player_id" value={player.id} />
-                    <button type="submit" className="text-xs font-semibold px-3 py-1 bg-danger/10 text-danger hover:bg-danger/20 transition-colors w-full">
+                    <button type="submit" className="text-xs font-semibold px-3 py-1 bg-danger/10 text-danger hover:bg-danger/20 transition-colors rounded w-full">
                       Reject
                     </button>
                   </form>
@@ -240,13 +240,13 @@ export default async function AdminClubsPage() {
                 <div className="flex gap-2 sm:flex-col">
                   <form action={approveClubLogo}>
                     <input type="hidden" name="club_id" value={club.id} />
-                    <button type="submit" className="text-xs font-semibold px-3 py-1 bg-success/10 text-success hover:bg-success/20 transition-colors w-full">
+                    <button type="submit" className="text-xs font-semibold px-3 py-1 bg-success/10 text-success hover:bg-success/20 transition-colors rounded w-full">
                       Approve
                     </button>
                   </form>
                   <form action={rejectClubLogo}>
                     <input type="hidden" name="club_id" value={club.id} />
-                    <button type="submit" className="text-xs font-semibold px-3 py-1 bg-danger/10 text-danger hover:bg-danger/20 transition-colors w-full">
+                    <button type="submit" className="text-xs font-semibold px-3 py-1 bg-danger/10 text-danger hover:bg-danger/20 transition-colors rounded w-full">
                       Reject
                     </button>
                   </form>

@@ -126,7 +126,7 @@ export function ThemeForm({ current, history }: Props) {
         <button
           type="submit"
           disabled={busy}
-          className="bg-gold text-navy text-xs font-semibold px-4 py-2 hover:bg-gold/90 transition-colors disabled:opacity-60"
+          className="bg-gold text-navy text-xs font-semibold px-4 py-2 rounded hover:bg-gold/90 transition-colors disabled:opacity-60"
         >
           {applyPending ? "Applying..." : "Apply theme"}
         </button>

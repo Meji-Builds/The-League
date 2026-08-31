@@ -46,7 +46,7 @@ export default async function ClubsPage() {
           <p className="text-white/35 text-sm mt-2">Be the first — register your club today.</p>
           <Link
             href="/register"
-            className="mt-6 inline-block text-[11px] font-black uppercase tracking-[0.15em] bg-gold text-navy px-6 py-3 hover:brightness-105 transition-all"
+            className="mt-6 inline-block text-[11px] font-black uppercase tracking-[0.15em] bg-gold text-navy px-6 py-3 rounded hover:brightness-105 transition-all"
           >
             Register Club
           </Link>
@@ -65,22 +65,22 @@ export default async function ClubsPage() {
                   href={`/clubs/${club.slug}`}
                   className="block bg-card p-5 hover:bg-white/[0.03] transition-colors group text-center"
                 >
-                  <div className="w-12 h-12 mx-auto mb-3 bg-panel border border-white/6 flex items-center justify-center overflow-hidden">
+                  <div className="w-16 h-16 mx-auto mb-3 flex items-center justify-center overflow-hidden">
                     {club.logo_url && club.logo_status === "approved" ? (
                       <Image
                         src={club.logo_url}
                         alt={`${club.name} logo`}
-                        width={48}
-                        height={48}
-                        className="object-contain"
+                        width={64}
+                        height={64}
+                        className="object-contain w-full h-full"
                       />
                     ) : (
-                      <span
-                        className="text-lg font-black select-none"
-                        style={{ color: avatarColor(club.name) }}
+                      <div
+                        className="w-16 h-16 flex items-center justify-center text-navy text-2xl font-black select-none"
+                        style={{ backgroundColor: avatarColor(club.name) }}
                       >
                         {club.name.charAt(0)}
-                      </span>
+                      </div>
                     )}
                   </div>
                   <p className="text-[13px] font-semibold text-white group-hover:text-gold transition-colors leading-tight">

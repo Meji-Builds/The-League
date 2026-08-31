@@ -138,7 +138,7 @@ export default async function AdminResultsPage() {
                     action={markDisputed}
                     id={f.id}
                     confirm="Mark this fixture as disputed?"
-                    className="text-xs font-semibold px-4 py-1.5 bg-danger/10 text-danger hover:bg-danger/20 transition-colors"
+                    className="text-xs font-semibold px-4 py-1.5 bg-danger/10 text-danger hover:bg-danger/20 transition-colors rounded"
                   >
                     Mark disputed
                   </DeleteButton>

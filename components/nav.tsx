@@ -132,7 +132,7 @@ export function Nav() {
               </Link>
               <Link
                 href="/register"
-                className="text-[11px] font-black uppercase tracking-[0.12em] bg-gold text-navy px-4 py-2 hover:brightness-105 transition-all"
+                className="text-[11px] font-black uppercase tracking-[0.12em] bg-gold text-navy px-4 py-2 rounded hover:brightness-105 transition-all"
               >
                 Register
               </Link>
@@ -148,7 +148,7 @@ export function Nav() {
               </Link>
               <Link
                 href="/register"
-                className="text-[10px] font-black uppercase tracking-[0.1em] bg-gold text-navy px-3 py-1.5 hover:brightness-105 transition-all"
+                className="text-[10px] font-black uppercase tracking-[0.1em] bg-gold text-navy px-3 py-1.5 rounded hover:brightness-105 transition-all"
               >
                 Register
               </Link>

@@ -143,7 +143,7 @@ export function CreateCompetitionForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="bg-gold text-navy font-semibold text-sm px-5 py-2 hover:bg-gold/90 transition-colors disabled:opacity-60"
+        className="bg-gold text-navy font-semibold text-sm px-5 py-2 rounded hover:bg-gold/90 transition-colors disabled:opacity-60"
       >
         {isPending ? "Creating..." : "Create competition"}
       </button>
