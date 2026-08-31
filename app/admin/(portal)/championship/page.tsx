@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getSiteSettings } from "@/lib/site-settings";
 import { PromotionCard } from "./PromotionCard";
+import { GenerateFixturesForm } from "./GenerateFixturesForm";
 
 export const metadata = { title: "Admin — University Championship" };
 
@@ -102,6 +103,7 @@ export default async function AdminChampionshipPage() {
     { data: dcData },
     { data: compsData },
     { data: promotionsData },
+    { data: compsAllData },
   ] = await Promise.all([
     db.from("faculties").select("id, name, logo_url").order("display_order").order("name"),
     db.from("faculty_divisions").select("id, faculty_id, name").order("display_order").order("name"),
@@ -110,11 +112,13 @@ export default async function AdminChampionshipPage() {
     db.from("division_promotions")
       .select("id, division_id, club_id, position, club:clubs(id, name)")
       .eq("season", currentSeason),
+    db.from("competitions").select("id, name").order("name"),
   ]);
 
-  const faculties  = (facultiesData  ?? []) as Faculty[];
-  const divisions  = (divisionsData  ?? []) as Division[];
-  const promotions = (promotionsData ?? []) as PromotionRow[];
+  const faculties   = (facultiesData  ?? []) as Faculty[];
+  const divisions   = (divisionsData  ?? []) as Division[];
+  const promotions  = (promotionsData ?? []) as PromotionRow[];
+  const competitions = (compsAllData  ?? []) as { id: string; name: string }[];
 
   // Build faculty→competition IDs map
   const facultyCompMap = new Map<string, string[]>();
@@ -263,6 +267,13 @@ export default async function AdminChampionshipPage() {
           })}
         </div>
       )}
+
+      {/* Generate Fixtures */}
+      <GenerateFixturesForm
+        season={currentSeason}
+        confirmedCount={confirmedCount}
+        competitions={competitions}
+      />
 
       {/* Championship Pool Summary */}
       {confirmedCount > 0 && (

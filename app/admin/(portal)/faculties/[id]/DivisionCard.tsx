@@ -28,9 +28,10 @@ interface Props {
   facultyId: string;
   facultyClubs: Club[];
   assignedClubs: AssignedClub[];
+  allAssignedClubIds: Set<string>;
 }
 
-export function DivisionCard({ division, facultyId, facultyClubs, assignedClubs }: Props) {
+export function DivisionCard({ division, facultyId, facultyClubs, assignedClubs, allAssignedClubIds }: Props) {
   const [editOpen, setEditOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -45,8 +46,7 @@ export function DivisionCard({ division, facultyId, facultyClubs, assignedClubs 
     }
   }, [isUpdating, updateState]);
 
-  const assignedIds = new Set(assignedClubs.map((c) => c.id));
-  const unassignedClubs = facultyClubs.filter((c) => !assignedIds.has(c.id));
+  const unassignedClubs = facultyClubs.filter((c) => !allAssignedClubIds.has(c.id));
 
   return (
     <div className="border border-white/6 bg-card">
