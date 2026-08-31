@@ -51,19 +51,22 @@ export async function updateSiteSettings(prevState: ActionState, formData: FormD
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = supabase as any;
 
+  const str = (key: string, fallback?: string) =>
+    (formData.get(key) as string | null)?.trim() || fallback || null;
+
   const payload = {
     id: 1,
-    current_season:     (formData.get("current_season")     as string).trim() || "Season 2026",
-    social_youtube:     (formData.get("social_youtube")     as string).trim() || null,
-    social_instagram:   (formData.get("social_instagram")   as string).trim() || null,
-    social_twitter:     (formData.get("social_twitter")     as string).trim() || null,
-    social_tiktok:      (formData.get("social_tiktok")      as string).trim() || null,
-    social_discord:     (formData.get("social_discord")     as string).trim() || null,
-    about_text:         (formData.get("about_text")         as string).trim() || null,
-    contact_email:      (formData.get("contact_email")      as string).trim() || null,
-    hero_title:         (formData.get("hero_title")         as string).trim() || "University Esports, Officially Organized.",
-    hero_subtitle:      (formData.get("hero_subtitle")      as string).trim() || null,
-    hero_bg_image_url:  (formData.get("hero_bg_image_url")  as string).trim() || null,
+    current_season:     str("current_season",    "Season 2026"),
+    social_youtube:     str("social_youtube"),
+    social_instagram:   str("social_instagram"),
+    social_twitter:     str("social_twitter"),
+    social_tiktok:      str("social_tiktok"),
+    social_discord:     str("social_discord"),
+    about_text:         str("about_text"),
+    contact_email:      str("contact_email"),
+    hero_title:         str("hero_title",        "University Esports, Officially Organized."),
+    hero_subtitle:      str("hero_subtitle"),
+    hero_bg_image_url:  str("hero_bg_image_url"),
     updated_at: new Date().toISOString(),
     updated_by: user.id,
   };
@@ -86,14 +89,71 @@ export async function updateSiteSettings(prevState: ActionState, formData: FormD
   return { success: true };
 }
 
+export async function updateContentSettings(prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const { supabase, user } = await requireAdmin();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any;
+
+  const str = (key: string, fallback: string) =>
+    (formData.get(key) as string | null)?.trim() || fallback;
+
+  const payload = {
+    id: 1,
+    site_name:               str("site_name",               "The League"),
+    home_cta_eyebrow:        str("home_cta_eyebrow",        "Join The League"),
+    home_cta_headline:       str("home_cta_headline",       "Represent Your University"),
+    home_cta_description:    str("home_cta_description",    "Register your club, compete for your department and faculty, and represent your university at the championship level."),
+    home_cta_primary_btn:    str("home_cta_primary_btn",    "Register Your Club"),
+    home_cta_secondary_link: str("home_cta_secondary_link", "Sponsor The League"),
+    competitions_description: str("competitions_description", "Multiple competitions run concurrently — from the flagship University Championship to standalone cups."),
+    highlights_description:  str("highlights_description",  "Match VODs and moments from the season."),
+    standings_description:   str("standings_description",   "Updated after every confirmed result."),
+    fixtures_eyebrow:        str("fixtures_eyebrow",        "Schedule & Results"),
+    empty_competitions_heading: str("empty_competitions_heading", "Season 1 is getting ready."),
+    empty_competitions_text:    str("empty_competitions_text",    "Competitions will appear here once registration opens."),
+    empty_live_heading:         str("empty_live_heading",         "No live streams right now."),
+    empty_live_text:            str("empty_live_text",            "Check back during scheduled match days."),
+    sponsorship_email:        str("sponsorship_email",        "sponsorship@theleague.ng"),
+    sponsors_description:     str("sponsors_description",     "The League is the official governing body for university esports. We run structured competitions across departments, faculties, and the university — with a growing audience of students, alumni, and fans."),
+    sponsors_cta_description: str("sponsors_cta_description", "We work with sponsors to build custom packages that fit your goals. Reach out and we will put together a proposal."),
+    tier_title_name:         str("tier_title_name",         "Title Sponsor"),
+    tier_title_description:  str("tier_title_description",  "Full naming rights to the season. Maximum logo placement across all competition materials, streams, and digital surfaces."),
+    tier_gold_name:          str("tier_gold_name",          "Gold Partner"),
+    tier_gold_description:   str("tier_gold_description",   "Premium placement on fixtures, standings, and the club directory. Named in all official communications."),
+    tier_silver_name:        str("tier_silver_name",        "Silver Partner"),
+    tier_silver_description: str("tier_silver_description", "Logo placement on the public site and match day materials. Named in season announcements."),
+    tier_bronze_name:        str("tier_bronze_name",        "Bronze Partner"),
+    tier_bronze_description: str("tier_bronze_description", "Logo on the sponsors page and acknowledgement in season communications."),
+    updated_at: new Date().toISOString(),
+    updated_by: user.id,
+  };
+
+  const { error } = await db.from("site_settings").upsert(payload, { onConflict: "id" });
+
+  if (error) {
+    console.error("admin/updateContentSettings:", error);
+    return { error: "Could not save content. Run migration 015 first if columns are missing." };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/competitions");
+  revalidatePath("/highlights");
+  revalidatePath("/standings");
+  revalidatePath("/fixtures");
+  revalidatePath("/live");
+  revalidatePath("/sponsors");
+  revalidatePath("/admin/settings");
+  return { success: true };
+}
+
 export async function updateTheme(prevState: ActionState, formData: FormData): Promise<ActionState> {
   const { supabase } = await requireAdmin();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = supabase as any;
 
-  const newGold   = (formData.get("theme_gold")   as string).trim() || null;
-  const newCobalt = (formData.get("theme_cobalt") as string).trim() || null;
-  const newNavy   = (formData.get("theme_navy")   as string).trim() || null;
+  const newGold   = (formData.get("theme_gold")   as string | null)?.trim() || null;
+  const newCobalt = (formData.get("theme_cobalt") as string | null)?.trim() || null;
+  const newNavy   = (formData.get("theme_navy")   as string | null)?.trim() || null;
 
   // Read current theme to push to history
   const { data: current } = await db.from("site_settings").select("theme_gold, theme_cobalt, theme_navy, theme_history").eq("id", 1).single();

@@ -118,7 +118,8 @@ function buildTable(fixtures: FixtureWithJoins[]): StandingRow[] {
 
 export default async function StandingsPage() {
   const [fixtures, siteSettings] = await Promise.all([getStandings(), getSiteSettings()]);
-  const currentSeason = siteSettings.current_season;
+  const currentSeason      = siteSettings.current_season;
+  const pageDescription    = siteSettings.standings_description;
 
   type Group = { competition: string; stage: string; group: string; fixtures: FixtureWithJoins[] };
   const groups = fixtures.reduce<Record<string, Group>>((acc, f) => {
@@ -142,7 +143,7 @@ export default async function StandingsPage() {
       <div className="mb-14">
         <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">{currentSeason}</p>
         <h1 className="font-display font-black text-[3rem] text-white uppercase leading-none">Standings</h1>
-        <p className="text-white/30 text-sm mt-3">Updated after every confirmed result.</p>
+        <p className="text-white/30 text-sm mt-3">{pageDescription}</p>
       </div>
 
       {tables.length === 0 ? (

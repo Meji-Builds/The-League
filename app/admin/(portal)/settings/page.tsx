@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { FeeForm } from "./FeeForm";
 import { SiteSettingsForm } from "./SiteSettingsForm";
 import { ThemeForm } from "./ThemeForm";
+import { ContentForm } from "./ContentForm";
+import type { SiteSettings } from "@/lib/site-settings";
 
 export const metadata = { title: "Admin — Settings" };
 
@@ -40,6 +42,11 @@ export default async function AdminSettingsPage() {
         <section className="border border-white/6 bg-card p-5">
           <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">Social &amp; Livestream</p>
           <SiteSettingsForm settings={siteRow ?? null} />
+        </section>
+
+        <section className="border border-white/6 bg-card p-5">
+          <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">Page content</p>
+          <ContentForm settings={siteRow as SiteSettings | null} />
         </section>
 
         <section className="border border-white/6 bg-card p-5">

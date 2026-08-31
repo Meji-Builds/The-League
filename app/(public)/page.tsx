@@ -5,11 +5,19 @@ import type { Competition, GlobalSponsor } from "@/types/database";
 // ─── Local interfaces ──────────────────────────────────────────────────────
 
 interface SiteSettings {
-  current_season:    string | null;
-  hero_title:        string | null;
-  hero_subtitle:     string | null;
-  hero_bg_image_url: string | null;
-  about_text:        string | null;
+  site_name:               string | null;
+  current_season:          string | null;
+  hero_title:              string | null;
+  hero_subtitle:           string | null;
+  hero_bg_image_url:       string | null;
+  about_text:              string | null;
+  home_cta_eyebrow:        string | null;
+  home_cta_headline:       string | null;
+  home_cta_description:    string | null;
+  home_cta_primary_btn:    string | null;
+  home_cta_secondary_link: string | null;
+  empty_competitions_heading: string | null;
+  empty_competitions_text:    string | null;
 }
 
 interface LivestreamRow {
@@ -230,6 +238,14 @@ export default async function HomePage() {
   const heroTitle    = siteSettings?.hero_title ?? "The League";
   const heroSub      = siteSettings?.hero_subtitle ?? "University esports competitions — from department qualifiers to the championship final.";
   const currentSeason = siteSettings?.current_season ?? "Season 2026";
+  const siteName     = siteSettings?.site_name ?? "The League";
+  const ctaEyebrow   = siteSettings?.home_cta_eyebrow ?? "Join The League";
+  const ctaHeadline  = siteSettings?.home_cta_headline ?? "Represent Your University";
+  const ctaDesc      = siteSettings?.home_cta_description ?? "Register your club, compete for your department and faculty, and represent your university at the championship level.";
+  const ctaPrimary   = siteSettings?.home_cta_primary_btn ?? "Register Your Club";
+  const ctaSecondary = siteSettings?.home_cta_secondary_link ?? "Sponsor The League";
+  const emptyCompsHeading = siteSettings?.empty_competitions_heading ?? "Season 1 is getting ready.";
+  const emptyCompsText    = siteSettings?.empty_competitions_text ?? "Competitions will appear here once registration opens.";
 
   return (
     <>
@@ -256,7 +272,7 @@ export default async function HomePage() {
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 pt-32 w-full">
           <p className="text-[11px] font-bold uppercase tracking-[0.4em] text-white/60 mb-10">
-            University Esports &nbsp;&middot;&nbsp; {currentSeason}
+            {siteName} &nbsp;&middot;&nbsp; {currentSeason}
           </p>
 
           <h1
@@ -356,8 +372,8 @@ export default async function HomePage() {
 
           {competitions.length === 0 ? (
             <div className="border border-white/8 bg-card px-8 py-14 text-center">
-              <p className="text-white font-semibold">Season 1 is getting ready.</p>
-              <p className="text-dim text-sm mt-2">Competitions will appear here once registration opens.</p>
+              <p className="text-white font-semibold">{emptyCompsHeading}</p>
+              <p className="text-dim text-sm mt-2">{emptyCompsText}</p>
               <Link
                 href="/register"
                 className="mt-6 inline-block text-[11px] font-black uppercase tracking-[0.15em] bg-gold text-navy px-6 py-3 rounded hover:brightness-105 transition-all"
@@ -700,29 +716,28 @@ export default async function HomePage() {
       {/* ── CTA ──────────────────────────────────────────────────────── */}
       <section className="border-t border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-6">Join The League</p>
+          <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-6">{ctaEyebrow}</p>
           <h2
             className="font-display font-black text-white uppercase leading-[0.85]"
             style={{ fontSize: "clamp(3rem, 9vw, 8rem)" }}
           >
-            Represent Your<br />University
+            {ctaHeadline}
           </h2>
           <p className="text-white/30 mt-6 max-w-md text-[15px] leading-relaxed">
-            Register your club, compete for your department and faculty, and
-            represent your university at the championship level.
+            {ctaDesc}
           </p>
           <div className="mt-10 flex items-center gap-6">
             <Link
               href="/register"
               className="text-[11px] font-black uppercase tracking-[0.15em] bg-gold text-navy px-8 py-4 rounded hover:brightness-105 transition-all"
             >
-              Register Your Club
+              {ctaPrimary}
             </Link>
             <Link
               href="/sponsors"
               className="text-white/35 text-sm hover:text-white transition-colors"
             >
-              Sponsor The League
+              {ctaSecondary}
             </Link>
           </div>
         </div>

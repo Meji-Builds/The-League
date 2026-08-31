@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getSiteSettings } from "@/lib/site-settings";
 
 export const metadata = { title: "Highlights" };
 
@@ -20,19 +21,24 @@ export default async function HighlightsPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = (await createClient()) as any;
 
-  const { data } = await db
-    .from("highlights")
-    .select("id, title, video_url, thumbnail_url, published_at, competition:competitions(name)")
-    .order("published_at", { ascending: false });
+  const [{ data }, siteSettings] = await Promise.all([
+    db
+      .from("highlights")
+      .select("id, title, video_url, thumbnail_url, published_at, competition:competitions(name)")
+      .order("published_at", { ascending: false }),
+    getSiteSettings(),
+  ]);
 
-  const highlights = (data ?? []) as Highlight[];
+  const highlights        = (data ?? []) as Highlight[];
+  const pageDescription   = siteSettings.highlights_description;
+  const siteName          = siteSettings.site_name;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div className="mb-10">
-        <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-3">The League</p>
+        <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-3">{siteName}</p>
         <h1 className="font-display font-black text-[2.5rem] text-white uppercase leading-none">Highlights</h1>
-        <p className="text-white/40 text-sm mt-2">Match VODs and moments from the season.</p>
+        <p className="text-white/40 text-sm mt-2">{pageDescription}</p>
       </div>
 
       {highlights.length === 0 ? (

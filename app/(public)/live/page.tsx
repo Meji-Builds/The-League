@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getSiteSettings } from "@/lib/site-settings";
 import { StreamEmbed } from "./StreamEmbed";
 
 export const metadata = { title: "Live" };
@@ -25,7 +26,9 @@ async function getActiveStreams(): Promise<LivestreamRow[]> {
 }
 
 export default async function LivePage() {
-  const streams = await getActiveStreams();
+  const [streams, siteSettings] = await Promise.all([getActiveStreams(), getSiteSettings()]);
+  const emptyHeading = siteSettings.empty_live_heading;
+  const emptyText    = siteSettings.empty_live_text;
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -39,8 +42,8 @@ export default async function LivePage() {
 
       {streams.length === 0 ? (
         <div className="border border-border bg-white px-8 py-20 text-center">
-          <p className="text-navy font-semibold text-lg">No live streams right now.</p>
-          <p className="text-muted text-sm mt-2">Check back during scheduled match days.</p>
+          <p className="text-navy font-semibold text-lg">{emptyHeading}</p>
+          <p className="text-muted text-sm mt-2">{emptyText}</p>
         </div>
       ) : (
         <div className={streams.length === 1 ? "max-w-3xl mx-auto" : "grid sm:grid-cols-2 gap-6"}>
