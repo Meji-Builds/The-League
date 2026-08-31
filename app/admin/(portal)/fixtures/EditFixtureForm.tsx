@@ -25,7 +25,7 @@ interface Props {
 const STAGES = ["N/A", "Department", "Faculty", "University"];
 
 export function EditFixtureForm({ fixture, clubs, competitions }: Props) {
-  const [open,         setOpen]         = useState(false);
+  const [open,          setOpen]          = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const [updateState, updateAction, isUpdating] = useActionState(updateFixture, null);
@@ -55,7 +55,7 @@ export function EditFixtureForm({ fixture, clubs, competitions }: Props) {
     : "";
 
   return (
-    <div className="mt-3 pt-3 border-t border-white/6">
+    <div className="mt-3 pt-3 border-t border-white/6 space-y-3">
       {/* ── Update form ── */}
       <form
         action={updateAction}
@@ -173,8 +173,8 @@ export function EditFixtureForm({ fixture, clubs, competitions }: Props) {
           </select>
         </div>
 
-        {/* Actions row */}
-        <div className="sm:col-span-2 lg:col-span-3 flex items-center gap-2 flex-wrap">
+        {/* Save / Cancel */}
+        <div className="sm:col-span-2 lg:col-span-3 flex items-center gap-2">
           <button
             type="submit"
             disabled={isUpdating}
@@ -189,45 +189,45 @@ export function EditFixtureForm({ fixture, clubs, competitions }: Props) {
           >
             Cancel
           </button>
-
-          {/* Delete with inline confirm */}
-          <div className="ml-auto flex items-center gap-2">
-            {!confirmDelete ? (
-              <button
-                type="button"
-                onClick={() => setConfirmDelete(true)}
-                className="text-xs font-semibold px-3 py-1.5 rounded text-danger/70 hover:text-danger hover:bg-danger/10 transition-colors"
-              >
-                Delete fixture
-              </button>
-            ) : (
-              <>
-                <span className="text-xs text-white/50">Delete this fixture permanently?</span>
-                <form action={deleteAction} className="flex items-center gap-1.5">
-                  <input type="hidden" name="fixture_id" value={fixture.id} />
-                  {deleteState?.error && (
-                    <span className="text-xs text-danger">{deleteState.error}</span>
-                  )}
-                  <button
-                    type="submit"
-                    disabled={isDeleting}
-                    className="text-xs font-bold px-3 py-1.5 rounded bg-danger/10 text-danger hover:bg-danger/20 transition-colors disabled:opacity-60"
-                  >
-                    {isDeleting ? "Deleting..." : "Yes, delete"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setConfirmDelete(false)}
-                    className="text-xs font-semibold px-3 py-1.5 rounded border border-white/10 text-white/40 hover:text-white transition-colors"
-                  >
-                    No
-                  </button>
-                </form>
-              </>
-            )}
-          </div>
         </div>
       </form>
+
+      {/* ── Delete form — kept as a separate sibling, never nested ── */}
+      <div className="pt-2 border-t border-white/6 flex items-center gap-2 flex-wrap">
+        {!confirmDelete ? (
+          <button
+            type="button"
+            onClick={() => setConfirmDelete(true)}
+            className="text-xs font-semibold px-3 py-1.5 rounded text-danger/70 hover:text-danger hover:bg-danger/10 transition-colors"
+          >
+            Delete fixture
+          </button>
+        ) : (
+          <>
+            <span className="text-xs text-white/50">Delete this fixture permanently?</span>
+            {deleteState?.error && (
+              <span className="text-xs text-danger">{deleteState.error}</span>
+            )}
+            <form action={deleteAction} className="flex items-center gap-1.5">
+              <input type="hidden" name="fixture_id" value={fixture.id} />
+              <button
+                type="submit"
+                disabled={isDeleting}
+                className="text-xs font-bold px-3 py-1.5 rounded bg-danger/10 text-danger hover:bg-danger/20 transition-colors disabled:opacity-60"
+              >
+                {isDeleting ? "Deleting..." : "Yes, delete"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                className="text-xs font-semibold px-3 py-1.5 rounded border border-white/10 text-white/40 hover:text-white transition-colors"
+              >
+                No
+              </button>
+            </form>
+          </>
+        )}
+      </div>
     </div>
   );
 }

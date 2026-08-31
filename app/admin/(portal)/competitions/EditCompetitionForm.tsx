@@ -162,8 +162,8 @@ export function EditCompetitionForm({ competition }: Props) {
           />
         </div>
 
-        {/* Actions row */}
-        <div className="sm:col-span-2 lg:col-span-3 flex items-center gap-2 flex-wrap">
+        {/* Save / Cancel */}
+        <div className="sm:col-span-2 lg:col-span-3 flex items-center gap-2">
           <button
             type="submit"
             disabled={isUpdating}
@@ -178,45 +178,45 @@ export function EditCompetitionForm({ competition }: Props) {
           >
             Cancel
           </button>
-
-          {/* Delete with inline confirm */}
-          <div className="ml-auto flex items-center gap-2">
-            {!confirmDelete ? (
-              <button
-                type="button"
-                onClick={() => setConfirmDelete(true)}
-                className="text-xs font-semibold px-3 py-1.5 rounded text-danger/70 hover:text-danger hover:bg-danger/10 transition-colors"
-              >
-                Delete competition
-              </button>
-            ) : (
-              <>
-                <span className="text-xs text-white/50">Delete permanently? This cannot be undone.</span>
-                <form action={deleteAction} className="flex items-center gap-1.5">
-                  <input type="hidden" name="competition_id" value={competition.id} />
-                  {deleteState?.error && (
-                    <span className="text-xs text-danger">{deleteState.error}</span>
-                  )}
-                  <button
-                    type="submit"
-                    disabled={isDeleting}
-                    className="text-xs font-bold px-3 py-1.5 rounded bg-danger/10 text-danger hover:bg-danger/20 transition-colors disabled:opacity-60"
-                  >
-                    {isDeleting ? "Deleting..." : "Yes, delete"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setConfirmDelete(false)}
-                    className="text-xs font-semibold px-3 py-1.5 rounded border border-white/10 text-white/40 hover:text-white transition-colors"
-                  >
-                    No
-                  </button>
-                </form>
-              </>
-            )}
-          </div>
         </div>
       </form>
+
+      {/* ── Delete form — separate sibling, never nested ── */}
+      <div className="pt-2 border-t border-white/6 flex items-center gap-2 flex-wrap">
+        {!confirmDelete ? (
+          <button
+            type="button"
+            onClick={() => setConfirmDelete(true)}
+            className="text-xs font-semibold px-3 py-1.5 rounded text-danger/70 hover:text-danger hover:bg-danger/10 transition-colors"
+          >
+            Delete competition
+          </button>
+        ) : (
+          <>
+            <span className="text-xs text-white/50">Delete permanently? This cannot be undone.</span>
+            {deleteState?.error && (
+              <span className="text-xs text-danger">{deleteState.error}</span>
+            )}
+            <form action={deleteAction} className="flex items-center gap-1.5">
+              <input type="hidden" name="competition_id" value={competition.id} />
+              <button
+                type="submit"
+                disabled={isDeleting}
+                className="text-xs font-bold px-3 py-1.5 rounded bg-danger/10 text-danger hover:bg-danger/20 transition-colors disabled:opacity-60"
+              >
+                {isDeleting ? "Deleting..." : "Yes, delete"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                className="text-xs font-semibold px-3 py-1.5 rounded border border-white/10 text-white/40 hover:text-white transition-colors"
+              >
+                No
+              </button>
+            </form>
+          </>
+        )}
+      </div>
     </div>
   );
 }
