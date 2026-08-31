@@ -100,7 +100,7 @@ export function EditFixtureForm({ fixture }: Props) {
         <button
           type="submit"
           disabled={isPending}
-          className="bg-gold text-navy font-semibold text-xs px-4 py-1.5 hover:bg-gold/90 transition-colors disabled:opacity-60"
+          className="bg-gold text-navy font-semibold text-xs px-4 py-1.5 rounded hover:bg-gold/90 transition-colors disabled:opacity-60"
         >
           {isPending ? "Saving..." : "Save"}
         </button>

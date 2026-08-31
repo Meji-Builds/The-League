@@ -269,7 +269,7 @@ export default async function HomePage() {
             <div className="flex items-center gap-5 shrink-0">
               <Link
                 href="/register"
-                className="text-[11px] font-black uppercase tracking-[0.15em] bg-gold text-navy px-7 py-3.5 hover:brightness-105 transition-all"
+                className="text-[11px] font-black uppercase tracking-[0.15em] bg-gold text-navy px-7 py-3.5 rounded hover:brightness-105 transition-all"
               >
                 Register Club
               </Link>
@@ -356,7 +356,7 @@ export default async function HomePage() {
               <p className="text-dim text-sm mt-2">Competitions will appear here once registration opens.</p>
               <Link
                 href="/register"
-                className="mt-6 inline-block text-[11px] font-black uppercase tracking-[0.15em] bg-gold text-navy px-6 py-3 hover:brightness-105 transition-all"
+                className="mt-6 inline-block text-[11px] font-black uppercase tracking-[0.15em] bg-gold text-navy px-6 py-3 rounded hover:brightness-105 transition-all"
               >
                 Register your club
               </Link>
@@ -435,10 +435,10 @@ export default async function HomePage() {
                     </p>
                     {f.club_a?.logo_status === "approved" && f.club_a?.logo_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={f.club_a.logo_url} alt={f.club_a.name} className="w-7 h-7 shrink-0 object-contain" />
+                      <img src={f.club_a.logo_url} alt={f.club_a.name} className="w-9 h-9 shrink-0 object-contain" />
                     ) : (
                       <div
-                        className="w-7 h-7 shrink-0 flex items-center justify-center text-navy text-[9px] font-black"
+                        className="w-9 h-9 shrink-0 flex items-center justify-center text-navy text-[10px] font-black"
                         style={{ backgroundColor: avatarColor(f.club_a?.name ?? "A") }}
                       >
                         {nameInitials(f.club_a?.name ?? "A")}
@@ -461,10 +461,10 @@ export default async function HomePage() {
                   <div className="flex items-center gap-2.5 flex-1 justify-start min-w-0">
                     {f.club_b?.logo_status === "approved" && f.club_b?.logo_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={f.club_b.logo_url} alt={f.club_b.name} className="w-7 h-7 shrink-0 object-contain" />
+                      <img src={f.club_b.logo_url} alt={f.club_b.name} className="w-9 h-9 shrink-0 object-contain" />
                     ) : (
                       <div
-                        className="w-7 h-7 shrink-0 flex items-center justify-center text-navy text-[9px] font-black"
+                        className="w-9 h-9 shrink-0 flex items-center justify-center text-navy text-[10px] font-black"
                         style={{ backgroundColor: avatarColor(f.club_b?.name ?? "B") }}
                       >
                         {nameInitials(f.club_b?.name ?? "B")}
@@ -523,10 +523,10 @@ export default async function HomePage() {
                         <span className="text-white/15 text-xs w-5 text-right shrink-0 tabular-nums font-mono">{i + 1}</span>
                         {club.logo_status === "approved" && club.logo_url ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={club.logo_url} alt={club.name} className="w-7 h-7 shrink-0 object-contain" />
+                          <img src={club.logo_url} alt={club.name} className="w-10 h-10 shrink-0 object-contain" />
                         ) : (
                           <div
-                            className="w-7 h-7 shrink-0 flex items-center justify-center text-navy text-[9px] font-black"
+                            className="w-10 h-10 shrink-0 flex items-center justify-center text-navy text-xs font-black"
                             style={{ backgroundColor: avatarColor(club.name) }}
                           >
                             {nameInitials(club.name)}
@@ -701,7 +701,7 @@ export default async function HomePage() {
           <div className="mt-10 flex items-center gap-6">
             <Link
               href="/register"
-              className="text-[11px] font-black uppercase tracking-[0.15em] bg-gold text-navy px-8 py-4 hover:brightness-105 transition-all"
+              className="text-[11px] font-black uppercase tracking-[0.15em] bg-gold text-navy px-8 py-4 rounded hover:brightness-105 transition-all"
             >
               Register Your Club
             </Link>

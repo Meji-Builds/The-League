@@ -97,7 +97,7 @@ export default async function AdminCompetitionsPage() {
                     <option value="in_progress">In progress</option>
                     <option value="completed">Completed</option>
                   </select>
-                  <button type="submit" className="text-xs font-semibold px-3 py-1.5 bg-cobalt/10 text-cobalt hover:bg-cobalt/20 transition-colors">
+                  <button type="submit" className="text-xs font-semibold px-3 py-1.5 bg-cobalt/10 text-cobalt hover:bg-cobalt/20 transition-colors rounded">
                     Save
                   </button>
                 </form>

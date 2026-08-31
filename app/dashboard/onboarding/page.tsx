@@ -92,7 +92,7 @@ function PendingStep({ clubName }: { clubName?: string }) {
 
       <a
         href="/dashboard"
-        className="inline-block bg-gold text-navy font-bold text-sm px-6 py-2.5 hover:bg-gold/90 transition-colors"
+        className="inline-block bg-gold text-navy font-bold text-sm px-6 py-2.5 rounded hover:bg-gold/90 transition-colors"
       >
         Go to dashboard
       </a>
