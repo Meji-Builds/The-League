@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getSiteSettings } from "@/lib/site-settings";
 import type { GlobalSponsor } from "@/types/database";
 
 export const metadata = { title: "Sponsors" };
@@ -18,33 +19,6 @@ async function getSponsors(): Promise<GlobalSponsor[]> {
   }
 }
 
-const tiers: { key: GlobalSponsor["tier"]; label: string; description: string }[] = [
-  {
-    key: "title",
-    label: "Title Sponsor",
-    description:
-      "Full naming rights to the season. Maximum logo placement across all competition materials, streams, and digital surfaces.",
-  },
-  {
-    key: "gold",
-    label: "Gold Partner",
-    description:
-      "Premium placement on fixtures, standings, and the club directory. Named in all official communications.",
-  },
-  {
-    key: "silver",
-    label: "Silver Partner",
-    description:
-      "Logo placement on the public site and match day materials. Named in season announcements.",
-  },
-  {
-    key: "bronze",
-    label: "Bronze Partner",
-    description:
-      "Logo on the sponsors page and acknowledgement in season communications.",
-  },
-];
-
 const tierAccent: Record<string, string> = {
   title:  "border-gold",
   gold:   "border-warning/60",
@@ -53,8 +27,15 @@ const tierAccent: Record<string, string> = {
 };
 
 export default async function SponsorsPage() {
-  const sponsors = await getSponsors();
-  const byTier = (tier: GlobalSponsor["tier"]) => sponsors.filter((s) => s.tier === tier);
+  const [sponsors, s] = await Promise.all([getSponsors(), getSiteSettings()]);
+  const byTier = (tier: GlobalSponsor["tier"]) => sponsors.filter((sp) => sp.tier === tier);
+
+  const tiers: { key: GlobalSponsor["tier"]; label: string; description: string }[] = [
+    { key: "title",  label: s.tier_title_name,  description: s.tier_title_description  },
+    { key: "gold",   label: s.tier_gold_name,   description: s.tier_gold_description   },
+    { key: "silver", label: s.tier_silver_name, description: s.tier_silver_description },
+    { key: "bronze", label: s.tier_bronze_name, description: s.tier_bronze_description },
+  ];
 
   return (
     <div>
@@ -63,15 +44,13 @@ export default async function SponsorsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-6">Partnerships</p>
           <h1 className="font-display font-black uppercase leading-none text-white" style={{ fontSize: "clamp(3rem, 10vw, 8rem)" }}>
-            Sponsor<br />The League
+            Sponsor<br />{s.site_name}
           </h1>
           <p className="text-white/40 max-w-xl text-[15px] leading-relaxed mt-6">
-            The League is the official governing body for university esports. We
-            run structured competitions across departments, faculties, and the
-            university — with a growing audience of students, alumni, and fans.
+            {s.sponsors_description}
           </p>
           <a
-            href="mailto:sponsorship@theleague.ng"
+            href={`mailto:${s.sponsorship_email}`}
             className="mt-10 inline-block text-[11px] font-black uppercase tracking-[0.15em] border border-gold text-gold px-7 py-3.5 hover:bg-gold hover:text-navy transition-all"
           >
             Get in touch
@@ -130,11 +109,10 @@ export default async function SponsorsPage() {
           <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">Partner with us</p>
           <h3 className="font-display font-black text-2xl text-white uppercase mb-3">Interested in partnering?</h3>
           <p className="text-white/35 text-sm mb-8 max-w-md mx-auto leading-relaxed">
-            We work with sponsors to build custom packages that fit your goals. Reach
-            out and we will put together a proposal.
+            {s.sponsors_cta_description}
           </p>
           <a
-            href="mailto:sponsorship@theleague.ng"
+            href={`mailto:${s.sponsorship_email}`}
             className="inline-block text-[11px] font-black uppercase tracking-[0.15em] bg-gold text-navy px-7 py-3.5 hover:brightness-105 transition-all"
           >
             Email us

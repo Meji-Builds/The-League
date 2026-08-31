@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getSiteSettings } from "@/lib/site-settings";
 
 export const metadata = { title: "Fixtures" };
 
@@ -93,7 +94,8 @@ function formatGroupLabel(f: FixtureRow): string {
 }
 
 export default async function FixturesPage() {
-  const fixtures = await getFixtures();
+  const [fixtures, siteSettings] = await Promise.all([getFixtures(), getSiteSettings()]);
+  const fixturesEyebrow = siteSettings.fixtures_eyebrow;
 
   type Group = { label: string; date: string | null; fixtures: FixtureRow[] };
   const groupMap = new Map<string, Group>();
@@ -111,7 +113,7 @@ export default async function FixturesPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-16">
       <div className="mb-12">
-        <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">Schedule &amp; Results</p>
+        <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">{fixturesEyebrow}</p>
         <h1 className="font-display font-black text-[3rem] text-white uppercase leading-none">Fixtures</h1>
       </div>
 

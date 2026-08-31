@@ -133,7 +133,7 @@ const moreLinks = [
   },
 ];
 
-export function Nav() {
+export function Nav({ siteName = "The League" }: { siteName?: string }) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
 
@@ -156,7 +156,7 @@ export function Nav() {
                 style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
               />
               <span className="font-display font-black text-white text-sm tracking-[0.18em] uppercase">
-                The League
+                {siteName}
               </span>
             </Link>
 

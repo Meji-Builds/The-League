@@ -47,7 +47,10 @@ const statusText: Record<string, string> = {
 
 export default async function CompetitionsPage() {
   const [competitions, siteSettings] = await Promise.all([getCompetitions(), getSiteSettings()]);
-  const currentSeason = siteSettings.current_season;
+  const currentSeason       = siteSettings.current_season;
+  const pageDescription     = siteSettings.competitions_description;
+  const emptyHeading        = siteSettings.empty_competitions_heading;
+  const emptyText           = siteSettings.empty_competitions_text;
 
   const active    = competitions.filter((c) => c.status === "in_progress" || c.status === "registration_open");
   const upcoming  = competitions.filter((c) => c.status === "upcoming");
@@ -59,15 +62,14 @@ export default async function CompetitionsPage() {
         <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">{currentSeason}</p>
         <h1 className="font-display font-black text-[3rem] text-white uppercase leading-none">Competitions</h1>
         <p className="text-white/35 text-[15px] mt-4 max-w-lg leading-relaxed">
-          Multiple competitions run concurrently — from the flagship
-          University Championship to standalone cups.
+          {pageDescription}
         </p>
       </div>
 
       {competitions.length === 0 && (
         <div className="border border-white/8 bg-card px-8 py-16 text-center">
-          <p className="text-white font-semibold">No competitions yet.</p>
-          <p className="text-white/35 text-sm mt-2">Check back once Season 1 kicks off.</p>
+          <p className="text-white font-semibold">{emptyHeading}</p>
+          <p className="text-white/35 text-sm mt-2">{emptyText}</p>
         </div>
       )}
 
