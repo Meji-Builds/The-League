@@ -3,6 +3,37 @@ import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Standings" };
 
+const AVATAR_PALETTE = ["#5B72FF", "#B4FF00", "#10B981", "#EF4444", "#8B5CF6", "#F59E0B"];
+
+function avatarColor(name: string): string {
+  return AVATAR_PALETTE[name.charCodeAt(0) % AVATAR_PALETTE.length];
+}
+
+function nameInitials(name: string): string {
+  return name.split(" ").map((w) => w[0] ?? "").join("").slice(0, 2).toUpperCase();
+}
+
+function ClubAvatar({ name, logoUrl, logoStatus }: { name: string; logoUrl: string | null; logoStatus: string | null }) {
+  const color   = avatarColor(name);
+  const hasLogo = logoUrl && logoStatus === "approved";
+  return (
+    <div className="w-6 h-6 shrink-0 flex items-center justify-center overflow-hidden text-navy text-[9px] font-black" style={{ backgroundColor: hasLogo ? undefined : color }}>
+      {hasLogo ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={logoUrl!} alt={name} className="w-full h-full object-contain p-0.5" />
+      ) : nameInitials(name)}
+    </div>
+  );
+}
+
+interface ClubRef {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url: string | null;
+  logo_status: string | null;
+}
+
 interface FixtureWithJoins {
   id:              string;
   stage:           string;
@@ -10,8 +41,8 @@ interface FixtureWithJoins {
   matchday:        number;
   status:          string;
   confirmed_score: { score_a: number; score_b: number } | null;
-  club_a:          { id: string; name: string; slug: string } | null;
-  club_b:          { id: string; name: string; slug: string } | null;
+  club_a:          ClubRef | null;
+  club_b:          ClubRef | null;
   competition:     { id: string; name: string; slug: string } | null;
 }
 
@@ -19,6 +50,8 @@ interface StandingRow {
   clubId:        string;
   clubName:      string;
   clubSlug:      string;
+  clubLogoUrl:   string | null;
+  clubLogoStatus: string | null;
   played:        number;
   won:           number;
   drawn:         number;
@@ -36,8 +69,8 @@ async function getStandings(): Promise<FixtureWithJoins[]> {
       .from("fixtures")
       .select(`
         id, stage, group_name, matchday, status, confirmed_score,
-        club_a:clubs!club_a_id(id, name, slug),
-        club_b:clubs!club_b_id(id, name, slug),
+        club_a:clubs!club_a_id(id, name, slug, logo_url, logo_status),
+        club_b:clubs!club_b_id(id, name, slug, logo_url, logo_status),
         competition:competitions(id, name, slug)
       `)
       .eq("status", "confirmed");
@@ -50,10 +83,11 @@ async function getStandings(): Promise<FixtureWithJoins[]> {
 function buildTable(fixtures: FixtureWithJoins[]): StandingRow[] {
   const map = new Map<string, StandingRow>();
 
-  function ensure(club: { id: string; name: string; slug: string }): StandingRow {
+  function ensure(club: ClubRef): StandingRow {
     if (!map.has(club.id)) {
       map.set(club.id, {
         clubId: club.id, clubName: club.name, clubSlug: club.slug,
+        clubLogoUrl: club.logo_url, clubLogoStatus: club.logo_status,
         played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0,
       });
     }
@@ -155,8 +189,9 @@ export default async function StandingsPage() {
                       >
                         <td className="px-5 py-4 text-white/20 text-xs font-mono">{rank + 1}</td>
                         <td className="px-4 py-4">
-                          <Link href={`/clubs/${row.clubSlug}`} className="font-semibold text-white hover:text-gold transition-colors text-sm">
-                            {row.clubName}
+                          <Link href={`/clubs/${row.clubSlug}`} className="flex items-center gap-2.5 group">
+                            <ClubAvatar name={row.clubName} logoUrl={row.clubLogoUrl} logoStatus={row.clubLogoStatus} />
+                            <span className="font-semibold text-[13px] text-white/80 group-hover:text-white transition-colors">{row.clubName}</span>
                           </Link>
                         </td>
                         <td className="px-3 py-4 text-center text-white/35 text-sm">{row.played}</td>

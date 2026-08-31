@@ -16,8 +16,8 @@ interface FixtureDetail {
   lineup_image_a: string | null;
   lineup_image_b: string | null;
   confirmed_score: { score_a: number; score_b: number } | null;
-  club_a: { id: string; name: string; slug: string; logo_url: string | null } | null;
-  club_b: { id: string; name: string; slug: string; logo_url: string | null } | null;
+  club_a: { id: string; name: string; slug: string; logo_url: string | null; logo_status: string | null } | null;
+  club_b: { id: string; name: string; slug: string; logo_url: string | null; logo_status: string | null } | null;
   competition: { id: string; name: string; slug: string } | null;
 }
 
@@ -55,8 +55,8 @@ export default async function FixtureDetailPage({ params }: Props) {
     .select(`
       id, stage, group_name, matchday, status, scheduled_at,
       lineup_image_a, lineup_image_b, confirmed_score,
-      club_a:clubs!fixtures_club_a_id_fkey(id, name, slug, logo_url),
-      club_b:clubs!fixtures_club_b_id_fkey(id, name, slug, logo_url),
+      club_a:clubs!fixtures_club_a_id_fkey(id, name, slug, logo_url, logo_status),
+      club_b:clubs!fixtures_club_b_id_fkey(id, name, slug, logo_url, logo_status),
       competition:competitions(id, name, slug)
     `)
     .eq("id", id)
@@ -67,8 +67,8 @@ export default async function FixtureDetailPage({ params }: Props) {
       .from("fixtures")
       .select(`
         id, stage, group_name, matchday, status, scheduled_at, confirmed_score,
-        club_a:clubs!fixtures_club_a_id_fkey(id, name, slug, logo_url),
-        club_b:clubs!fixtures_club_b_id_fkey(id, name, slug, logo_url),
+        club_a:clubs!fixtures_club_a_id_fkey(id, name, slug, logo_url, logo_status),
+        club_b:clubs!fixtures_club_b_id_fkey(id, name, slug, logo_url, logo_status),
         competition:competitions(id, name, slug)
       `)
       .eq("id", id)
@@ -119,12 +119,14 @@ export default async function FixtureDetailPage({ params }: Props) {
         <div className="px-6 py-10 flex items-center gap-6">
           {/* Club A */}
           <div className="flex-1 flex flex-col items-center gap-3 min-w-0">
-            <div
-              className="w-16 h-16 flex items-center justify-center text-navy font-black text-lg"
-              style={{ backgroundColor: colorA }}
-            >
-              {initials(f.club_a?.name ?? "A")}
-            </div>
+            {f.club_a?.logo_url && f.club_a.logo_status === "approved" ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={f.club_a.logo_url} alt={f.club_a.name} className="w-16 h-16 object-contain p-1" />
+            ) : (
+              <div className="w-16 h-16 flex items-center justify-center text-navy font-black text-lg" style={{ backgroundColor: colorA }}>
+                {initials(f.club_a?.name ?? "A")}
+              </div>
+            )}
             <Link
               href={f.club_a?.slug ? `/clubs/${f.club_a.slug}` : "#"}
               className="font-display font-black text-lg text-white uppercase text-center leading-tight hover:text-gold transition-colors line-clamp-2"
@@ -157,12 +159,14 @@ export default async function FixtureDetailPage({ params }: Props) {
 
           {/* Club B */}
           <div className="flex-1 flex flex-col items-center gap-3 min-w-0">
-            <div
-              className="w-16 h-16 flex items-center justify-center text-navy font-black text-lg"
-              style={{ backgroundColor: colorB }}
-            >
-              {initials(f.club_b?.name ?? "B")}
-            </div>
+            {f.club_b?.logo_url && f.club_b.logo_status === "approved" ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={f.club_b.logo_url} alt={f.club_b.name} className="w-16 h-16 object-contain p-1" />
+            ) : (
+              <div className="w-16 h-16 flex items-center justify-center text-navy font-black text-lg" style={{ backgroundColor: colorB }}>
+                {initials(f.club_b?.name ?? "B")}
+              </div>
+            )}
             <Link
               href={f.club_b?.slug ? `/clubs/${f.club_b.slug}` : "#"}
               className="font-display font-black text-lg text-white uppercase text-center leading-tight hover:text-gold transition-colors line-clamp-2"

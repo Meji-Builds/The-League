@@ -7,14 +7,22 @@ interface PlayerWithClub extends Player {
   club: { id: string; name: string; slug: string; faculty: string } | null;
 }
 
+interface ClubRef {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url: string | null;
+  logo_status: string | null;
+}
+
 interface FixtureRow {
   id:              string;
   stage:           string;
   status:          string;
   scheduled_at:    string | null;
   confirmed_score: { score_a: number; score_b: number } | null;
-  club_a:          { id: string; name: string; slug: string } | null;
-  club_b:          { id: string; name: string; slug: string } | null;
+  club_a:          ClubRef | null;
+  club_b:          ClubRef | null;
   competition:     { name: string; slug: string } | null;
 }
 
@@ -26,6 +34,21 @@ function avatarColor(name: string): string {
 
 function nameInitials(name: string): string {
   return name.split(" ").map((w) => w[0] ?? "").join("").slice(0, 2).toUpperCase();
+}
+
+function ClubAvatar({ club, size = 6 }: { club: { name: string; logo_url?: string | null; logo_status?: string | null } | null; size?: number }) {
+  const name    = club?.name ?? "?";
+  const color   = avatarColor(name);
+  const hasLogo = club?.logo_url && club.logo_status === "approved";
+  const sz      = size === 6 ? "w-6 h-6" : size === 7 ? "w-7 h-7" : size === 8 ? "w-8 h-8" : "w-6 h-6";
+  return (
+    <div className={`${sz} shrink-0 flex items-center justify-center overflow-hidden text-navy text-[9px] font-black`} style={{ backgroundColor: hasLogo ? undefined : color }}>
+      {hasLogo ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={club!.logo_url!} alt={name} className="w-full h-full object-contain p-0.5" />
+      ) : nameInitials(name)}
+    </div>
+  );
 }
 
 const STATUS_DOT: Record<string, string> = {
@@ -67,7 +90,7 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
 
   const { data: fixtures } = await db
     .from("fixtures")
-    .select("id, stage, status, scheduled_at, confirmed_score, club_a:clubs!fixtures_club_a_id_fkey(id, name, slug), club_b:clubs!fixtures_club_b_id_fkey(id, name, slug), competition:competitions(name, slug)")
+    .select("id, stage, status, scheduled_at, confirmed_score, club_a:clubs!fixtures_club_a_id_fkey(id, name, slug, logo_url, logo_status), club_b:clubs!fixtures_club_b_id_fkey(id, name, slug, logo_url, logo_status), competition:competitions(name, slug)")
     .or(`club_a_id.eq.${p.club_id},club_b_id.eq.${p.club_id}`)
     .order("scheduled_at", { ascending: false })
     .limit(8);
@@ -171,15 +194,10 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
                     >
                       {/* My club */}
                       <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
-                        <p className="text-[13px] text-white/70 group-hover:text-white transition-colors truncate text-right">
+                        <p className="hidden sm:block text-[13px] text-white/70 group-hover:text-white transition-colors truncate text-right">
                           {myClub?.name ?? "TBA"}
                         </p>
-                        <div
-                          className="w-6 h-6 shrink-0 flex items-center justify-center text-navy text-[9px] font-black"
-                          style={{ backgroundColor: playerColor }}
-                        >
-                          {nameInitials(myClub?.name ?? "?")}
-                        </div>
+                        <ClubAvatar club={myClub ?? null} size={6} />
                       </div>
 
                       {/* Score / VS */}
@@ -199,13 +217,8 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
                       <div className="flex items-center gap-2 flex-1 justify-start min-w-0">
                         {opponent ? (
                           <>
-                            <div
-                              className="w-6 h-6 shrink-0 flex items-center justify-center text-navy text-[9px] font-black"
-                              style={{ backgroundColor: avatarColor(opponent.name) }}
-                            >
-                              {nameInitials(opponent.name)}
-                            </div>
-                            <p className="text-[13px] text-white/70 group-hover:text-white transition-colors truncate">
+                            <ClubAvatar club={opponent} size={6} />
+                            <p className="hidden sm:block text-[13px] text-white/70 group-hover:text-white transition-colors truncate">
                               {opponent.name}
                             </p>
                           </>

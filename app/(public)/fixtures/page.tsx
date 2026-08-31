@@ -3,6 +3,14 @@ import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Fixtures" };
 
+interface ClubRef {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url: string | null;
+  logo_status: string | null;
+}
+
 interface FixtureRow {
   id:              string;
   stage:           string;
@@ -11,8 +19,8 @@ interface FixtureRow {
   status:          string;
   scheduled_at:    string | null;
   confirmed_score: { score_a: number; score_b: number } | null;
-  club_a:          { id: string; name: string; slug: string } | null;
-  club_b:          { id: string; name: string; slug: string } | null;
+  club_a:          ClubRef | null;
+  club_b:          ClubRef | null;
   competition:     { id: string; name: string; slug: string } | null;
 }
 
@@ -23,8 +31,8 @@ async function getFixtures(): Promise<FixtureRow[]> {
       .from("fixtures")
       .select(`
         id, stage, group_name, matchday, status, scheduled_at, confirmed_score,
-        club_a:clubs!fixtures_club_a_id_fkey(id, name, slug),
-        club_b:clubs!fixtures_club_b_id_fkey(id, name, slug),
+        club_a:clubs!fixtures_club_a_id_fkey(id, name, slug, logo_url, logo_status),
+        club_b:clubs!fixtures_club_b_id_fkey(id, name, slug, logo_url, logo_status),
         competition:competitions(id, name, slug)
       `)
       .order("scheduled_at", { ascending: true })
@@ -59,10 +67,28 @@ function nameInitials(name: string): string {
   return name.split(" ").map((w) => w[0] ?? "").join("").slice(0, 2).toUpperCase();
 }
 
+function ClubAvatar({ club, size = 7 }: { club: ClubRef | null; size?: number }) {
+  const name   = club?.name ?? "?";
+  const color  = avatarColor(name);
+  const hasLogo = club?.logo_url && club.logo_status === "approved";
+  const cls    = `w-${size} h-${size} shrink-0 flex items-center justify-center overflow-hidden text-navy text-[9px] font-black`;
+
+  return (
+    <div className={cls} style={{ backgroundColor: hasLogo ? undefined : color }}>
+      {hasLogo ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={club!.logo_url!} alt={name} className="w-full h-full object-contain p-0.5" />
+      ) : (
+        nameInitials(name)
+      )}
+    </div>
+  );
+}
+
 function formatGroupLabel(f: FixtureRow): string {
-  const comp = f.competition?.name ?? "Fixtures";
+  const comp  = f.competition?.name ?? "Fixtures";
   const stage = f.stage && f.stage !== "N/A" ? ` · ${f.stage}` : "";
-  const day = f.matchday ? ` · Day ${f.matchday}` : "";
+  const day   = f.matchday ? ` · Day ${f.matchday}` : "";
   return `${comp}${stage}${day}`;
 }
 
@@ -75,11 +101,7 @@ export default async function FixturesPage() {
   for (const f of fixtures) {
     const key = `${f.competition?.id ?? ""}__${f.stage}__${f.matchday}`;
     if (!groupMap.has(key)) {
-      groupMap.set(key, {
-        label: formatGroupLabel(f),
-        date: f.scheduled_at,
-        fixtures: [],
-      });
+      groupMap.set(key, { label: formatGroupLabel(f), date: f.scheduled_at, fixtures: [] });
     }
     groupMap.get(key)!.fixtures.push(f);
   }
@@ -115,16 +137,11 @@ export default async function FixturesPage() {
                     className="flex items-center gap-3 px-4 py-4 hover:bg-white/[0.03] transition-colors group overflow-hidden"
                   >
                     {/* Club A */}
-                    <div className="flex items-center gap-2.5 flex-1 justify-end min-w-0">
-                      <p className="text-[13px] font-medium text-white/80 group-hover:text-white transition-colors truncate text-right">
+                    <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
+                      <p className="hidden sm:block text-[13px] font-medium text-white/80 group-hover:text-white transition-colors truncate text-right">
                         {f.club_a?.name ?? "TBA"}
                       </p>
-                      <div
-                        className="w-7 h-7 shrink-0 flex items-center justify-center text-navy text-[9px] font-black"
-                        style={{ backgroundColor: avatarColor(f.club_a?.name ?? "A") }}
-                      >
-                        {nameInitials(f.club_a?.name ?? "A")}
-                      </div>
+                      <ClubAvatar club={f.club_a} size={7} />
                     </div>
 
                     {/* Score / VS */}
@@ -139,26 +156,21 @@ export default async function FixturesPage() {
                     </div>
 
                     {/* Club B */}
-                    <div className="flex items-center gap-2.5 flex-1 justify-start min-w-0">
-                      <div
-                        className="w-7 h-7 shrink-0 flex items-center justify-center text-navy text-[9px] font-black"
-                        style={{ backgroundColor: avatarColor(f.club_b?.name ?? "B") }}
-                      >
-                        {nameInitials(f.club_b?.name ?? "B")}
-                      </div>
-                      <p className="text-[13px] font-medium text-white/80 group-hover:text-white transition-colors truncate">
+                    <div className="flex items-center gap-2 flex-1 justify-start min-w-0">
+                      <ClubAvatar club={f.club_b} size={7} />
+                      <p className="hidden sm:block text-[13px] font-medium text-white/80 group-hover:text-white transition-colors truncate">
                         {f.club_b?.name ?? "TBA"}
                       </p>
                     </div>
 
                     {/* Meta */}
-                    <div className="hidden sm:flex items-center gap-3 shrink-0 pl-2">
+                    <div className="flex items-center gap-3 shrink-0">
                       <div className="flex items-center gap-1.5">
                         <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${STATUS_DOT[f.status] ?? "bg-cobalt"}`} />
-                        <span className="text-[11px] text-white/30">{statusLabel[f.status] ?? f.status}</span>
+                        <span className="hidden sm:block text-[11px] text-white/30">{statusLabel[f.status] ?? f.status}</span>
                       </div>
                       {f.scheduled_at && (
-                        <span className="text-[11px] text-white/20 w-14 text-right tabular-nums">
+                        <span className="text-[11px] text-white/20 tabular-nums">
                           {new Date(f.scheduled_at).toLocaleDateString("en-GB", {
                             day: "numeric", month: "short",
                           })}

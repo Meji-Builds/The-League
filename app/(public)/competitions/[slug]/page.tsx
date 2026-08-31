@@ -2,6 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
+interface ClubRef {
+  id?: string;
+  name: string;
+  slug?: string;
+  logo_url: string | null;
+  logo_status: string | null;
+}
+
 interface Fixture {
   id: string;
   stage: string;
@@ -10,19 +18,21 @@ interface Fixture {
   status: string;
   scheduled_at: string | null;
   confirmed_score: { score_a: number; score_b: number } | null;
-  club_a: { id: string; name: string; slug: string } | null;
-  club_b: { id: string; name: string; slug: string } | null;
+  club_a: (ClubRef & { id: string; slug: string }) | null;
+  club_b: (ClubRef & { id: string; slug: string }) | null;
 }
 
 interface EnteredClub {
-  club: { id: string; name: string; slug: string; faculty: string } | null;
+  club: (ClubRef & { id: string; slug: string; faculty: string }) | null;
   payment_status: string;
 }
 
 interface StandingRow {
-  club_id: string;
-  name:    string;
-  slug:    string;
+  club_id:     string;
+  name:        string;
+  slug:        string;
+  logo_url:    string | null;
+  logo_status: string | null;
   P:  number;
   W:  number;
   L:  number;
@@ -76,12 +86,27 @@ function nameInitials(name: string): string {
   return name.split(" ").map((w) => w[0] ?? "").join("").slice(0, 2).toUpperCase();
 }
 
+function ClubAvatar({ club, size = 7 }: { club: ClubRef | null; size?: number }) {
+  const name    = club?.name ?? "?";
+  const color   = avatarColor(name);
+  const hasLogo = club?.logo_url && club.logo_status === "approved";
+  const sz      = size === 6 ? "w-6 h-6" : size === 7 ? "w-7 h-7" : size === 8 ? "w-8 h-8" : "w-7 h-7";
+  return (
+    <div className={`${sz} shrink-0 flex items-center justify-center overflow-hidden text-navy text-[9px] font-black`} style={{ backgroundColor: hasLogo ? undefined : color }}>
+      {hasLogo ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={club!.logo_url!} alt={name} className="w-full h-full object-contain p-0.5" />
+      ) : nameInitials(name)}
+    </div>
+  );
+}
+
 function buildStandings(fixtures: Fixture[]): StandingRow[] {
   const map = new Map<string, StandingRow>();
 
-  function ensure(club: { id: string; name: string; slug: string }) {
+  function ensure(club: { id: string; name: string; slug: string; logo_url?: string | null; logo_status?: string | null }) {
     if (!map.has(club.id)) {
-      map.set(club.id, { club_id: club.id, name: club.name, slug: club.slug, P: 0, W: 0, L: 0, GF: 0, GA: 0, Pts: 0 });
+      map.set(club.id, { club_id: club.id, name: club.name, slug: club.slug, logo_url: club.logo_url ?? null, logo_status: club.logo_status ?? null, P: 0, W: 0, L: 0, GF: 0, GA: 0, Pts: 0 });
     }
     return map.get(club.id)!;
   }
@@ -133,14 +158,14 @@ export default async function CompetitionPage({ params }: { params: Promise<{ sl
     db.from("fixtures")
       .select(`
         id, stage, group_name, matchday, status, scheduled_at, confirmed_score,
-        club_a:clubs!fixtures_club_a_id_fkey(id, name, slug),
-        club_b:clubs!fixtures_club_b_id_fkey(id, name, slug)
+        club_a:clubs!fixtures_club_a_id_fkey(id, name, slug, logo_url, logo_status),
+        club_b:clubs!fixtures_club_b_id_fkey(id, name, slug, logo_url, logo_status)
       `)
       .eq("competition_id", competition.id)
       .order("matchday")
       .order("scheduled_at"),
     db.from("competition_entries")
-      .select("payment_status, club:clubs(id, name, slug, faculty)")
+      .select("payment_status, club:clubs(id, name, slug, faculty, logo_url, logo_status)")
       .eq("competition_id", competition.id)
       .eq("payment_status", "paid"),
   ]);
@@ -242,12 +267,7 @@ export default async function CompetitionPage({ params }: { params: Promise<{ sl
                         <td className="px-5 py-3.5 text-[11px] text-white/20 font-mono">{i + 1}</td>
                         <td className="px-3 py-3.5">
                           <Link href={`/clubs/${row.slug}`} className="flex items-center gap-2.5 group">
-                            <div
-                              className="w-6 h-6 flex items-center justify-center text-navy text-[9px] font-black shrink-0"
-                              style={{ backgroundColor: avatarColor(row.name) }}
-                            >
-                              {nameInitials(row.name)}
-                            </div>
+                            <ClubAvatar club={{ name: row.name, logo_url: row.logo_url, logo_status: row.logo_status }} size={6} />
                             <span className="font-medium text-[13px] text-white/80 group-hover:text-white transition-colors">
                               {row.name}
                             </span>
@@ -289,15 +309,10 @@ export default async function CompetitionPage({ params }: { params: Promise<{ sl
                   >
                     {/* Club A */}
                     <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
-                      <p className="text-[13px] text-white/70 group-hover:text-white transition-colors truncate text-right">
+                      <p className="hidden sm:block text-[13px] text-white/70 group-hover:text-white transition-colors truncate text-right">
                         {f.club_a?.name ?? "TBA"}
                       </p>
-                      <div
-                        className="w-6 h-6 shrink-0 flex items-center justify-center text-navy text-[9px] font-black"
-                        style={{ backgroundColor: avatarColor(f.club_a?.name ?? "A") }}
-                      >
-                        {nameInitials(f.club_a?.name ?? "A")}
-                      </div>
+                      <ClubAvatar club={f.club_a} size={6} />
                     </div>
 
                     {/* Score / VS */}
@@ -313,13 +328,8 @@ export default async function CompetitionPage({ params }: { params: Promise<{ sl
 
                     {/* Club B */}
                     <div className="flex items-center gap-2 flex-1 justify-start min-w-0">
-                      <div
-                        className="w-6 h-6 shrink-0 flex items-center justify-center text-navy text-[9px] font-black"
-                        style={{ backgroundColor: avatarColor(f.club_b?.name ?? "B") }}
-                      >
-                        {nameInitials(f.club_b?.name ?? "B")}
-                      </div>
-                      <p className="text-[13px] text-white/70 group-hover:text-white transition-colors truncate">
+                      <ClubAvatar club={f.club_b} size={6} />
+                      <p className="hidden sm:block text-[13px] text-white/70 group-hover:text-white transition-colors truncate">
                         {f.club_b?.name ?? "TBA"}
                       </p>
                     </div>
@@ -367,12 +377,7 @@ export default async function CompetitionPage({ params }: { params: Promise<{ sl
                     href={`/clubs/${club.slug}`}
                     className="flex items-center gap-3 px-4 py-3.5 hover:bg-white/[0.03] transition-colors group"
                   >
-                    <div
-                      className="w-7 h-7 flex items-center justify-center text-navy text-[9px] font-black shrink-0"
-                      style={{ backgroundColor: avatarColor(club.name) }}
-                    >
-                      {nameInitials(club.name)}
-                    </div>
+                    <ClubAvatar club={club} size={7} />
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-[13px] text-white/80 group-hover:text-white transition-colors truncate">
                         {club.name}
