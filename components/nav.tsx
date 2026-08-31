@@ -234,7 +234,7 @@ export function Nav({ siteName = "The League" }: { siteName?: string }) {
       {/* ── Mobile bottom navigation ──────────────────────────────────── */}
       <nav
         className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-navy border-t border-white/10"
-        style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+        style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)", touchAction: "manipulation" }}
       >
         <div className="flex h-16">
           {primaryTabs.map(({ label, href, icon }) => {
@@ -261,8 +261,9 @@ export function Nav({ siteName = "The League" }: { siteName?: string }) {
 
           {/* More tab */}
           <button
+            type="button"
             onClick={() => setMoreOpen((o) => !o)}
-            className={`relative flex-1 flex flex-col items-center justify-center gap-[3px] transition-colors ${
+            className={`relative flex-1 flex flex-col items-center justify-center gap-[3px] transition-colors cursor-pointer ${
               moreOpen || moreIsActive ? "text-gold" : "text-white/30 active:text-white/60"
             }`}
           >
@@ -294,9 +295,10 @@ export function Nav({ siteName = "The League" }: { siteName?: string }) {
       {/* ── "More" slide-up sheet ─────────────────────────────────────── */}
       {moreOpen && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop — stops at nav top so iOS doesn't swallow More button taps */}
           <div
-            className="md:hidden fixed inset-0 z-40 bg-black/50"
+            className="md:hidden fixed inset-x-0 top-0 z-40 bg-black/50"
+            style={{ bottom: "calc(4rem + env(safe-area-inset-bottom, 0px))" }}
             onClick={() => setMoreOpen(false)}
           />
           {/* Sheet */}
