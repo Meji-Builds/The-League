@@ -89,7 +89,7 @@ export async function generateChampionshipFixtures(
     }
 
   } else if (format === "knockout") {
-    const stageName = n <= 2 ? "Final" : n <= 4 ? "Semi-final" : n <= 8 ? "Quarter-final" : `Round of ${n}`;
+    const stageName = n <= 2 ? "Final" : n <= 4 ? "Semi-final" : n <= 8 ? "Quarter-final" : "Round of 16";
     let md = 1;
     for (let i = 0; i < Math.floor(n / 2); i++) {
       rows.push({ competition_id: compId, club_a_id: teams[i], club_b_id: teams[n - 1 - i], stage: stageName, group_name: "Championship", matchday: md++, status: "scheduled" });
