@@ -93,6 +93,12 @@ export async function deleteCompetition(_prevState: ActionState, formData: FormD
   const competitionId = formData.get("competition_id") as string;
   if (!competitionId) return { error: "Invalid competition." };
 
+  // Null out nullable FKs that lack ON DELETE CASCADE before deleting
+  await Promise.all([
+    db.from("highlights").update({ competition_id: null }).eq("competition_id", competitionId),
+    db.from("payments").update({ competition_id: null }).eq("competition_id", competitionId),
+  ]);
+
   const { error } = await db.from("competitions").delete().eq("id", competitionId);
   if (error) {
     console.error("admin/deleteCompetition:", error);
