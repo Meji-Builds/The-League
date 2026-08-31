@@ -26,7 +26,7 @@ interface Props {
   divisionClubs: DivisionClub[];
 }
 
-const STAGES = ["N/A", "Department", "Faculty", "University"];
+const STAGES = ["N/A", "Department", "Faculty", "University", "Group", "Round of 16", "Quarter-final", "Semi-final", "Final"];
 
 export function EditFixtureForm({ fixture, clubs, competitions, divisions, divisionClubs }: Props) {
   const [open,          setOpen]          = useState(false);
