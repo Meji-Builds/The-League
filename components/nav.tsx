@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 const desktopLinks = [
   { label: "Live",         href: "/live" },
@@ -14,8 +15,8 @@ const desktopLinks = [
   { label: "News",         href: "/news" },
 ];
 
-// Mobile bottom navigation — 5 primary tabs
-const bottomTabs = [
+// Primary 4 tabs always visible
+const primaryTabs = [
   {
     label: "Home",
     href: "/",
@@ -64,11 +65,15 @@ const bottomTabs = [
       </svg>
     ),
   },
+];
+
+// Links shown in the "More" sheet
+const moreLinks = [
   {
     label: "Clubs",
     href: "/clubs",
     icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
         <circle cx="9" cy="7" r="4" />
         <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -76,13 +81,66 @@ const bottomTabs = [
       </svg>
     ),
   },
+  {
+    label: "Players",
+    href: "/players",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="8" r="5" />
+        <path d="M3 21v-2a7 7 0 0 1 14 0v2" />
+      </svg>
+    ),
+  },
+  {
+    label: "Standings",
+    href: "/standings",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10" />
+        <line x1="12" y1="20" x2="12" y2="4" />
+        <line x1="6" y1="20" x2="6" y2="14" />
+      </svg>
+    ),
+  },
+  {
+    label: "Live",
+    href: "/live",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="2" />
+        <path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14" />
+      </svg>
+    ),
+  },
+  {
+    label: "Highlights",
+    href: "/highlights",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="23 7 16 12 23 17 23 7" />
+        <rect x="1" y="5" width="15" height="14" rx="2" />
+      </svg>
+    ),
+  },
+  {
+    label: "Sponsors",
+    href: "/sponsors",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+      </svg>
+    ),
+  },
 ];
 
 export function Nav() {
   const pathname = usePathname();
+  const [moreOpen, setMoreOpen] = useState(false);
 
   const active = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
+
+  const moreIsActive = moreLinks.some((l) => active(l.href));
 
   return (
     <>
@@ -163,12 +221,13 @@ export function Nav() {
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
         <div className="flex h-16">
-          {bottomTabs.map(({ label, href, icon }) => {
+          {primaryTabs.map(({ label, href, icon }) => {
             const isActive = active(href);
             return (
               <Link
                 key={href}
                 href={href}
+                onClick={() => setMoreOpen(false)}
                 className={`relative flex-1 flex flex-col items-center justify-center gap-[3px] transition-colors ${
                   isActive ? "text-gold" : "text-white/30 active:text-white/60"
                 }`}
@@ -183,8 +242,78 @@ export function Nav() {
               </Link>
             );
           })}
+
+          {/* More tab */}
+          <button
+            onClick={() => setMoreOpen((o) => !o)}
+            className={`relative flex-1 flex flex-col items-center justify-center gap-[3px] transition-colors ${
+              moreOpen || moreIsActive ? "text-gold" : "text-white/30 active:text-white/60"
+            }`}
+          >
+            {(moreOpen || moreIsActive) && (
+              <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[2px] bg-gold" />
+            )}
+            {moreOpen ? (
+              /* X icon when open */
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            ) : (
+              /* Grid/dots icon */
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none" />
+                <circle cx="16" cy="8" r="1.5" fill="currentColor" stroke="none" />
+                <circle cx="8" cy="16" r="1.5" fill="currentColor" stroke="none" />
+                <circle cx="16" cy="16" r="1.5" fill="currentColor" stroke="none" />
+              </svg>
+            )}
+            <span className="text-[9px] font-bold uppercase tracking-[0.07em]">
+              More
+            </span>
+          </button>
         </div>
       </nav>
+
+      {/* ── "More" slide-up sheet ─────────────────────────────────────── */}
+      {moreOpen && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="md:hidden fixed inset-0 z-40 bg-black/50"
+            onClick={() => setMoreOpen(false)}
+          />
+          {/* Sheet */}
+          <div
+            className="md:hidden fixed left-0 right-0 z-40 bg-navy border-t border-white/10 rounded-t-2xl"
+            style={{ bottom: "calc(4rem + env(safe-area-inset-bottom, 0px))" }}
+          >
+            <div className="w-10 h-1 bg-white/10 rounded-full mx-auto mt-3 mb-4" />
+            <div className="px-4 pb-6 grid grid-cols-3 gap-3">
+              {moreLinks.map(({ label, href, icon }) => {
+                const isActive = active(href);
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setMoreOpen(false)}
+                    className={`flex flex-col items-center gap-2 py-4 rounded-xl border transition-colors ${
+                      isActive
+                        ? "border-gold/30 bg-gold/5 text-gold"
+                        : "border-white/6 bg-white/3 text-white/50 hover:text-white hover:border-white/15"
+                    }`}
+                  >
+                    {icon}
+                    <span className="text-[10px] font-bold uppercase tracking-[0.07em]">
+                      {label}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 }
