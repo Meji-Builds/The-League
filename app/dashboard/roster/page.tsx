@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AddPlayerForm } from "./AddPlayerForm";
 import { RemoveButton } from "./RemoveButton";
+import { PlayerPhotoForm } from "./PlayerPhotoForm";
 
 export const metadata = { title: "Roster" };
 
@@ -11,13 +12,21 @@ interface Player {
   full_name: string | null;
   position: string | null;
   id_card_status: string;
+  profile_picture_url: string | null;
+  profile_picture_status: string;
   stats: { matches_played: number; wins: number; losses: number };
 }
 
-const idCardStatusStyles: Record<string, string> = {
-  pending:  "bg-warning/10 text-warning",
-  approved: "bg-success/10 text-success",
-  rejected: "bg-danger/10 text-danger",
+const STATUS_DOT: Record<string, string> = {
+  pending:  "bg-warning",
+  approved: "bg-success",
+  rejected: "bg-danger",
+};
+
+const STATUS_TEXT: Record<string, string> = {
+  pending:  "text-warning",
+  approved: "text-success",
+  rejected: "text-danger",
 };
 
 export default async function RosterPage() {
@@ -36,9 +45,16 @@ export default async function RosterPage() {
 
   if (!owner?.club_id) redirect("/dashboard/onboarding");
 
+  const { data: feeRow } = await db
+    .from("fee_settings")
+    .select("max_players_per_club")
+    .eq("id", 1)
+    .single();
+  const cap: number = feeRow?.max_players_per_club ?? 15;
+
   const { data: rawPlayers } = await db
     .from("players")
-    .select("id, gamer_tag, full_name, position, id_card_status, stats")
+    .select("id, gamer_tag, full_name, position, id_card_status, profile_picture_url, profile_picture_status, stats")
     .eq("club_id", owner.club_id)
     .order("gamer_tag");
 
@@ -46,69 +62,71 @@ export default async function RosterPage() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-navy">Roster</h1>
-        <p className="text-muted text-sm mt-1">
-          {owner.club?.name} &middot; {owner.club?.faculty} &middot; {players.length} {players.length === 1 ? "player" : "players"}
+      <div className="mb-10">
+        <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-3">Dashboard</p>
+        <h1 className="font-display font-black text-[2rem] text-white uppercase leading-none">Roster</h1>
+        <p className="text-white/40 text-[13px] mt-2">
+          {owner.club?.name} &middot; {owner.club?.faculty} &middot; {players.length} / {cap} players
         </p>
       </div>
 
       <div className="mb-8">
-        <AddPlayerForm />
+        <AddPlayerForm cap={cap} count={players.length} />
       </div>
 
       {players.length === 0 ? (
-        <div className="border border-border bg-white rounded p-8 text-center">
-          <p className="text-muted text-sm">No players yet. Add your first player above.</p>
+        <div className="border border-white/6 bg-card px-8 py-12 text-center">
+          <p className="text-white/40 text-[13px]">No players yet. Add your first player above.</p>
         </div>
       ) : (
-        <div className="border border-border bg-white rounded overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border bg-surface">
-                <th className="text-left text-xs font-semibold text-muted uppercase tracking-wide px-5 py-3">
-                  Gamer tag
-                </th>
-                <th className="text-left text-xs font-semibold text-muted uppercase tracking-wide px-5 py-3 hidden sm:table-cell">
-                  Full name
-                </th>
-                <th className="text-left text-xs font-semibold text-muted uppercase tracking-wide px-5 py-3 hidden md:table-cell">
-                  Position
-                </th>
-                <th className="text-left text-xs font-semibold text-muted uppercase tracking-wide px-5 py-3">
-                  ID card
-                </th>
-                <th className="text-right text-xs font-semibold text-muted uppercase tracking-wide px-5 py-3 hidden md:table-cell">
-                  W / L
-                </th>
-                <th className="px-5 py-3" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {players.map((player) => (
-                <tr key={player.id} className="hover:bg-surface/50 transition-colors">
-                  <td className="px-5 py-3 font-medium text-navy">{player.gamer_tag}</td>
-                  <td className="px-5 py-3 text-muted hidden sm:table-cell">
-                    {player.full_name ?? <span className="text-muted/40">-</span>}
-                  </td>
-                  <td className="px-5 py-3 text-muted hidden md:table-cell">
-                    {player.position ?? <span className="text-muted/40">-</span>}
-                  </td>
-                  <td className="px-5 py-3">
-                    <span className={`inline-block text-xs font-semibold px-2 py-0.5 rounded capitalize ${idCardStatusStyles[player.id_card_status] ?? ""}`}>
-                      {player.id_card_status}
+        <div className="border border-white/6 divide-y divide-white/5">
+          {players.map((player) => (
+            <div key={player.id} className="bg-card p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-1">
+                    <span className="font-medium text-white text-[13px]">{player.gamer_tag}</span>
+                    {player.full_name && (
+                      <span className="text-white/40 text-[12px]">{player.full_name}</span>
+                    )}
+                    {player.position && (
+                      <span className="text-white/30 text-[11px]">{player.position}</span>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                    <span className="flex items-center gap-1.5">
+                      <span className="text-[9px] text-white/30 uppercase tracking-wide font-semibold">ID</span>
+                      <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[player.id_card_status] ?? "bg-white/30"}`} />
+                      <span className={`text-[10px] font-bold uppercase tracking-[0.15em] capitalize ${STATUS_TEXT[player.id_card_status] ?? "text-white/30"}`}>
+                        {player.id_card_status}
+                      </span>
                     </span>
-                  </td>
-                  <td className="px-5 py-3 text-muted text-right hidden md:table-cell">
-                    {player.stats.wins} / {player.stats.losses}
-                  </td>
-                  <td className="px-5 py-3 text-right">
-                    <RemoveButton playerId={player.id} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+
+                    <span className="flex items-center gap-1.5">
+                      <span className="text-[9px] text-white/30 uppercase tracking-wide font-semibold">Photo</span>
+                      <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[player.profile_picture_status] ?? "bg-white/30"}`} />
+                      <span className={`text-[10px] font-bold uppercase tracking-[0.15em] capitalize ${STATUS_TEXT[player.profile_picture_status] ?? "text-white/30"}`}>
+                        {player.profile_picture_status === "none" ? "not uploaded" : player.profile_picture_status}
+                      </span>
+                    </span>
+
+                    <span className="text-white/30 text-[11px]">
+                      {player.stats.wins}W / {player.stats.losses}L
+                    </span>
+                  </div>
+
+                  <PlayerPhotoForm
+                    playerId={player.id}
+                    currentPhotoUrl={player.profile_picture_url}
+                    currentStatus={player.profile_picture_status}
+                  />
+                </div>
+
+                <RemoveButton playerId={player.id} />
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

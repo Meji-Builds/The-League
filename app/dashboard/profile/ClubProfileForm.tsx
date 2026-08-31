@@ -53,19 +53,19 @@ export function ClubProfileForm({ name, faculty, bio, logo_url, logo_status, bad
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {(uploadError || (state && "error" in state)) && (
-        <div className="bg-danger/5 border border-danger/30 text-danger text-sm px-4 py-3 rounded">
+        <div className="bg-danger/5 border border-danger/30 text-danger text-sm px-4 py-3">
           {uploadError ?? (state as { error: string }).error}
         </div>
       )}
       {state && "success" in state && (
-        <div className="bg-success/5 border border-success/30 text-success text-sm px-4 py-3 rounded">
+        <div className="bg-success/5 border border-success/30 text-success text-sm px-4 py-3">
           Profile saved.
         </div>
       )}
 
       <div className="grid sm:grid-cols-2 gap-5">
         <div>
-          <label className="block text-navy text-xs font-semibold mb-1.5 uppercase tracking-wide">
+          <label className="block text-white/70 text-xs font-semibold mb-1.5 uppercase tracking-wide">
             Club name <span className="text-danger">*</span>
           </label>
           <input
@@ -73,12 +73,12 @@ export function ClubProfileForm({ name, faculty, bio, logo_url, logo_status, bad
             type="text"
             required
             defaultValue={name}
-            className="w-full border border-border bg-white text-navy text-sm px-3 py-2.5 rounded focus:outline-none focus:border-cobalt transition-colors"
+            className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2.5 focus:outline-none focus:border-cobalt transition-colors"
           />
         </div>
 
         <div>
-          <label className="block text-navy text-xs font-semibold mb-1.5 uppercase tracking-wide">
+          <label className="block text-white/70 text-xs font-semibold mb-1.5 uppercase tracking-wide">
             Faculty <span className="text-danger">*</span>
           </label>
           <input
@@ -86,36 +86,36 @@ export function ClubProfileForm({ name, faculty, bio, logo_url, logo_status, bad
             type="text"
             required
             defaultValue={faculty}
-            className="w-full border border-border bg-white text-navy text-sm px-3 py-2.5 rounded focus:outline-none focus:border-cobalt transition-colors"
+            className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2.5 focus:outline-none focus:border-cobalt transition-colors"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-navy text-xs font-semibold mb-1.5 uppercase tracking-wide">
-          Bio <span className="text-muted font-normal normal-case">(optional)</span>
+        <label className="block text-white/70 text-xs font-semibold mb-1.5 uppercase tracking-wide">
+          Bio <span className="text-white/40 font-normal normal-case">(optional)</span>
         </label>
         <textarea
           name="bio"
           rows={3}
           defaultValue={bio ?? ""}
           placeholder="A short description of your club..."
-          className="w-full border border-border bg-white text-navy text-sm px-3 py-2.5 rounded focus:outline-none focus:border-cobalt transition-colors resize-none"
+          className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2.5 focus:outline-none focus:border-cobalt transition-colors resize-none placeholder:text-white/20"
         />
       </div>
 
       <div className="grid sm:grid-cols-2 gap-5">
         <div>
-          <label className="block text-navy text-xs font-semibold mb-1.5 uppercase tracking-wide">
-            Logo <span className="text-muted font-normal normal-case">(optional — replaces current)</span>
+          <label className="block text-white/70 text-xs font-semibold mb-1.5 uppercase tracking-wide">
+            Logo <span className="text-white/40 font-normal normal-case">(optional)</span>
           </label>
           {logo_url && (
             <div className="flex items-center gap-3 mb-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={logo_url} alt="Current logo" className="h-14 w-24 object-contain border border-border bg-surface p-1 rounded" />
-              {logo_status === "pending"  && <span className="text-xs font-semibold text-warning bg-warning/10 px-2 py-0.5 rounded">Pending approval</span>}
-              {logo_status === "approved" && <span className="text-xs font-semibold text-success bg-success/10 px-2 py-0.5 rounded">Approved</span>}
-              {logo_status === "rejected" && <span className="text-xs font-semibold text-danger bg-danger/10 px-2 py-0.5 rounded">Rejected — upload a new one</span>}
+              <img src={logo_url} alt="Current logo" className="h-14 w-24 object-contain border border-white/10 p-1" />
+              {logo_status === "pending"  && <span className="text-xs font-semibold text-warning">Pending approval</span>}
+              {logo_status === "approved" && <span className="text-xs font-semibold text-success">Approved</span>}
+              {logo_status === "rejected" && <span className="text-xs font-semibold text-danger">Rejected — upload a new one</span>}
             </div>
           )}
           <input
@@ -123,24 +123,24 @@ export function ClubProfileForm({ name, faculty, bio, logo_url, logo_status, bad
             name="logo"
             type="file"
             accept="image/*"
-            className="w-full text-sm text-muted file:mr-3 file:py-1.5 file:px-4 file:rounded file:border file:border-border file:text-xs file:font-semibold file:text-navy file:bg-white hover:file:bg-surface transition-colors"
+            className="w-full text-sm text-white/50 file:mr-3 file:py-1.5 file:px-4 file:border file:border-white/20 file:text-xs file:font-semibold file:text-white file:bg-white/10 hover:file:bg-white/20 transition-colors"
           />
         </div>
 
         <div>
-          <label className="block text-navy text-xs font-semibold mb-1.5 uppercase tracking-wide">
-            Badge / Cover photo <span className="text-muted font-normal normal-case">(optional — replaces current)</span>
+          <label className="block text-white/70 text-xs font-semibold mb-1.5 uppercase tracking-wide">
+            Badge / Cover photo <span className="text-white/40 font-normal normal-case">(optional)</span>
           </label>
           {badge_url && (
             /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={badge_url} alt="Current badge" className="h-14 w-24 object-contain border border-border bg-surface p-1 mb-2 rounded" />
+            <img src={badge_url} alt="Current badge" className="h-14 w-24 object-contain border border-white/10 p-1 mb-2" />
           )}
           <input
             ref={badgeRef}
             name="badge"
             type="file"
             accept="image/*"
-            className="w-full text-sm text-muted file:mr-3 file:py-1.5 file:px-4 file:rounded file:border file:border-border file:text-xs file:font-semibold file:text-navy file:bg-white hover:file:bg-surface transition-colors"
+            className="w-full text-sm text-white/50 file:mr-3 file:py-1.5 file:px-4 file:border file:border-white/20 file:text-xs file:font-semibold file:text-white file:bg-white/10 hover:file:bg-white/20 transition-colors"
           />
         </div>
       </div>
@@ -148,7 +148,7 @@ export function ClubProfileForm({ name, faculty, bio, logo_url, logo_status, bad
       <button
         type="submit"
         disabled={busy}
-        className="bg-gold text-navy font-semibold text-sm px-5 py-2.5 rounded hover:bg-gold/90 transition-colors disabled:opacity-60"
+        className="bg-gold text-navy font-semibold text-sm px-5 py-2.5 hover:bg-gold/90 transition-colors disabled:opacity-60"
       >
         {uploading ? "Uploading images..." : isPending ? "Saving..." : "Save profile"}
       </button>

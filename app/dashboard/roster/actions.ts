@@ -34,6 +34,23 @@ export async function addPlayer(prevState: ActionState, formData: FormData): Pro
   if (!gamerTag)   return { error: "Gamer tag is required." };
   if (!idCardPath) return { error: "Student ID card image is required." };
 
+  // Enforce roster cap
+  const { data: feeRow } = await db
+    .from("fee_settings")
+    .select("max_players_per_club")
+    .eq("id", 1)
+    .single();
+  const cap: number = feeRow?.max_players_per_club ?? 15;
+
+  const { count } = await db
+    .from("players")
+    .select("id", { count: "exact", head: true })
+    .eq("club_id", clubId);
+
+  if ((count ?? 0) >= cap) {
+    return { error: `Roster cap of ${cap} players reached.` };
+  }
+
   const { error } = await db.from("players").insert({
     club_id:        clubId,
     gamer_tag:      gamerTag,
@@ -41,6 +58,7 @@ export async function addPlayer(prevState: ActionState, formData: FormData): Pro
     position,
     id_card_url:    idCardPath,
     id_card_status: "pending",
+    profile_picture_status: "none",
     stats:          { matches_played: 0, wins: 0, losses: 0 },
   });
 
@@ -70,6 +88,30 @@ export async function removePlayer(_prevState: ActionState, formData: FormData):
   if (error) {
     console.error("roster/removePlayer:", error);
     return { error: "Could not remove player. Please try again." };
+  }
+
+  revalidatePath("/dashboard/roster");
+  return null;
+}
+
+export async function uploadPlayerPhoto(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const { db, clubId } = await getOwnerContext();
+  if (!clubId) return { error: "No club found." };
+
+  const playerId   = formData.get("player_id") as string;
+  const photoUrl   = (formData.get("photo_url") as string)?.trim();
+
+  if (!playerId || !photoUrl) return { error: "Missing required fields." };
+
+  const { error } = await db
+    .from("players")
+    .update({ profile_picture_url: photoUrl, profile_picture_status: "pending" })
+    .eq("id", playerId)
+    .eq("club_id", clubId);
+
+  if (error) {
+    console.error("roster/uploadPlayerPhoto:", error);
+    return { error: "Could not save photo. Please try again." };
   }
 
   revalidatePath("/dashboard/roster");

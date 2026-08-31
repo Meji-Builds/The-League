@@ -7,18 +7,18 @@ export function CreateCompetitionForm() {
   const [state, action, isPending] = useActionState(createCompetition, null);
 
   return (
-    <form action={action} className="border border-border bg-white rounded p-5 space-y-4">
-      <h3 className="text-navy font-semibold text-sm">New competition</h3>
+    <form action={action} className="border border-white/6 bg-card p-5 space-y-4">
+      <h3 className="text-white font-semibold text-sm">New competition</h3>
 
       {state?.error && (
-        <div className="bg-danger/5 border border-danger/30 text-danger text-xs px-3 py-2 rounded">
+        <div className="bg-danger/5 border border-danger/30 text-danger text-xs px-3 py-2">
           {state.error}
         </div>
       )}
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
+          <label className="block text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
             Name <span className="text-danger">*</span>
           </label>
           <input
@@ -26,12 +26,12 @@ export function CreateCompetitionForm() {
             type="text"
             required
             placeholder="e.g. The League Season 1"
-            className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors placeholder:text-muted/50"
+            className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors placeholder:text-white/20"
           />
         </div>
 
         <div>
-          <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
+          <label className="block text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
             Edition <span className="text-danger">*</span>
           </label>
           <input
@@ -39,19 +39,19 @@ export function CreateCompetitionForm() {
             type="text"
             required
             placeholder="e.g. 2025"
-            className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors placeholder:text-muted/50"
+            className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors placeholder:text-white/20"
           />
         </div>
 
         <div>
-          <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
+          <label className="block text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
             Type <span className="text-danger">*</span>
           </label>
           <select
             name="type"
             required
             defaultValue=""
-            className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
+            className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors [&>option]:bg-navy [&>option]:text-white"
           >
             <option value="" disabled>Select type</option>
             <option value="flagship">Flagship</option>
@@ -61,14 +61,14 @@ export function CreateCompetitionForm() {
         </div>
 
         <div>
-          <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
+          <label className="block text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
             Format <span className="text-danger">*</span>
           </label>
           <select
             name="format"
             required
             defaultValue=""
-            className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
+            className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors [&>option]:bg-navy [&>option]:text-white"
           >
             <option value="" disabled>Select format</option>
             <option value="funnel_pyramid">Funnel / Pyramid</option>
@@ -79,14 +79,14 @@ export function CreateCompetitionForm() {
         </div>
 
         <div>
-          <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
+          <label className="block text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
             Cycle <span className="text-danger">*</span>
           </label>
           <select
             name="cycle"
             required
             defaultValue=""
-            className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
+            className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors [&>option]:bg-navy [&>option]:text-white"
           >
             <option value="" disabled>Select cycle</option>
             <option value="annual">Annual</option>
@@ -96,14 +96,14 @@ export function CreateCompetitionForm() {
         </div>
 
         <div>
-          <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
+          <label className="block text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
             Status <span className="text-danger">*</span>
           </label>
           <select
             name="status"
             required
             defaultValue="upcoming"
-            className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
+            className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors [&>option]:bg-navy [&>option]:text-white"
           >
             <option value="upcoming">Upcoming</option>
             <option value="registration_open">Registration open</option>
@@ -113,7 +113,7 @@ export function CreateCompetitionForm() {
         </div>
 
         <div>
-          <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
+          <label className="block text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
             Entry fee (NGN)
           </label>
           <input
@@ -123,27 +123,27 @@ export function CreateCompetitionForm() {
             step="100"
             defaultValue="0"
             placeholder="0"
-            className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
+            className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
-          Description <span className="text-muted font-normal normal-case">(optional)</span>
+        <label className="block text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
+          Description <span className="text-white/40 font-normal normal-case">(optional)</span>
         </label>
         <textarea
           name="description"
           rows={2}
           placeholder="Brief description of the competition..."
-          className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors resize-none placeholder:text-muted/50"
+          className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors resize-none placeholder:text-white/20"
         />
       </div>
 
       <button
         type="submit"
         disabled={isPending}
-        className="bg-gold text-navy font-semibold text-sm px-5 py-2 rounded hover:bg-gold/90 transition-colors disabled:opacity-60"
+        className="bg-gold text-navy font-semibold text-sm px-5 py-2 hover:bg-gold/90 transition-colors disabled:opacity-60"
       >
         {isPending ? "Creating..." : "Create competition"}
       </button>

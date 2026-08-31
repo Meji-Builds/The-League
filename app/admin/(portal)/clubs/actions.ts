@@ -41,6 +41,20 @@ export async function rejectClubLogo(formData: FormData) {
   revalidatePath("/clubs");
 }
 
+export async function approvePlayerPhoto(formData: FormData) {
+  const db = await requireAdminDb();
+  const playerId = formData.get("player_id") as string;
+  await db.from("players").update({ profile_picture_status: "approved" }).eq("id", playerId);
+  revalidatePath("/admin/clubs");
+}
+
+export async function rejectPlayerPhoto(formData: FormData) {
+  const db = await requireAdminDb();
+  const playerId = formData.get("player_id") as string;
+  await db.from("players").update({ profile_picture_status: "rejected", profile_picture_url: null }).eq("id", playerId);
+  revalidatePath("/admin/clubs");
+}
+
 export async function approvePlayer(formData: FormData) {
   const db = await requireAdminDb();
   const playerId = formData.get("player_id") as string;

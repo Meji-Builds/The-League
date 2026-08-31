@@ -233,9 +233,10 @@ export default async function HomePage() {
         {heroBg && (
           <div className="absolute inset-0 bg-navy/75 pointer-events-none" aria-hidden="true" />
         )}
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 w-full">
-          <p className="text-gold text-xs font-semibold uppercase tracking-[0.3em] mb-5">
-            University Esports
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 pt-32 w-full">
+          <p className="text-[11px] font-bold uppercase tracking-[0.4em] text-white/60 mb-10">
+            University Esports &nbsp;&middot;&nbsp; Season 2025
           </p>
           <h1 className="font-display text-6xl sm:text-7xl md:text-8xl font-bold leading-none tracking-tight uppercase max-w-4xl whitespace-pre-line">
             {siteSettings?.hero_title ?? "The League.\nWhere Champions\nAre Made."}

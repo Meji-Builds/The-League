@@ -21,12 +21,18 @@ export async function updateFeeSettings(prevState: ActionState, formData: FormDa
     return { error: "Enter a valid fee amount (0 or higher)." };
   }
 
+  const maxPlayers = parseInt(formData.get("max_players_per_club") as string, 10);
+  if (isNaN(maxPlayers) || maxPlayers < 1) {
+    return { error: "Max players must be at least 1." };
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = supabase as any;
 
   const { error } = await db.from("fee_settings").upsert({
     id: 1,
     owner_registration_fee: registrationFee,
+    max_players_per_club: maxPlayers,
     updated_at: new Date().toISOString(),
     updated_by: user.id,
   }, { onConflict: "id" });
