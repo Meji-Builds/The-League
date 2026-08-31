@@ -28,6 +28,7 @@ const tierAccent: Record<string, string> = {
 
 export default async function SponsorsPage() {
   const [sponsors, s] = await Promise.all([getSponsors(), getSiteSettings()]);
+  const email = s.contact_email || s.sponsorship_email;
   const byTier = (tier: GlobalSponsor["tier"]) => sponsors.filter((sp) => sp.tier === tier);
 
   const tiers: { key: GlobalSponsor["tier"]; label: string; description: string }[] = [
@@ -50,7 +51,7 @@ export default async function SponsorsPage() {
             {s.sponsors_description}
           </p>
           <a
-            href={`mailto:${s.sponsorship_email}`}
+            href={`mailto:${email}`}
             className="mt-10 inline-block text-[11px] font-black uppercase tracking-[0.15em] border border-gold text-gold px-7 py-3.5 hover:bg-gold hover:text-navy transition-all"
           >
             Get in touch
@@ -112,7 +113,7 @@ export default async function SponsorsPage() {
             {s.sponsors_cta_description}
           </p>
           <a
-            href={`mailto:${s.sponsorship_email}`}
+            href={`mailto:${email}`}
             className="inline-block text-[11px] font-black uppercase tracking-[0.15em] bg-gold text-navy px-7 py-3.5 hover:brightness-105 transition-all"
           >
             Email us
