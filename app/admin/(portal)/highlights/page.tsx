@@ -40,22 +40,25 @@ export default async function AdminHighlightsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-navy mb-8">Highlights</h1>
+      <div className="mb-10">
+        <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-3">Admin</p>
+        <h1 className="font-display font-black text-[2rem] text-white uppercase leading-none">Highlights</h1>
+      </div>
 
       <div className="mb-10">
         <HighlightForm competitions={competitions} />
       </div>
 
       {highlights.length === 0 ? (
-        <div className="border border-border bg-white rounded p-10 text-center">
-          <p className="text-muted text-sm">No highlights yet. Add the first one above.</p>
+        <div className="border border-white/6 bg-card px-8 py-12 text-center">
+          <p className="text-white/40 text-[13px]">No highlights yet. Add the first one above.</p>
         </div>
       ) : (
-        <div className="grid sm:grid-cols-2 gap-4">
+        <div className="grid sm:grid-cols-2 gap-px bg-white/5 border border-white/5">
           {highlights.map((h) => {
             const vid = youtubeId(h.video_url);
             return (
-              <div key={h.id} className="border border-border bg-white rounded overflow-hidden">
+              <div key={h.id} className="bg-card overflow-hidden">
                 {vid ? (
                   <div className="relative w-full bg-black" style={{ paddingTop: "56.25%" }}>
                     <iframe
@@ -70,19 +73,19 @@ export default async function AdminHighlightsPage() {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={h.thumbnail_url} alt={h.title} className="w-full h-40 object-cover" />
                 ) : (
-                  <div className="h-24 bg-surface flex items-center justify-center">
-                    <a href={h.video_url} target="_blank" rel="noopener noreferrer" className="text-cobalt text-xs hover:underline">
+                  <div className="h-24 bg-white/5 flex items-center justify-center">
+                    <a href={h.video_url} target="_blank" rel="noopener noreferrer" className="text-cobalt text-xs hover:text-white transition-colors">
                       {h.video_url}
                     </a>
                   </div>
                 )}
-                <div className="p-3 flex items-start justify-between gap-2">
+                <div className="p-4 flex items-start justify-between gap-2 border-t border-white/5">
                   <div className="min-w-0">
                     {h.competition && (
-                      <p className="text-xs text-cobalt font-semibold mb-0.5">{h.competition.name}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-cobalt mb-0.5">{h.competition.name}</p>
                     )}
-                    <p className="font-semibold text-navy text-sm truncate">{h.title}</p>
-                    <p className="text-xs text-muted mt-0.5">
+                    <p className="font-medium text-white text-sm truncate">{h.title}</p>
+                    <p className="text-[11px] text-white/30 mt-0.5">
                       {new Date(h.published_at).toLocaleDateString("en-GB", {
                         day: "numeric", month: "short", year: "numeric",
                       })}

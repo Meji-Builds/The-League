@@ -22,10 +22,10 @@ const TIER_LABEL: Record<string, string> = {
 };
 
 const TIER_COLOR: Record<string, string> = {
-  title:  "bg-gold/10 text-gold",
-  gold:   "bg-amber-100 text-amber-700",
-  silver: "bg-zinc-100 text-zinc-500",
-  bronze: "bg-orange-100 text-orange-700",
+  title:  "text-gold",
+  gold:   "text-amber-400",
+  silver: "text-zinc-400",
+  bronze: "text-orange-400",
 };
 
 export default async function AdminSponsorsPage() {
@@ -41,30 +41,33 @@ export default async function AdminSponsorsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-navy mb-8">Sponsors</h1>
+      <div className="mb-10">
+        <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-3">Admin</p>
+        <h1 className="font-display font-black text-[2rem] text-white uppercase leading-none">Sponsors</h1>
+      </div>
 
       <div className="mb-10">
         <SponsorForm />
       </div>
 
       {sponsors.length === 0 ? (
-        <div className="border border-border bg-white rounded p-10 text-center">
-          <p className="text-muted text-sm">No sponsors yet. Add the first one above.</p>
+        <div className="border border-white/6 bg-card px-8 py-12 text-center">
+          <p className="text-white/40 text-[13px]">No sponsors yet. Add the first one above.</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-3">
+        <div className="border border-white/6 divide-y divide-white/5">
           {sponsors.map((s) => (
-            <div key={s.id} className="border border-border bg-white rounded p-4 flex items-center gap-4">
+            <div key={s.id} className="flex items-center gap-4 px-4 py-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={s.logo_url}
                 alt={s.name}
-                className="h-10 w-20 object-contain shrink-0 border border-border bg-surface p-1"
+                className="h-10 w-20 object-contain shrink-0 border border-white/8 bg-white/5 p-1"
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <p className="font-semibold text-navy text-sm">{s.name}</p>
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${TIER_COLOR[s.tier] ?? ""}`}>
+                  <p className="font-medium text-white text-sm">{s.name}</p>
+                  <span className={`text-[10px] font-bold uppercase tracking-[0.2em] ${TIER_COLOR[s.tier] ?? "text-white/30"}`}>
                     {TIER_LABEL[s.tier] ?? s.tier}
                   </span>
                 </div>
@@ -73,12 +76,12 @@ export default async function AdminSponsorsPage() {
                     href={s.website_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-cobalt hover:underline mt-0.5 inline-block"
+                    className="text-[11px] text-cobalt hover:text-white transition-colors mt-0.5 inline-block"
                   >
                     {s.website_url}
                   </a>
                 )}
-                <p className="text-xs text-muted mt-0.5">Order: {s.display_order}</p>
+                <p className="text-[11px] text-white/25 mt-0.5">Order: {s.display_order}</p>
               </div>
               <DeleteButton action={deleteSponsor} id={s.id} confirm={`Delete ${s.name}?`} />
             </div>

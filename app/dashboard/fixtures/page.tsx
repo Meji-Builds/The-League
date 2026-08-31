@@ -21,6 +21,20 @@ interface FixtureRow {
   competition: { name: string } | null;
 }
 
+const STATUS_DOT: Record<string, string> = {
+  confirmed: "bg-success",
+  disputed:  "bg-danger",
+  reported:  "bg-warning",
+  scheduled: "bg-cobalt",
+};
+
+const STATUS_TEXT: Record<string, string> = {
+  confirmed: "text-success",
+  disputed:  "text-danger",
+  reported:  "text-warning",
+  scheduled: "text-cobalt",
+};
+
 function formatDate(iso: string | null) {
   if (!iso) return "TBC";
   return new Date(iso).toLocaleDateString("en-GB", {
@@ -59,35 +73,33 @@ export default async function FixturesPage() {
   const fixtures = (rawFixtures ?? []) as FixtureRow[];
 
   const upcoming = fixtures.filter((f) => ["scheduled", "reported", "disputed"].includes(f.status));
-  const past = fixtures.filter((f) => f.status === "confirmed");
+  const past     = fixtures.filter((f) => f.status === "confirmed");
 
   const FixtureCard = ({ f }: { f: FixtureRow }) => {
-    const isClubA = f.club_a_id === owner.club_id;
+    const isClubA  = f.club_a_id === owner.club_id;
     const hasLineup = isClubA ? !!f.lineup_image_a : !!f.lineup_image_b;
 
     return (
-      <div className="border border-border bg-white rounded p-4">
+      <div className="bg-card border border-white/6 p-4">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <div className="flex-1">
-            <p className="text-xs text-muted mb-1">{f.competition?.name} &middot; {f.stage} &middot; Day {f.matchday}</p>
-            <p className="font-semibold text-navy text-sm">
+            <p className="text-[11px] text-white/30 mb-1">{f.competition?.name} &middot; {f.stage} &middot; Day {f.matchday}</p>
+            <p className="font-medium text-white text-sm">
               {f.club_a?.name ?? "TBC"} vs {f.club_b?.name ?? "TBC"}
             </p>
             {f.confirmed_score && (
-              <p className="text-lg font-bold text-navy mt-1">
+              <p className="font-display font-black text-xl text-gold mt-1">
                 {f.confirmed_score.score_a} &ndash; {f.confirmed_score.score_b}
               </p>
             )}
           </div>
           <div className="text-right flex-shrink-0">
-            <p className="text-xs text-muted">{formatDate(f.scheduled_at)}</p>
-            <span className={`inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded capitalize
-              ${f.status === "confirmed" ? "bg-success/10 text-success" : ""}
-              ${f.status === "disputed" ? "bg-danger/10 text-danger" : ""}
-              ${f.status === "reported" ? "bg-warning/10 text-warning" : ""}
-              ${f.status === "scheduled" ? "bg-cobalt/10 text-cobalt" : ""}
-            `}>
-              {f.status}
+            <p className="text-[11px] text-white/30">{formatDate(f.scheduled_at)}</p>
+            <span className="flex items-center justify-end gap-1.5 mt-1">
+              <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[f.status] ?? "bg-white/30"}`} />
+              <span className={`text-[10px] font-bold uppercase tracking-[0.15em] capitalize ${STATUS_TEXT[f.status] ?? "text-white/30"}`}>
+                {f.status}
+              </span>
             </span>
           </div>
         </div>
@@ -100,14 +112,15 @@ export default async function FixturesPage() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-navy">Fixtures</h1>
-        <p className="text-muted text-sm mt-1">Your club&apos;s upcoming and past matches.</p>
+      <div className="mb-10">
+        <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-3">Dashboard</p>
+        <h1 className="font-display font-black text-[2rem] text-white uppercase leading-none">Fixtures</h1>
+        <p className="text-white/40 text-[13px] mt-2">Your club&apos;s upcoming and past matches.</p>
       </div>
 
       {upcoming.length > 0 && (
         <section className="mb-10">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-4">Upcoming</h2>
+          <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">Upcoming</p>
           <div className="flex flex-col gap-3">
             {upcoming.map((f) => <FixtureCard key={f.id} f={f} />)}
           </div>
@@ -116,7 +129,7 @@ export default async function FixturesPage() {
 
       {past.length > 0 && (
         <section>
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted mb-4">Results</h2>
+          <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">Results</p>
           <div className="flex flex-col gap-3">
             {past.map((f) => <FixtureCard key={f.id} f={f} />)}
           </div>
@@ -124,8 +137,8 @@ export default async function FixturesPage() {
       )}
 
       {fixtures.length === 0 && (
-        <div className="border border-border bg-white rounded p-10 text-center">
-          <p className="text-muted text-sm">No fixtures scheduled yet. Enter a competition to get started.</p>
+        <div className="border border-white/6 bg-card px-8 py-12 text-center">
+          <p className="text-white/40 text-[13px]">No fixtures scheduled yet. Enter a competition to get started.</p>
         </div>
       )}
     </div>

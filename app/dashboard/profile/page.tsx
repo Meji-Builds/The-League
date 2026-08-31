@@ -21,14 +21,15 @@ export default async function ClubProfilePage() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-navy">Club Profile</h1>
-        <p className="text-muted text-sm mt-1">
+      <div className="mb-10">
+        <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-3">Dashboard</p>
+        <h1 className="font-display font-black text-[2rem] text-white uppercase leading-none">Club Profile</h1>
+        <p className="text-white/40 text-[13px] mt-2">
           Update your club name, bio, logo, and badge/cover photo.
         </p>
       </div>
 
-      <div className="border border-border bg-white rounded p-6">
+      <div className="border border-white/6 bg-card p-6">
         <ClubProfileForm
           name={club.name}
           faculty={club.faculty}

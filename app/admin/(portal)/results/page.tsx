@@ -44,16 +44,17 @@ export default async function AdminResultsPage() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-navy">Match Results</h1>
-        <p className="text-muted text-sm mt-1">
+      <div className="mb-10">
+        <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-3">Admin</p>
+        <h1 className="font-display font-black text-[2rem] text-white uppercase leading-none">Match Results</h1>
+        <p className="text-white/40 text-[13px] mt-2">
           Review submitted match scores. Confirm when scores match, or mark as disputed.
         </p>
       </div>
 
       {fixtures.length === 0 ? (
-        <div className="border border-border bg-white rounded p-10 text-center">
-          <p className="text-muted text-sm">No results awaiting review.</p>
+        <div className="border border-white/6 bg-card px-8 py-12 text-center">
+          <p className="text-white/40 text-[13px]">No results awaiting review.</p>
         </div>
       ) : (
         <div className="flex flex-col gap-5">
@@ -67,40 +68,40 @@ export default async function AdminResultsPage() {
             const defaultB = f.reported_by_a?.score_b ?? f.reported_by_b?.score_b ?? 0;
 
             return (
-              <div key={f.id} className="border border-border bg-white rounded p-5">
-                <div className="flex items-start justify-between gap-4 mb-4">
+              <div key={f.id} className="border border-white/6 bg-card">
+                <div className="flex items-start justify-between gap-4 px-5 py-4 border-b border-white/5">
                   <div>
-                    <p className="text-xs text-muted mb-0.5">
+                    <p className="text-[10px] text-white/30 mb-0.5 uppercase tracking-wider">
                       {f.competition?.name} &middot; {f.stage} &middot; Day {f.matchday}
                     </p>
-                    <p className="font-semibold text-navy text-sm">
+                    <p className="font-medium text-white text-sm">
                       {f.club_a?.name ?? "TBC"} vs {f.club_b?.name ?? "TBC"}
                     </p>
                   </div>
                   {scoresMatch ? (
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded bg-success/10 text-success shrink-0">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.15em] px-2 py-0.5 bg-success/10 text-success shrink-0">
                       Scores match
                     </span>
                   ) : (
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded bg-warning/10 text-warning shrink-0">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.15em] px-2 py-0.5 bg-warning/10 text-warning shrink-0">
                       Scores differ
                     </span>
                   )}
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-3 mb-1">
+                <div className="grid sm:grid-cols-2 gap-px bg-white/5 p-px">
                   {[
                     { label: f.club_a?.name ?? "Club A", report: f.reported_by_a },
                     { label: f.club_b?.name ?? "Club B", report: f.reported_by_b },
                   ].map(({ label, report }) => (
-                    <div key={label} className="border border-border rounded p-3">
-                      <p className="text-xs font-semibold text-navy uppercase tracking-wide mb-2">{label}</p>
+                    <div key={label} className="bg-card p-4">
+                      <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-dim mb-2">{label}</p>
                       {report ? (
                         <>
-                          <p className="text-xl font-bold text-navy tabular-nums">
+                          <p className="font-display font-black text-2xl text-white tabular-nums leading-none">
                             {report.score_a}&nbsp;&ndash;&nbsp;{report.score_b}
                           </p>
-                          <p className="text-xs text-muted mt-0.5">
+                          <p className="text-[11px] text-white/30 mt-1">
                             {new Date(report.submitted_at).toLocaleString("en-GB", {
                               day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
                             })}
@@ -110,20 +111,20 @@ export default async function AdminResultsPage() {
                               href={report.proof_image_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs text-cobalt hover:underline mt-1 inline-block"
+                              className="text-[11px] text-cobalt hover:text-white transition-colors mt-1 inline-block"
                             >
                               View proof
                             </a>
                           )}
                         </>
                       ) : (
-                        <p className="text-xs text-muted">Not submitted yet</p>
+                        <p className="text-[11px] text-white/25">Not submitted yet</p>
                       )}
                     </div>
                   ))}
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3 mt-3 pt-3 border-t border-border">
+                <div className="flex flex-wrap items-center gap-3 px-5 py-3 border-t border-white/5">
                   <ConfirmResultForm
                     fixtureId={f.id}
                     clubAId={f.club_a_id}
@@ -137,7 +138,7 @@ export default async function AdminResultsPage() {
                     action={markDisputed}
                     id={f.id}
                     confirm="Mark this fixture as disputed?"
-                    className="text-xs font-semibold px-4 py-1.5 rounded bg-danger/10 text-danger hover:bg-danger/20 transition-colors"
+                    className="text-xs font-semibold px-4 py-1.5 bg-danger/10 text-danger hover:bg-danger/20 transition-colors"
                   >
                     Mark disputed
                   </DeleteButton>

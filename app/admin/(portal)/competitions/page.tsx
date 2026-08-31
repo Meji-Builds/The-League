@@ -19,11 +19,18 @@ interface Competition {
   banner_image_url: string | null;
 }
 
-const statusStyles: Record<string, string> = {
-  upcoming:          "bg-cobalt/10 text-cobalt",
-  registration_open: "bg-success/10 text-success",
-  in_progress:       "bg-warning/10 text-warning",
-  completed:         "bg-muted/10 text-muted",
+const STATUS_DOT: Record<string, string> = {
+  upcoming:          "bg-cobalt",
+  registration_open: "bg-success",
+  in_progress:       "bg-gold",
+  completed:         "bg-white/20",
+};
+
+const STATUS_TEXT: Record<string, string> = {
+  upcoming:          "text-cobalt",
+  registration_open: "text-success",
+  in_progress:       "text-gold",
+  completed:         "text-white/30",
 };
 
 export default async function AdminCompetitionsPage() {
@@ -39,36 +46,42 @@ export default async function AdminCompetitionsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-navy mb-8">Competitions</h1>
+      <div className="mb-10">
+        <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-3">Admin</p>
+        <h1 className="font-display font-black text-[2rem] text-white uppercase leading-none">Competitions</h1>
+      </div>
 
       <div className="mb-10">
         <CreateCompetitionForm />
       </div>
 
       {competitions.length === 0 ? (
-        <div className="border border-border bg-white rounded p-10 text-center">
-          <p className="text-muted text-sm">No competitions yet. Create the first one above.</p>
+        <div className="border border-white/6 bg-card px-8 py-12 text-center">
+          <p className="text-white/40 text-[13px]">No competitions yet. Create the first one above.</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-3">
+        <div className="border border-white/6 divide-y divide-white/5">
           {competitions.map((comp) => (
-            <div key={comp.id} className="border border-border bg-white rounded p-4">
+            <div key={comp.id} className="p-4">
               <div className="flex flex-col sm:flex-row sm:items-start gap-3">
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                    <p className="font-semibold text-navy text-sm">{comp.name}</p>
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded capitalize ${statusStyles[comp.status] ?? ""}`}>
-                      {comp.status.replace("_", " ")}
-                    </span>
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <p className="font-medium text-white text-sm">{comp.name}</p>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[comp.status] ?? "bg-white/20"}`} />
+                      <span className={`text-[10px] font-bold uppercase tracking-[0.15em] ${STATUS_TEXT[comp.status] ?? "text-white/30"}`}>
+                        {comp.status.replace("_", " ")}
+                      </span>
+                    </div>
                   </div>
-                  <p className="text-xs text-muted">
+                  <p className="text-[11px] text-white/30">
                     {comp.type} &middot; {comp.format.replace("_", " ")} &middot; {comp.cycle} &middot; {comp.edition}
                   </p>
                   {comp.entry_fee > 0 && (
-                    <p className="text-xs text-muted mt-0.5">Entry: NGN {comp.entry_fee.toLocaleString()}</p>
+                    <p className="text-[11px] text-white/30 mt-0.5">Entry: NGN {comp.entry_fee.toLocaleString()}</p>
                   )}
                   {comp.description && (
-                    <p className="text-xs text-muted mt-1">{comp.description}</p>
+                    <p className="text-[11px] text-white/25 mt-1 line-clamp-2">{comp.description}</p>
                   )}
                 </div>
 
@@ -77,14 +90,14 @@ export default async function AdminCompetitionsPage() {
                   <select
                     name="status"
                     defaultValue={comp.status}
-                    className="border border-border text-navy text-xs px-2 py-1.5 rounded focus:outline-none focus:border-cobalt"
+                    className="border border-white/10 bg-white/5 text-white text-xs px-2 py-1.5 focus:outline-none focus:border-cobalt"
                   >
                     <option value="upcoming">Upcoming</option>
                     <option value="registration_open">Registration open</option>
                     <option value="in_progress">In progress</option>
                     <option value="completed">Completed</option>
                   </select>
-                  <button type="submit" className="text-xs font-semibold px-3 py-1.5 rounded bg-cobalt/10 text-cobalt hover:bg-cobalt/20 transition-colors">
+                  <button type="submit" className="text-xs font-semibold px-3 py-1.5 bg-cobalt/10 text-cobalt hover:bg-cobalt/20 transition-colors">
                     Save
                   </button>
                 </form>
