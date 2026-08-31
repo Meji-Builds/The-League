@@ -28,14 +28,15 @@ function initials(name: string) {
   return name.split(" ").map((w) => w[0] ?? "").join("").slice(0, 2).toUpperCase();
 }
 
-export default async function FacultyPage({ params }: { params: { faculty: string } }) {
+export default async function FacultyPage({ params }: { params: Promise<{ faculty: string }> }) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = (await createClient()) as any;
+  const { faculty: facultySlug } = await params;
 
   const { data: facultyData } = await db
     .from("faculties")
     .select("id, name, slug, logo_url")
-    .eq("slug", params.faculty)
+    .eq("slug", facultySlug)
     .single();
 
   if (!facultyData) notFound();
