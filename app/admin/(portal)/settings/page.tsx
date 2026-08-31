@@ -29,7 +29,7 @@ export default async function AdminSettingsPage() {
           <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">Registration Fees</p>
           <FeeForm currentFee={currentFee} maxPlayers={maxPlayers} />
           {feeRow?.updated_at && (
-            <p className="text-white/30 text-xs mt-4">
+            <p className="text-white/30 text-[11px] mt-4">
               Last updated: {new Date(feeRow.updated_at).toLocaleDateString("en-GB", {
                 day: "numeric", month: "short", year: "numeric",
               })}
@@ -44,7 +44,7 @@ export default async function AdminSettingsPage() {
 
         <section className="border border-white/6 bg-card p-5">
           <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-1">Theme</p>
-          <p className="text-white/40 text-xs mb-4">
+          <p className="text-white/40 text-[11px] mb-4">
             Changes the accent and background colours on all public-facing pages. The admin panel is unaffected.
           </p>
           <ThemeForm

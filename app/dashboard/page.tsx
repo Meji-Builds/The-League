@@ -9,14 +9,12 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  // Fetch the owner record for this user, joined with their club
   const { data: rawOwner } = await supabase
     .from("club_owners")
     .select("*, club:clubs(*)")
     .eq("user_id", user.id)
     .single();
 
-  // New user — no owner record yet. Send them through onboarding.
   if (!rawOwner) redirect("/dashboard/onboarding");
 
   const owner = rawOwner as unknown as {
@@ -28,37 +26,35 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-navy">
+      <div className="mb-10">
+        {club && (
+          <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-cobalt mb-3">{club.faculty}</p>
+        )}
+        <h1 className="font-display font-black text-[2rem] text-white uppercase leading-none">
           {club ? club.name : "Club Dashboard"}
         </h1>
-        {club && (
-          <p className="text-muted text-sm mt-1">
-            {club.department} &middot; {club.faculty}
-          </p>
+        {club?.department && (
+          <p className="text-white/30 text-[13px] mt-2">{club.department}</p>
         )}
       </div>
 
       {/* Status banner */}
       {club?.status === "pending" && (
-        <div className="border border-warning bg-warning/5 px-5 py-4 mb-8 text-sm">
-          <p className="font-semibold text-navy">Your club is pending approval.</p>
-          <p className="text-muted mt-1">
+        <div className="border border-warning/40 border-l-[3px] border-l-warning bg-card px-5 py-4 mb-8">
+          <p className="font-semibold text-white text-sm">Your club is pending approval.</p>
+          <p className="text-white/40 text-[13px] mt-1">
             The League Office will review your registration and approve it shortly.
-            You will be notified once your club is live.
           </p>
         </div>
       )}
 
       {owner.owner_registration_payment_status === "unpaid" && (
-        <div className="border border-danger bg-danger/5 px-5 py-4 mb-8 text-sm">
-          <p className="font-semibold text-navy">Registration fee not yet paid.</p>
-          <p className="text-muted mt-1">
-            Complete your registration fee payment to proceed.
-          </p>
+        <div className="border border-danger/40 border-l-[3px] border-l-danger bg-card px-5 py-4 mb-8">
+          <p className="font-semibold text-white text-sm">Registration fee not yet paid.</p>
+          <p className="text-white/40 text-[13px] mt-1">Complete your registration fee payment to proceed.</p>
           <Link
             href="/dashboard/onboarding"
-            className="mt-3 inline-block bg-gold text-navy font-semibold text-xs px-4 py-2 rounded hover:bg-gold/90 transition-colors"
+            className="mt-3 inline-block bg-gold text-navy font-bold text-xs px-4 py-2 hover:bg-gold/90 transition-colors"
           >
             Complete payment
           </Link>
@@ -66,7 +62,8 @@ export default async function DashboardPage() {
       )}
 
       {/* Quick links */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-3">Quick Access</p>
+      <div className="border border-white/6 divide-y divide-white/5">
         {[
           { label: "Manage Roster",       href: "/dashboard/roster",       desc: "Add, edit, or remove players." },
           { label: "Enter a Competition", href: "/dashboard/competitions",  desc: "Browse open competitions and pay the entry fee." },
@@ -76,12 +73,15 @@ export default async function DashboardPage() {
           <Link
             key={href}
             href={href}
-            className="block bg-white border border-border p-5 hover:border-cobalt transition-colors group"
+            className="flex items-center justify-between px-5 py-4 hover:bg-white/[0.03] transition-colors group"
           >
-            <p className="font-semibold text-navy group-hover:text-cobalt transition-colors text-sm">
-              {label}
-            </p>
-            <p className="text-muted text-xs mt-1">{desc}</p>
+            <div>
+              <p className="font-medium text-[13px] text-white/80 group-hover:text-white transition-colors">{label}</p>
+              <p className="text-white/30 text-xs mt-0.5">{desc}</p>
+            </div>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-white/20 group-hover:text-white/50 transition-colors shrink-0" aria-hidden="true">
+              <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </Link>
         ))}
       </div>

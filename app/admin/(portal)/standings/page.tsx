@@ -103,22 +103,22 @@ export default async function AdminStandingsPage({ searchParams }: { searchParam
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-navy">Standings</h1>
-        <p className="text-muted text-sm mt-1">
+      <div className="mb-10">
+        <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-3">Admin</p>
+        <h1 className="font-display font-black text-[2rem] text-white uppercase leading-none">Standings</h1>
+        <p className="text-white/40 text-[13px] mt-2">
           Automatically computed from confirmed results — no manual entry needed.
         </p>
-        <div className="mt-3 bg-cobalt/5 border border-cobalt/20 rounded px-4 py-3 text-sm text-navy">
-          <span className="font-semibold">How to update standings:</span> Go to{" "}
-          <Link href="/admin/results" className="text-cobalt hover:underline font-medium">Results</Link>
-          {" "}→ review submitted match reports from clubs → click <strong>Confirm Result</strong>.
-          The table below updates instantly.
+        <div className="mt-4 bg-cobalt/8 border border-cobalt/20 px-4 py-3 text-[13px] text-white/70">
+          Go to{" "}
+          <Link href="/admin/results" className="text-cobalt hover:text-white transition-colors font-medium">Results</Link>
+          {" "}and confirm a match report to update the table.
         </div>
       </div>
 
       {competitions.length === 0 ? (
-        <div className="border border-border bg-white rounded p-10 text-center">
-          <p className="text-muted text-sm">No in-progress or completed competitions yet.</p>
+        <div className="border border-white/6 bg-card px-8 py-12 text-center">
+          <p className="text-white/40 text-[13px]">No competitions yet.</p>
         </div>
       ) : (
         <>
@@ -128,10 +128,10 @@ export default async function AdminStandingsPage({ searchParams }: { searchParam
               <Link
                 key={c.id}
                 href={`/admin/standings?competition=${c.id}`}
-                className={`text-xs font-semibold px-4 py-1.5 rounded border transition-colors ${
+                className={`text-xs font-semibold px-4 py-1.5 border transition-colors ${
                   c.id === competition?.id
-                    ? "bg-navy text-white border-navy"
-                    : "border-border bg-white text-navy hover:border-cobalt"
+                    ? "bg-cobalt text-navy border-cobalt"
+                    : "border-white/10 text-white/40 hover:text-white hover:border-white/30"
                 }`}
               >
                 {c.name}
@@ -140,45 +140,45 @@ export default async function AdminStandingsPage({ searchParams }: { searchParam
           </div>
 
           {competition && (
-            <div className="border border-border bg-white rounded overflow-hidden">
-              <div className="px-5 py-3 border-b border-border bg-surface">
-                <p className="text-xs font-semibold text-navy uppercase tracking-wide">{competition.name}</p>
+            <div className="border border-white/6 overflow-hidden">
+              <div className="px-5 py-3 border-b border-white/5 bg-white/[0.02]">
+                <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-dim">{competition.name}</p>
               </div>
 
               {standings.length === 0 ? (
                 <div className="p-10 text-center">
-                  <p className="text-muted text-sm">No confirmed fixtures yet for this competition.</p>
+                  <p className="text-white/30 text-[13px]">No confirmed fixtures yet for this competition.</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                  <table className="w-full text-sm" style={{ fontVariantNumeric: "tabular-nums" }}>
                     <thead>
-                      <tr className="border-b border-border">
-                        <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wide text-muted w-8">#</th>
-                        <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wide text-muted">Club</th>
-                        <th className="text-center px-3 py-3 text-xs font-semibold uppercase tracking-wide text-muted">P</th>
-                        <th className="text-center px-3 py-3 text-xs font-semibold uppercase tracking-wide text-muted">W</th>
-                        <th className="text-center px-3 py-3 text-xs font-semibold uppercase tracking-wide text-muted">D</th>
-                        <th className="text-center px-3 py-3 text-xs font-semibold uppercase tracking-wide text-muted">L</th>
-                        <th className="text-center px-3 py-3 text-xs font-semibold uppercase tracking-wide text-muted">GF</th>
-                        <th className="text-center px-3 py-3 text-xs font-semibold uppercase tracking-wide text-muted">GA</th>
-                        <th className="text-center px-3 py-3 text-xs font-semibold uppercase tracking-wide text-muted">GD</th>
-                        <th className="text-center px-3 py-3 text-xs font-semibold uppercase tracking-wide text-navy font-bold">Pts</th>
+                      <tr className="border-b border-white/6">
+                        <th className="text-left px-5 py-3 text-[9px] font-bold uppercase tracking-[0.35em] text-dim w-8">#</th>
+                        <th className="text-left px-4 py-3 text-[9px] font-bold uppercase tracking-[0.35em] text-dim">Club</th>
+                        <th className="text-center px-3 py-3 text-[9px] font-bold uppercase tracking-[0.35em] text-dim">P</th>
+                        <th className="text-center px-3 py-3 text-[9px] font-bold uppercase tracking-[0.35em] text-dim">W</th>
+                        <th className="text-center px-3 py-3 text-[9px] font-bold uppercase tracking-[0.35em] text-dim">D</th>
+                        <th className="text-center px-3 py-3 text-[9px] font-bold uppercase tracking-[0.35em] text-dim">L</th>
+                        <th className="text-center px-3 py-3 text-[9px] font-bold uppercase tracking-[0.35em] text-dim">GF</th>
+                        <th className="text-center px-3 py-3 text-[9px] font-bold uppercase tracking-[0.35em] text-dim">GA</th>
+                        <th className="text-center px-3 py-3 text-[9px] font-bold uppercase tracking-[0.35em] text-dim">GD</th>
+                        <th className="text-center px-3 py-3 text-[9px] font-bold uppercase tracking-[0.35em] text-dim">Pts</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-border">
+                    <tbody className="divide-y divide-white/5">
                       {standings.map((row, i) => (
-                        <tr key={row.club.id} className="hover:bg-surface transition-colors">
-                          <td className="px-5 py-3 text-xs text-muted text-center">{i + 1}</td>
-                          <td className="px-5 py-3 font-semibold text-navy">{row.club.name}</td>
-                          <td className="px-3 py-3 text-center text-muted">{row.played}</td>
-                          <td className="px-3 py-3 text-center text-success font-semibold">{row.won}</td>
-                          <td className="px-3 py-3 text-center text-muted">{row.drawn}</td>
-                          <td className="px-3 py-3 text-center text-danger">{row.lost}</td>
-                          <td className="px-3 py-3 text-center text-muted">{row.gf}</td>
-                          <td className="px-3 py-3 text-center text-muted">{row.ga}</td>
-                          <td className="px-3 py-3 text-center text-muted">{row.gd > 0 ? `+${row.gd}` : row.gd}</td>
-                          <td className="px-3 py-3 text-center font-bold text-navy">{row.points}</td>
+                        <tr key={row.club.id} className={`hover:bg-white/[0.02] transition-colors ${i === 0 ? "bg-gold/[0.03]" : ""}`}>
+                          <td className="px-5 py-3.5 text-[11px] text-white/20 font-mono">{i + 1}</td>
+                          <td className="px-4 py-3.5 font-medium text-[13px] text-white/80">{row.club.name}</td>
+                          <td className="px-3 py-3.5 text-center text-[13px] text-white/40">{row.played}</td>
+                          <td className="px-3 py-3.5 text-center text-[13px] text-success font-medium">{row.won}</td>
+                          <td className="px-3 py-3.5 text-center text-[13px] text-white/40">{row.drawn}</td>
+                          <td className="px-3 py-3.5 text-center text-[13px] text-danger">{row.lost}</td>
+                          <td className="px-3 py-3.5 text-center text-[13px] text-white/40">{row.gf}</td>
+                          <td className="px-3 py-3.5 text-center text-[13px] text-white/40">{row.ga}</td>
+                          <td className="px-3 py-3.5 text-center text-[13px] text-white/40">{row.gd > 0 ? `+${row.gd}` : row.gd}</td>
+                          <td className="px-3 py-3.5 text-center font-display font-black text-xl text-gold">{row.points}</td>
                         </tr>
                       ))}
                     </tbody>

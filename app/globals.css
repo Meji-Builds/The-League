@@ -1,18 +1,18 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* Brand - dark gaming palette */
+  /* Brand */
   --color-navy:    #07070F;
   --color-gold:    #B4FF00;
   --color-cobalt:  #5B72FF;
 
-  /* Dark surfaces (public pages) */
-  --color-panel:   #0F0F1E;
-  --color-card:    #141428;
-  --color-rim:     #1C1C38;
-  --color-dim:     #70709A;
+  /* Dark surfaces — layered from deep to raised */
+  --color-panel:   #0C0C1A;
+  --color-card:    #101022;
+  --color-rim:     #1E1E36;
+  --color-dim:     #6060A0;
 
-  /* Light surfaces (admin / dashboard - preserved) */
+  /* Light surfaces (admin / dashboard) */
   --color-surface: #F6F6F9;
   --color-border:  #E2E2EA;
   --color-muted:   #6B6B80;
@@ -42,4 +42,10 @@ body {
   background-color: var(--color-navy);
   color: white;
   font-family: var(--font-sans);
+  font-size: 15px;
+}
+
+::selection {
+  background-color: color-mix(in srgb, #B4FF00 25%, transparent);
+  color: white;
 }

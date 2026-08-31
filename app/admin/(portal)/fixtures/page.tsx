@@ -38,11 +38,18 @@ function formatDate(iso: string | null) {
   });
 }
 
-const statusStyles: Record<string, string> = {
-  scheduled: "bg-cobalt/10 text-cobalt",
-  reported:  "bg-warning/10 text-warning",
-  disputed:  "bg-danger/10 text-danger",
-  confirmed: "bg-success/10 text-success",
+const STATUS_DOT: Record<string, string> = {
+  scheduled: "bg-cobalt",
+  reported:  "bg-gold",
+  disputed:  "bg-danger",
+  confirmed: "bg-success",
+};
+
+const STATUS_TEXT: Record<string, string> = {
+  scheduled: "text-cobalt",
+  reported:  "text-gold",
+  disputed:  "text-danger",
+  confirmed: "text-success",
 };
 
 export default async function AdminFixturesPage() {
@@ -68,35 +75,41 @@ export default async function AdminFixturesPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-navy mb-8">Fixtures</h1>
+      <div className="mb-10">
+        <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-3">Admin</p>
+        <h1 className="font-display font-black text-[2rem] text-white uppercase leading-none">Fixtures</h1>
+      </div>
 
       <div className="mb-10">
         <CreateFixtureForm competitions={competitions} clubs={clubs} />
       </div>
 
       {fixtures.length === 0 ? (
-        <div className="border border-border bg-white rounded p-10 text-center">
-          <p className="text-muted text-sm">No fixtures scheduled yet.</p>
+        <div className="border border-white/6 bg-card px-8 py-12 text-center">
+          <p className="text-white/40 text-[13px]">No fixtures scheduled yet.</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-3">
+        <div className="border border-white/6 divide-y divide-white/5">
           {fixtures.map((f) => (
-            <div key={f.id} className="border border-border bg-white rounded p-4">
+            <div key={f.id} className="p-4">
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <div className="flex-1">
-                  <p className="text-xs text-muted mb-0.5">
+                  <p className="text-[10px] text-white/30 mb-0.5 uppercase tracking-wider">
                     {f.competition?.name} ({f.competition?.edition}) &middot; {f.stage} &middot; {f.group_name} &middot; Day {f.matchday}
                   </p>
-                  <p className="font-semibold text-navy text-sm">
+                  <p className="font-medium text-white text-sm">
                     {f.club_a?.name ?? "TBC"} vs {f.club_b?.name ?? "TBC"}
                   </p>
                 </div>
                 <div className="flex items-center gap-3 flex-shrink-0">
                   <div className="text-right">
-                    <p className="text-xs text-muted">{formatDate(f.scheduled_at)}</p>
-                    <span className={`inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded capitalize ${statusStyles[f.status] ?? ""}`}>
-                      {f.status}
-                    </span>
+                    <p className="text-[11px] text-white/30">{formatDate(f.scheduled_at)}</p>
+                    <div className="flex items-center gap-1.5 justify-end mt-1">
+                      <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[f.status] ?? "bg-white/20"}`} />
+                      <span className={`text-[10px] font-bold uppercase tracking-[0.15em] ${STATUS_TEXT[f.status] ?? "text-white/30"}`}>
+                        {f.status}
+                      </span>
+                    </div>
                   </div>
                   <EditFixtureForm fixture={f} />
                 </div>

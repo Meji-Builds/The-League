@@ -42,61 +42,66 @@ export default async function AdminDisputesPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-navy mb-2">Disputes</h1>
-      <p className="text-muted text-sm mb-8">
-        Compare both sides and set the official score.
-      </p>
+      <div className="mb-10">
+        <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-3">Admin</p>
+        <h1 className="font-display font-black text-[2rem] text-white uppercase leading-none">Disputes</h1>
+        <p className="text-white/40 text-[13px] mt-2">Compare both sides and set the official score.</p>
+      </div>
 
       {fixtures.length === 0 ? (
-        <div className="border border-border bg-white rounded p-10 text-center">
-          <p className="text-muted text-sm">No disputed fixtures at this time.</p>
+        <div className="border border-white/6 bg-card px-8 py-12 text-center">
+          <p className="text-white/40 text-[13px]">No disputed fixtures at this time.</p>
         </div>
       ) : (
         <div className="flex flex-col gap-6">
           {fixtures.map((f) => (
-            <div key={f.id} className="border border-danger/30 bg-white rounded p-5">
-              <p className="text-xs text-muted mb-1">
-                {f.competition?.name} &middot; {f.stage} &middot; Day {f.matchday}
-              </p>
-              <p className="font-semibold text-navy text-sm mb-4">
-                {f.club_a?.name ?? "TBC"} vs {f.club_b?.name ?? "TBC"}
-              </p>
+            <div key={f.id} className="border border-danger/30 border-l-[3px] border-l-danger bg-card">
+              <div className="px-5 py-4 border-b border-white/5">
+                <p className="text-[10px] text-white/30 mb-0.5 uppercase tracking-wider">
+                  {f.competition?.name} &middot; {f.stage} &middot; Day {f.matchday}
+                </p>
+                <p className="font-medium text-white text-sm">
+                  {f.club_a?.name ?? "TBC"} vs {f.club_b?.name ?? "TBC"}
+                </p>
+              </div>
 
-              <div className="grid sm:grid-cols-2 gap-4 mb-5">
+              <div className="grid sm:grid-cols-2 gap-px bg-white/5 p-px">
                 {[
                   { label: f.club_a?.name ?? "Club A", report: f.reported_by_a },
                   { label: f.club_b?.name ?? "Club B", report: f.reported_by_b },
                 ].map(({ label, report }) => (
-                  <div key={label} className="border border-border rounded p-3">
-                    <p className="text-xs font-semibold text-navy uppercase tracking-wide mb-2">{label}</p>
+                  <div key={label} className="bg-card p-4">
+                    <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-dim mb-2">{label}</p>
                     {report ? (
                       <>
-                        <p className="text-lg font-bold text-navy">
+                        <p className="font-display font-black text-2xl text-white leading-none">
                           {report.score_a} &ndash; {report.score_b}
                         </p>
                         <a
                           href={report.proof_image_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs text-cobalt hover:underline mt-1 inline-block"
+                          className="text-[11px] text-cobalt hover:text-white transition-colors mt-1 inline-block"
                         >
                           View proof
                         </a>
                       </>
                     ) : (
-                      <p className="text-xs text-muted">No report submitted</p>
+                      <p className="text-[11px] text-white/25">No report submitted</p>
                     )}
                   </div>
                 ))}
               </div>
 
-              <ResolveForm
-                fixtureId={f.id}
-                clubAId={f.club_a_id}
-                clubBId={f.club_b_id}
-                clubAName={f.club_a?.name ?? "Club A"}
-                clubBName={f.club_b?.name ?? "Club B"}
-              />
+              <div className="px-5 py-4 border-t border-white/5">
+                <ResolveForm
+                  fixtureId={f.id}
+                  clubAId={f.club_a_id}
+                  clubBId={f.club_b_id}
+                  clubAName={f.club_a?.name ?? "Club A"}
+                  clubBName={f.club_b?.name ?? "Club B"}
+                />
+              </div>
             </div>
           ))}
         </div>

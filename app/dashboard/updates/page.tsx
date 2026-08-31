@@ -6,10 +6,16 @@ import { deleteClubPost } from "./actions";
 
 export const metadata = { title: "Club Updates" };
 
-const statusStyle: Record<string, string> = {
-  pending:  "bg-gold/10 text-gold",
-  approved: "bg-success/10 text-success",
-  rejected: "bg-danger/10 text-danger",
+const STATUS_DOT: Record<string, string> = {
+  pending:  "bg-warning",
+  approved: "bg-success",
+  rejected: "bg-danger",
+};
+
+const STATUS_TEXT: Record<string, string> = {
+  pending:  "text-warning",
+  approved: "text-success",
+  rejected: "text-danger",
 };
 
 interface ClubPost {
@@ -47,9 +53,10 @@ export default async function UpdatesPage() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-navy">Club Updates</h1>
-        <p className="text-muted text-sm mt-1">
+      <div className="mb-10">
+        <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-3">Dashboard</p>
+        <h1 className="font-display font-black text-[2rem] text-white uppercase leading-none">Club Updates</h1>
+        <p className="text-white/40 text-[13px] mt-2">
           Post news and updates from your club. Each post is reviewed by admin before it appears publicly.
         </p>
       </div>
@@ -58,28 +65,27 @@ export default async function UpdatesPage() {
 
       {posts.length > 0 && (
         <div className="mt-8">
-          <h2 className="text-sm font-semibold text-navy uppercase tracking-wide mb-4">Your Posts</h2>
-          <div className="flex flex-col gap-4">
+          <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">Your Posts</p>
+          <div className="border border-white/6 divide-y divide-white/5">
             {posts.map((p) => (
-              <div key={p.id} className="bg-white border border-border rounded p-4 flex items-start justify-between gap-4">
+              <div key={p.id} className="bg-card flex items-start justify-between gap-4 p-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded capitalize ${statusStyle[p.status] ?? ""}`}>
-                      {p.status}
+                    <span className="flex items-center gap-1.5">
+                      <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[p.status] ?? "bg-white/30"}`} />
+                      <span className={`text-[10px] font-bold uppercase tracking-[0.15em] capitalize ${STATUS_TEXT[p.status] ?? "text-white/30"}`}>
+                        {p.status}
+                      </span>
                     </span>
-                    <p className="text-xs text-muted">
+                    <span className="text-[11px] text-white/30">
                       {new Date(p.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                    </p>
+                    </span>
                   </div>
-                  <p className="font-semibold text-navy text-sm">{p.title}</p>
-                  {p.body && <p className="text-xs text-muted mt-1 line-clamp-2">{p.body}</p>}
+                  <p className="font-medium text-white text-sm">{p.title}</p>
+                  {p.body && <p className="text-[13px] text-white/40 mt-1 line-clamp-2">{p.body}</p>}
                 </div>
                 {p.status === "pending" && (
-                  <DeleteButton
-                    action={deleteClubPost}
-                    id={p.id}
-                    confirm="Delete this post?"
-                  />
+                  <DeleteButton action={deleteClubPost} id={p.id} confirm="Delete this post?" />
                 )}
               </div>
             ))}

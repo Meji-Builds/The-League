@@ -26,20 +26,23 @@ export default async function AdminAnnouncementsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-navy mb-8">News & Announcements</h1>
+      <div className="mb-10">
+        <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-3">Admin</p>
+        <h1 className="font-display font-black text-[2rem] text-white uppercase leading-none">News &amp; Announcements</h1>
+      </div>
 
       <div className="mb-10">
         <AnnouncementForm />
       </div>
 
       {posts.length === 0 ? (
-        <div className="border border-border bg-white rounded p-10 text-center">
-          <p className="text-muted text-sm">No announcements yet. Publish the first one above.</p>
+        <div className="border border-white/6 bg-card px-8 py-12 text-center">
+          <p className="text-white/40 text-[13px]">No announcements yet. Publish the first one above.</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-3">
+        <div className="border border-white/6 divide-y divide-white/5">
           {posts.map((post) => (
-            <div key={post.id} className="border border-border bg-white rounded p-4 flex items-start gap-4">
+            <div key={post.id} className="flex items-center gap-4 px-4 py-4">
               {post.image_url && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -49,8 +52,8 @@ export default async function AdminAnnouncementsPage() {
                 />
               )}
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-navy text-sm truncate">{post.title}</p>
-                <p className="text-xs text-muted mt-0.5">
+                <p className="font-medium text-white text-sm truncate">{post.title}</p>
+                <p className="text-[11px] text-white/30 mt-0.5">
                   {new Date(post.published_at).toLocaleDateString("en-GB", {
                     day: "numeric", month: "short", year: "numeric",
                   })}
@@ -59,7 +62,7 @@ export default async function AdminAnnouncementsPage() {
                   href={`/news/${post.slug}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-cobalt hover:underline mt-1 inline-block"
+                  className="text-[11px] text-cobalt hover:text-white transition-colors mt-0.5 inline-block"
                 >
                   View post
                 </a>

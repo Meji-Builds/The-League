@@ -93,6 +93,7 @@ export default async function AdminClubsPage() {
 
   const pendingPhotoPlayers = (rawPhotoPlayers ?? []) as Player[];
 
+
   const pendingPlayers = await Promise.all(
     rawPendingPlayers.map(async (player) => {
       if (!player.id_card_url) return player;
