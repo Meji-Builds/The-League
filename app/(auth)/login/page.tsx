@@ -10,8 +10,8 @@ export default function LoginPage() {
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState<string | null>(null);
 
-  async function handleEmailLogin(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleEmailLogin() {
+    if (!email || !password) return;
     setLoading(true);
     setError(null);
 
@@ -52,7 +52,7 @@ export default function LoginPage() {
         </div>
       )}
 
-      <form onSubmit={handleEmailLogin} className="space-y-4 mb-6">
+      <form onSubmit={(e) => { e.preventDefault(); handleEmailLogin(); }} className="space-y-4 mb-6">
         <div>
           <label htmlFor="email" className="block text-white/70 text-xs font-medium mb-1.5">
             Email
@@ -89,8 +89,10 @@ export default function LoginPage() {
         </div>
 
         <button
-          type="submit"
+          type="button"
           disabled={loading}
+          onClick={handleEmailLogin}
+          style={{ touchAction: "manipulation" }}
           className="w-full bg-gold text-navy font-semibold text-sm px-4 py-2.5 rounded hover:bg-gold/90 transition-colors disabled:opacity-60"
         >
           {loading ? "Signing in..." : "Sign in"}
@@ -104,8 +106,10 @@ export default function LoginPage() {
       </div>
 
       <button
+        type="button"
         onClick={signInWithGoogle}
         disabled={loading}
+        style={{ touchAction: "manipulation" }}
         className="w-full flex items-center justify-center gap-3 bg-white/5 border border-white/15 text-white font-medium text-sm px-4 py-2.5 rounded hover:bg-white/10 transition-colors disabled:opacity-60"
       >
         <GoogleIcon />

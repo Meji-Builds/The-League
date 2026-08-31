@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 const desktopLinks = [
   { label: "Live",           href: "/live" },
@@ -152,6 +152,7 @@ const moreLinks = [
 export function Nav({ siteName = "The League" }: { siteName?: string }) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
+  const moreTouched = useRef(false);
 
   const active = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -262,8 +263,14 @@ export function Nav({ siteName = "The League" }: { siteName?: string }) {
           {/* More tab */}
           <button
             type="button"
-            onTouchStart={(e) => { e.preventDefault(); setMoreOpen((o) => !o); }}
-            onClick={() => setMoreOpen((o) => !o)}
+            onTouchStart={() => {
+              moreTouched.current = true;
+              setMoreOpen((o) => !o);
+            }}
+            onClick={() => {
+              if (moreTouched.current) { moreTouched.current = false; return; }
+              setMoreOpen((o) => !o);
+            }}
             className={`relative flex-1 flex flex-col items-center justify-center gap-[3px] transition-colors cursor-pointer ${
               moreOpen || moreIsActive ? "text-gold" : "text-white/30 active:text-white/60"
             }`}

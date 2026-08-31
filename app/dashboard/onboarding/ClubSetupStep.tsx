@@ -73,6 +73,7 @@ export function ClubSetupStep() {
         <button
           type="submit"
           disabled={isPending}
+          style={{ touchAction: "manipulation" }}
           className="w-full bg-gold text-navy font-semibold text-sm px-4 py-2.5 rounded hover:bg-gold/90 transition-colors disabled:opacity-60"
         >
           {isPending ? "Saving..." : "Save and continue"}

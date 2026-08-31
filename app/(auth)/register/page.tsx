@@ -15,8 +15,7 @@ export default function RegisterPage() {
   const [error, setError]           = useState<string | null>(null);
   const [emailSent, setEmailSent]   = useState(false);
 
-  async function handleEmailRegister(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleEmailRegister() {
     if (password !== confirm) {
       setError("Passwords do not match.");
       return;
@@ -108,7 +107,7 @@ export default function RegisterPage() {
         </div>
       )}
 
-      <form onSubmit={handleEmailRegister} className="space-y-4 mb-6">
+      <form onSubmit={(e) => { e.preventDefault(); handleEmailRegister(); }} className="space-y-4 mb-6">
         <div>
           <label htmlFor="name" className="block text-white/70 text-xs font-medium mb-1.5">
             Full name
@@ -189,8 +188,10 @@ export default function RegisterPage() {
         </div>
 
         <button
-          type="submit"
+          type="button"
           disabled={loading}
+          onClick={handleEmailRegister}
+          style={{ touchAction: "manipulation" }}
           className="w-full bg-gold text-navy font-semibold text-sm px-4 py-2.5 rounded hover:bg-gold/90 transition-colors disabled:opacity-60"
         >
           {loading ? "Creating account..." : "Create account"}
@@ -204,8 +205,10 @@ export default function RegisterPage() {
       </div>
 
       <button
+        type="button"
         onClick={signUpWithGoogle}
         disabled={loading}
+        style={{ touchAction: "manipulation" }}
         className="w-full flex items-center justify-center gap-3 bg-white/5 border border-white/15 text-white font-medium text-sm px-4 py-2.5 rounded hover:bg-white/10 transition-colors disabled:opacity-60"
       >
         <GoogleIcon />
