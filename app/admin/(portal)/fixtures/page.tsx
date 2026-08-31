@@ -97,11 +97,11 @@ export default async function AdminFixturesPage() {
     db.from("fixtures")
       .select(`
         id, stage, group_name, matchday, status, scheduled_at, competition_id, lineup_image_a, lineup_image_b,
-        club_a:clubs!fixtures_club_a_id_fkey(id, name),
-        club_b:clubs!fixtures_club_b_id_fkey(id, name),
+        club_a:clubs!club_a_id(id, name),
+        club_b:clubs!club_b_id(id, name),
         competition:competitions(name, edition)
       `)
-      .order("scheduled_at", { ascending: false, nullsFirst: false }),
+      .order("scheduled_at", { ascending: false }),
     db.from("competitions").select("id, name, edition").order("created_at", { ascending: false }),
     db.from("clubs").select("id, name, faculty").eq("status", "approved").order("name"),
   ]);
