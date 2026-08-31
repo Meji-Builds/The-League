@@ -13,8 +13,6 @@ interface Fixture {
   status:         string;
   scheduled_at:   string | null;
   competition_id: string;
-  lineup_image_a: string | null;
-  lineup_image_b: string | null;
   club_a:         { id: string; name: string } | null;
   club_b:         { id: string; name: string } | null;
   competition:    { name: string; edition: string } | null;
@@ -82,8 +80,8 @@ function FixtureRow({ f, clubs, competitions }: { f: Fixture; clubs: Club[]; com
         fixtureId={f.id}
         clubAName={f.club_a?.name ?? "Club A"}
         clubBName={f.club_b?.name ?? "Club B"}
-        hasLineupA={!!f.lineup_image_a}
-        hasLineupB={!!f.lineup_image_b}
+        hasLineupA={false}
+        hasLineupB={false}
       />
     </div>
   );
@@ -96,7 +94,7 @@ export default async function AdminFixturesPage() {
   const [{ data: rawFixtures }, { data: rawComps }, { data: rawClubs }] = await Promise.all([
     db.from("fixtures")
       .select(`
-        id, stage, group_name, matchday, status, scheduled_at, competition_id, lineup_image_a, lineup_image_b,
+        id, stage, group_name, matchday, status, scheduled_at, competition_id,
         club_a:clubs!club_a_id(id, name),
         club_b:clubs!club_b_id(id, name),
         competition:competitions(name, edition)
