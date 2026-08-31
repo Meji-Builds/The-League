@@ -21,6 +21,7 @@ const navItems = [
   { label: "Results",       href: "/admin/results" },
   { label: "Disputes",      href: "/admin/disputes" },
   { label: "Standings",     href: "/admin/standings" },
+  { label: "Championship",  href: "/admin/championship" },
   { label: "Club Posts",    href: "/admin/club-posts" },
   { label: "News",          href: "/admin/announcements" },
   { label: "Highlights",    href: "/admin/highlights" },
