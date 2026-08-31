@@ -3,15 +3,8 @@
 import { createClient } from "@/lib/supabase/client";
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-
-// Registration step 1: create the auth account (email+password or Google).
-// After this, the user lands in /dashboard/onboarding to:
-//   - pay the owner registration fee
-//   - set up their club profile (logo, department, bio, etc.)
 
 export default function RegisterPage() {
-  const router = useRouter();
 
   const [name, setName]             = useState("");
   const [email, setEmail]           = useState("");
@@ -57,8 +50,7 @@ export default function RegisterPage() {
     // Show the confirmation message. If email confirmation is disabled,
     // the session exists immediately and we redirect to onboarding.
     if (data.session) {
-      router.push("/dashboard/onboarding");
-      router.refresh();
+      window.location.href = "/dashboard/onboarding";
     } else {
       setEmailSent(true);
       setLoading(false);

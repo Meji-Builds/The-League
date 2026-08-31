@@ -1,10 +1,16 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { setupClub } from "./actions";
 
 export function ClubSetupStep() {
   const [state, action, isPending] = useActionState(setupClub, null);
+
+  useEffect(() => {
+    if (state && "redirect" in state) {
+      window.location.href = state.redirect;
+    }
+  }, [state]);
 
   return (
     <div className="max-w-lg">
@@ -16,9 +22,9 @@ export function ClubSetupStep() {
         </p>
       </div>
 
-      {state?.error && (
+      {state && "error" in state && (
         <div className="bg-danger/5 border border-danger/30 text-danger text-sm px-4 py-3 mb-6">
-          {state.error}
+          {"error" in state ? state.error : null}
         </div>
       )}
 

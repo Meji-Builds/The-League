@@ -262,6 +262,7 @@ export function Nav({ siteName = "The League" }: { siteName?: string }) {
           {/* More tab */}
           <button
             type="button"
+            onTouchStart={(e) => { e.preventDefault(); setMoreOpen((o) => !o); }}
             onClick={() => setMoreOpen((o) => !o)}
             className={`relative flex-1 flex flex-col items-center justify-center gap-[3px] transition-colors cursor-pointer ${
               moreOpen || moreIsActive ? "text-gold" : "text-white/30 active:text-white/60"

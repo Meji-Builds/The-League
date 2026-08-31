@@ -1,17 +1,16 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
-type ActionState = { error: string } | null;
+type ActionState = { error: string } | { redirect: string } | null;
 
 // Step 1: Create the club and owner record.
 export async function setupClub(prevState: ActionState, formData: FormData): Promise<ActionState> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  if (!user) return { redirect: "/login" };
 
   const name       = (formData.get("name") as string)?.trim();
   const department = (formData.get("department") as string)?.trim() || null;
@@ -33,7 +32,7 @@ export async function setupClub(prevState: ActionState, formData: FormData): Pro
     .single();
 
   if (existing) {
-    redirect("/dashboard/onboarding?step=2");
+    return { redirect: "/dashboard/onboarding?step=2" };
   }
 
   // Build a URL-safe slug from the club name.
@@ -92,15 +91,15 @@ export async function setupClub(prevState: ActionState, formData: FormData): Pro
   }
 
   revalidatePath("/dashboard/onboarding");
-  redirect("/dashboard/onboarding?step=2");
+  return { redirect: "/dashboard/onboarding?step=2" };
 }
 
 // Step 2: Initialize a Paystack transaction for the owner registration fee.
-// On success, redirects the browser to Paystack's hosted checkout page.
+// On success, returns a redirect URL for the client to follow.
 export async function initiatePayment(prevState: ActionState, _formData: FormData): Promise<ActionState> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  if (!user) return { redirect: "/login" };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = supabase as any;
@@ -117,7 +116,7 @@ export async function initiatePayment(prevState: ActionState, _formData: FormDat
   }
 
   if (owner.owner_registration_payment_status === "paid") {
-    redirect("/dashboard/onboarding?step=3");
+    return { redirect: "/dashboard/onboarding?step=3" };
   }
 
   // Fetch the registration fee (in naira). Default to 5,000 NGN if not configured.
@@ -135,7 +134,7 @@ export async function initiatePayment(prevState: ActionState, _formData: FormDat
       .from("club_owners")
       .update({ owner_registration_payment_status: "paid" })
       .eq("user_id", user.id);
-    redirect("/dashboard/onboarding?step=3");
+    return { redirect: "/dashboard/onboarding?step=3" };
   }
 
   const feeKobo  = feeNaira * 100; // Paystack uses the smallest currency unit
@@ -197,7 +196,5 @@ export async function initiatePayment(prevState: ActionState, _formData: FormDat
     data: { authorization_url: string; reference: string };
   };
 
-  // Redirect the user to Paystack's hosted checkout page.
-  // After payment, Paystack redirects to the callback_url above.
-  redirect(paystackData.authorization_url);
+  return { redirect: paystackData.authorization_url };
 }
