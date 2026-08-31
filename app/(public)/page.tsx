@@ -666,15 +666,15 @@ export default async function HomePage() {
                     href={s.website_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="opacity-40 hover:opacity-80 transition-opacity"
+                    className="opacity-70 hover:opacity-100 transition-opacity"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={s.logo_url} alt={s.name} className="h-8 object-contain" />
+                    <img src={s.logo_url} alt={s.name} className="h-14 object-contain" />
                   </a>
                 ) : (
-                  <div key={s.id} className="opacity-40">
+                  <div key={s.id} className="opacity-70">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={s.logo_url} alt={s.name} className="h-8 object-contain" />
+                    <img src={s.logo_url} alt={s.name} className="h-14 object-contain" />
                   </div>
                 )
               )}

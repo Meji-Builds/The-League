@@ -62,7 +62,7 @@ export default async function AdminSponsorsPage() {
               <img
                 src={s.logo_url}
                 alt={s.name}
-                className="h-10 w-20 object-contain shrink-0 border border-white/8 bg-white/5 p-1"
+                className="h-16 w-28 object-contain shrink-0"
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
