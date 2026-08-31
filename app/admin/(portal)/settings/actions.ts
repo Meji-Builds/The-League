@@ -53,6 +53,7 @@ export async function updateSiteSettings(prevState: ActionState, formData: FormD
 
   const payload = {
     id: 1,
+    current_season:     (formData.get("current_season")     as string).trim() || "Season 2026",
     social_youtube:     (formData.get("social_youtube")     as string).trim() || null,
     social_instagram:   (formData.get("social_instagram")   as string).trim() || null,
     social_twitter:     (formData.get("social_twitter")     as string).trim() || null,

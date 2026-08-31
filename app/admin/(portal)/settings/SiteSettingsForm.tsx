@@ -5,6 +5,7 @@ import { updateSiteSettings } from "./actions";
 import { ImageUploadField } from "@/app/admin/_components/ImageUploadField";
 
 interface SiteSettings {
+  current_season:      string | null;
   social_youtube:      string | null;
   social_instagram:    string | null;
   social_twitter:      string | null;
@@ -69,6 +70,19 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings | null }
       <div className="border-t border-white/6 pt-5">
         <p className="text-white/70 text-xs font-semibold uppercase tracking-wide mb-3">Platform content</p>
         <div className="space-y-3">
+          <div>
+            <label className="block text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
+              Current season label
+            </label>
+            <input
+              name="current_season"
+              type="text"
+              defaultValue={settings?.current_season ?? "Season 2026"}
+              placeholder="Season 2026"
+              className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors placeholder:text-white/20"
+            />
+            <p className="text-white/30 text-[11px] mt-1">Shown on Players, Clubs, Standings, Competitions and Homepage.</p>
+          </div>
           <div>
             <label className="block text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
               Hero headline
