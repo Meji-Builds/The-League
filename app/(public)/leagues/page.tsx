@@ -7,6 +7,7 @@ export const metadata = { title: "Leagues" };
 interface Faculty {
   id: string;
   name: string;
+  short_name: string;
   slug: string;
   logo_url: string | null;
   display_order: number;
@@ -27,7 +28,7 @@ export default async function LeaguesPage() {
   const db = (await createClient()) as any;
 
   const [{ data }, siteSettings] = await Promise.all([
-    db.from("faculties").select("id, name, slug, logo_url, display_order").order("display_order").order("name"),
+    db.from("faculties").select("id, name, short_name, slug, logo_url, display_order").order("display_order").order("name"),
     getSiteSettings(),
   ]);
 
@@ -70,8 +71,11 @@ export default async function LeaguesPage() {
 
               <div className="text-center">
                 <p className="font-display font-black text-sm text-white/80 group-hover:text-white uppercase tracking-wide transition-colors leading-tight">
-                  {f.name}
+                  {f.short_name || f.name}
                 </p>
+                {f.short_name && (
+                  <p className="text-[9px] text-white/35 mt-0.5 leading-tight">{f.name}</p>
+                )}
                 <p className="text-[10px] text-cobalt mt-1 uppercase tracking-[0.15em]">Faculty</p>
               </div>
             </Link>

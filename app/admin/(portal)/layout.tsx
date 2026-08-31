@@ -14,6 +14,7 @@ async function requireAdmin() {
 const navItems = [
   { label: "Overview",      href: "/admin" },
   { label: "Clubs",         href: "/admin/clubs" },
+  { label: "Faculties",     href: "/admin/faculties" },
   { label: "Competitions",  href: "/admin/competitions" },
   { label: "Payments",      href: "/admin/payments" },
   { label: "Fixtures",      href: "/admin/fixtures" },
