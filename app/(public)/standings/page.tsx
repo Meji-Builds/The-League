@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getSiteSettings } from "@/lib/site-settings";
 
 export const metadata = { title: "Standings" };
 
@@ -116,7 +117,8 @@ function buildTable(fixtures: FixtureWithJoins[]): StandingRow[] {
 }
 
 export default async function StandingsPage() {
-  const fixtures = await getStandings();
+  const [fixtures, siteSettings] = await Promise.all([getStandings(), getSiteSettings()]);
+  const currentSeason = siteSettings.current_season;
 
   type Group = { competition: string; stage: string; group: string; fixtures: FixtureWithJoins[] };
   const groups = fixtures.reduce<Record<string, Group>>((acc, f) => {
@@ -138,7 +140,7 @@ export default async function StandingsPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div className="mb-14">
-        <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">Season 2025</p>
+        <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">{currentSeason}</p>
         <h1 className="font-display font-black text-[3rem] text-white uppercase leading-none">Standings</h1>
         <p className="text-white/30 text-sm mt-3">Updated after every confirmed result.</p>
       </div>

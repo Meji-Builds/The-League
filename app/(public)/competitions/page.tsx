@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getSiteSettings } from "@/lib/site-settings";
 import type { Competition } from "@/types/database";
 
 export const metadata = { title: "Competitions" };
@@ -45,7 +46,8 @@ const statusText: Record<string, string> = {
 };
 
 export default async function CompetitionsPage() {
-  const competitions = await getCompetitions();
+  const [competitions, siteSettings] = await Promise.all([getCompetitions(), getSiteSettings()]);
+  const currentSeason = siteSettings.current_season;
 
   const active    = competitions.filter((c) => c.status === "in_progress" || c.status === "registration_open");
   const upcoming  = competitions.filter((c) => c.status === "upcoming");
@@ -54,7 +56,7 @@ export default async function CompetitionsPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div className="mb-14">
-        <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">Season 2025</p>
+        <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">{currentSeason}</p>
         <h1 className="font-display font-black text-[3rem] text-white uppercase leading-none">Competitions</h1>
         <p className="text-white/35 text-[15px] mt-4 max-w-lg leading-relaxed">
           Multiple competitions run concurrently — from the flagship

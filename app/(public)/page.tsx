@@ -5,6 +5,7 @@ import type { Competition, GlobalSponsor } from "@/types/database";
 // ─── Local interfaces ──────────────────────────────────────────────────────
 
 interface SiteSettings {
+  current_season:    string | null;
   hero_title:        string | null;
   hero_subtitle:     string | null;
   hero_bg_image_url: string | null;
@@ -225,9 +226,10 @@ export default async function HomePage() {
     fixtures, topClubs, topPlayers, sponsors, livestreams,
   } = await getPageData();
 
-  const heroBg    = siteSettings?.hero_bg_image_url;
-  const heroTitle = siteSettings?.hero_title ?? "The League";
-  const heroSub   = siteSettings?.hero_subtitle ?? "University esports competitions — from department qualifiers to the championship final.";
+  const heroBg       = siteSettings?.hero_bg_image_url;
+  const heroTitle    = siteSettings?.hero_title ?? "The League";
+  const heroSub      = siteSettings?.hero_subtitle ?? "University esports competitions — from department qualifiers to the championship final.";
+  const currentSeason = siteSettings?.current_season ?? "Season 2026";
 
   return (
     <>
@@ -254,7 +256,7 @@ export default async function HomePage() {
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 pt-32 w-full">
           <p className="text-[11px] font-bold uppercase tracking-[0.4em] text-white/60 mb-10">
-            University Esports &nbsp;&middot;&nbsp; Season 2025
+            University Esports &nbsp;&middot;&nbsp; {currentSeason}
           </p>
 
           <h1
@@ -342,7 +344,7 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-10">
             <div>
-              <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-3">Season 2025</p>
+              <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-3">{currentSeason}</p>
               <h2 className="font-display font-black text-[2.5rem] text-white uppercase leading-none">
                 Active Competitions
               </h2>
