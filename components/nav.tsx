@@ -6,6 +6,7 @@ import { useState } from "react";
 
 const desktopLinks = [
   { label: "Live",         href: "/live" },
+  { label: "Leagues",      href: "/leagues" },
   { label: "Competitions", href: "/competitions" },
   { label: "Fixtures",     href: "/fixtures" },
   { label: "Standings",    href: "/standings" },
@@ -29,7 +30,7 @@ const primaryTabs = [
   },
   {
     label: "League",
-    href: "/competitions",
+    href: "/leagues",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
