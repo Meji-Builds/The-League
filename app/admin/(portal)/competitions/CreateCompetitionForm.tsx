@@ -3,7 +3,11 @@
 import { useActionState } from "react";
 import { createCompetition } from "./actions";
 
-export function CreateCompetitionForm() {
+interface Props {
+  faculties: { id: string; name: string }[];
+}
+
+export function CreateCompetitionForm({ faculties }: Props) {
   const [state, action, isPending] = useActionState(createCompetition, null);
 
   return (
@@ -125,6 +129,22 @@ export function CreateCompetitionForm() {
             placeholder="0"
             className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors"
           />
+        </div>
+
+        <div>
+          <label className="block text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
+            Faculty <span className="text-white/40 font-normal normal-case">(optional — leave blank for university-wide)</span>
+          </label>
+          <select
+            name="faculty_id"
+            defaultValue=""
+            className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors [&>option]:bg-navy [&>option]:text-white"
+          >
+            <option value="">University-wide (no faculty filter)</option>
+            {faculties.map((f) => (
+              <option key={f.id} value={f.id}>{f.name}</option>
+            ))}
+          </select>
         </div>
       </div>
 

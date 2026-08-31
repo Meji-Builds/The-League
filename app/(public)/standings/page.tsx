@@ -39,12 +39,14 @@ interface FixtureWithJoins {
   id:              string;
   stage:           string;
   group_name:      string;
+  division_id:     string | null;
   matchday:        number;
   status:          string;
   confirmed_score: { score_a: number; score_b: number } | null;
   club_a:          ClubRef | null;
   club_b:          ClubRef | null;
   competition:     { id: string; name: string; slug: string } | null;
+  division:        { id: string; name: string } | null;
 }
 
 interface StandingRow {
@@ -69,10 +71,11 @@ async function getStandings(): Promise<FixtureWithJoins[]> {
     const { data: fixtures } = await db
       .from("fixtures")
       .select(`
-        id, stage, group_name, matchday, status, confirmed_score,
+        id, stage, group_name, division_id, matchday, status, confirmed_score,
         club_a:clubs!club_a_id(id, name, slug, logo_url, logo_status),
         club_b:clubs!club_b_id(id, name, slug, logo_url, logo_status),
-        competition:competitions(id, name, slug)
+        competition:competitions(id, name, slug),
+        division:faculty_divisions(id, name)
       `)
       .eq("status", "confirmed");
     return (fixtures ?? []) as FixtureWithJoins[];
@@ -121,15 +124,18 @@ export default async function StandingsPage() {
   const currentSeason      = siteSettings.current_season;
   const pageDescription    = siteSettings.standings_description;
 
-  type Group = { competition: string; stage: string; group: string; fixtures: FixtureWithJoins[] };
+  type Group = { competition: string; stage: string; group: string; divisionName: string | null; fixtures: FixtureWithJoins[] };
   const groups = fixtures.reduce<Record<string, Group>>((acc, f) => {
-    const key = `${f.competition?.id}__${f.stage}__${f.group_name}`;
+    const key = f.division_id
+      ? `${f.competition?.id}__${f.stage}__division__${f.division_id}`
+      : `${f.competition?.id}__${f.stage}__${f.group_name}`;
     if (!acc[key]) {
       acc[key] = {
-        competition: f.competition?.name ?? "Unknown",
-        stage: f.stage,
-        group: f.group_name,
-        fixtures: [],
+        competition:  f.competition?.name ?? "Unknown",
+        stage:        f.stage,
+        group:        f.group_name,
+        divisionName: f.division?.name ?? null,
+        fixtures:     [],
       };
     }
     acc[key].fixtures.push(f);
@@ -162,7 +168,7 @@ export default async function StandingsPage() {
                 <div>
                   <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-gold/70">{g.competition}</p>
                   <p className="text-base font-display font-black text-white uppercase mt-0.5">
-                    {g.stage !== "N/A" ? `${g.stage} Stage` : g.group}
+                    {g.divisionName ?? (g.stage !== "N/A" ? `${g.stage} Stage` : g.group)}
                   </p>
                 </div>
                 <div className="flex-1 h-px bg-white/5" />

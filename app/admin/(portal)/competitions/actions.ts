@@ -24,6 +24,7 @@ export async function createCompetition(prevState: ActionState, formData: FormDa
   const entryFee    = parseFloat(formData.get("entry_fee") as string) || 0;
   const status      = formData.get("status") as string;
   const description = (formData.get("description") as string)?.trim() || null;
+  const facultyId   = (formData.get("faculty_id") as string) || null;
 
   if (!name || !type || !format || !cycle || !edition || !status) {
     return { error: "All required fields must be filled in." };
@@ -35,6 +36,7 @@ export async function createCompetition(prevState: ActionState, formData: FormDa
 
   const { error } = await db.from("competitions").insert({
     name, slug, type, format, cycle, edition, entry_fee: entryFee, status, description,
+    faculty_id: facultyId,
   });
 
   if (error) {
@@ -67,6 +69,7 @@ export async function updateCompetition(prevState: ActionState, formData: FormDa
   const entryFee    = parseFloat(formData.get("entry_fee") as string) || 0;
   const status      = formData.get("status") as string;
   const description = (formData.get("description") as string)?.trim() || null;
+  const facultyId   = (formData.get("faculty_id") as string) || null;
 
   if (!name || !type || !format || !cycle || !edition || !status) {
     return { error: "All required fields must be filled in." };
@@ -74,7 +77,7 @@ export async function updateCompetition(prevState: ActionState, formData: FormDa
 
   const { error } = await db
     .from("competitions")
-    .update({ name, type, format, cycle, edition, entry_fee: entryFee, status, description })
+    .update({ name, type, format, cycle, edition, entry_fee: entryFee, status, description, faculty_id: facultyId })
     .eq("id", competitionId);
 
   if (error) {

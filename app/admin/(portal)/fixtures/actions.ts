@@ -20,7 +20,7 @@ export async function createFixture(prevState: ActionState, formData: FormData):
   const clubAId       = formData.get("club_a_id") as string;
   const clubBId       = formData.get("club_b_id") as string;
   const stage         = formData.get("stage") as string;
-  const groupName     = (formData.get("group_name") as string)?.trim() || "Open";
+  const divisionId    = (formData.get("division_id") as string) || null;
   const matchday      = parseInt(formData.get("matchday") as string, 10) || 1;
   const scheduledAt   = (formData.get("scheduled_at") as string) || null;
 
@@ -32,12 +32,19 @@ export async function createFixture(prevState: ActionState, formData: FormData):
     return { error: "A club cannot play against itself." };
   }
 
+  let groupName = "Open";
+  if (divisionId) {
+    const { data: div } = await db.from("faculty_divisions").select("name").eq("id", divisionId).single();
+    if (div?.name) groupName = div.name;
+  }
+
   const { error } = await db.from("fixtures").insert({
     competition_id: competitionId,
     club_a_id: clubAId,
     club_b_id: clubBId,
     stage,
     group_name: groupName,
+    division_id: divisionId,
     matchday,
     scheduled_at: scheduledAt,
     status: "scheduled",
@@ -62,13 +69,19 @@ export async function updateFixture(prevState: ActionState, formData: FormData):
   const clubAId       = formData.get("club_a_id") as string;
   const clubBId       = formData.get("club_b_id") as string;
   const stage         = formData.get("stage") as string;
-  const groupName     = (formData.get("group_name") as string)?.trim() || "Open";
+  const divisionId    = (formData.get("division_id") as string) || null;
   const matchday      = parseInt(formData.get("matchday") as string, 10) || 1;
   const scheduledAt   = (formData.get("scheduled_at") as string) || null;
   const status        = formData.get("status") as string;
 
   if (!fixtureId) return { error: "Invalid fixture." };
   if (clubAId && clubBId && clubAId === clubBId) return { error: "A club cannot play against itself." };
+
+  let groupName = "Open";
+  if (divisionId) {
+    const { data: div } = await db.from("faculty_divisions").select("name").eq("id", divisionId).single();
+    if (div?.name) groupName = div.name;
+  }
 
   const { error } = await db
     .from("fixtures")
@@ -78,6 +91,7 @@ export async function updateFixture(prevState: ActionState, formData: FormData):
       ...(clubBId       && { club_b_id: clubBId }),
       stage,
       group_name: groupName,
+      division_id: divisionId,
       matchday,
       scheduled_at: scheduledAt,
       ...(status && { status }),

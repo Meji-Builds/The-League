@@ -5,6 +5,11 @@ import { BannerUploadForm } from "./BannerUploadForm";
 
 export const metadata = { title: "Admin — Competitions" };
 
+interface Faculty {
+  id: string;
+  name: string;
+}
+
 interface Competition {
   id: string;
   name: string;
@@ -17,6 +22,8 @@ interface Competition {
   description: string | null;
   created_at: string;
   banner_image_url: string | null;
+  faculty_id: string | null;
+  faculty: Faculty | null;
 }
 
 const STATUS_DOT: Record<string, string> = {
@@ -37,12 +44,15 @@ export default async function AdminCompetitionsPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = (await createClient()) as any;
 
-  const { data: rawComps } = await db
-    .from("competitions")
-    .select("id, name, type, format, cycle, edition, entry_fee, status, description, created_at, banner_image_url")
-    .order("created_at", { ascending: false });
+  const [{ data: rawComps }, { data: rawFaculties }] = await Promise.all([
+    db.from("competitions")
+      .select("id, name, type, format, cycle, edition, entry_fee, status, description, created_at, banner_image_url, faculty_id, faculty:faculties(id, name)")
+      .order("created_at", { ascending: false }),
+    db.from("faculties").select("id, name").order("name"),
+  ]);
 
   const competitions = (rawComps ?? []) as Competition[];
+  const faculties    = (rawFaculties ?? []) as Faculty[];
 
   return (
     <div>
@@ -52,7 +62,7 @@ export default async function AdminCompetitionsPage() {
       </div>
 
       <div className="mb-10">
-        <CreateCompetitionForm />
+        <CreateCompetitionForm faculties={faculties} />
       </div>
 
       {competitions.length === 0 ? (
@@ -73,6 +83,11 @@ export default async function AdminCompetitionsPage() {
                         {comp.status.replace("_", " ")}
                       </span>
                     </div>
+                    {comp.faculty && (
+                      <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-cobalt/70 border border-cobalt/20 px-1.5 py-0.5">
+                        {comp.faculty.name}
+                      </span>
+                    )}
                   </div>
                   <p className="text-[11px] text-white/30">
                     {comp.type} &middot; {comp.format.replace("_", " ")} &middot; {comp.cycle} &middot; {comp.edition}
@@ -85,7 +100,7 @@ export default async function AdminCompetitionsPage() {
                   )}
                 </div>
 
-                <EditCompetitionForm competition={comp} />
+                <EditCompetitionForm competition={comp} faculties={faculties} />
               </div>
 
               <BannerUploadForm competitionId={comp.id} currentBannerUrl={comp.banner_image_url} />
