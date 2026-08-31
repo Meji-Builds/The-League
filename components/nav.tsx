@@ -11,6 +11,7 @@ const links = [
   { label: "Standings",    href: "/standings" },
   { label: "Clubs",        href: "/clubs" },
   { label: "Players",      href: "/players" },
+  { label: "Highlights",   href: "/highlights" },
   { label: "News",         href: "/news" },
 ];
 
