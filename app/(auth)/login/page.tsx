@@ -65,7 +65,7 @@ export default function LoginPage() {
             required
             autoComplete="email"
             placeholder="you@university.edu"
-            className="w-full bg-white/5 border border-white/15 text-white text-sm px-3 py-2.5 rounded placeholder:text-white/30 focus:outline-none focus:border-gold transition-colors"
+            className="w-full bg-white/5 border border-white/15 text-white text-base px-3 py-2.5 rounded placeholder:text-white/30 focus:outline-none focus:border-gold transition-colors"
           />
         </div>
 
@@ -84,7 +84,7 @@ export default function LoginPage() {
             required
             autoComplete="current-password"
             placeholder="••••••••"
-            className="w-full bg-white/5 border border-white/15 text-white text-sm px-3 py-2.5 rounded placeholder:text-white/30 focus:outline-none focus:border-gold transition-colors"
+            className="w-full bg-white/5 border border-white/15 text-white text-base px-3 py-2.5 rounded placeholder:text-white/30 focus:outline-none focus:border-gold transition-colors"
           />
         </div>
 
