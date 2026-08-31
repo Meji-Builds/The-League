@@ -74,8 +74,17 @@ function ClubAvatar({ name, logoUrl, logoStatus }: { name: string; logoUrl: stri
   );
 }
 
-function buildStandings(fixtures: FixtureRow[]): Standing[] {
+function buildStandings(seededClubs: ClubRef[], fixtures: FixtureRow[]): Standing[] {
   const map = new Map<string, Standing>();
+
+  // Seed all division clubs at zero so the table always shows
+  for (const club of seededClubs) {
+    map.set(club.id, {
+      clubId: club.id, clubName: club.name, clubSlug: club.slug,
+      clubLogoUrl: club.logo_url, clubLogoStatus: club.logo_status,
+      played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, points: 0,
+    });
+  }
 
   function ensure(club: ClubRef): Standing {
     if (!map.has(club.id)) {
@@ -105,7 +114,8 @@ function buildStandings(fixtures: FixtureRow[]): Standing[] {
 
   return [...map.values()].sort((x, y) => {
     if (y.points !== x.points) return y.points - x.points;
-    return (y.gf - y.ga) - (x.gf - x.ga);
+    if ((y.gf - y.ga) !== (x.gf - x.ga)) return (y.gf - y.ga) - (x.gf - x.ga);
+    return x.clubName.localeCompare(y.clubName); // alpha tiebreak when all zeros
   });
 }
 
@@ -141,13 +151,19 @@ export default async function DivisionStandingsPage({
   if (!divisionData) notFound();
   const division = divisionData as Division;
 
-  // Get competitions linked to this faculty, then pull confirmed fixtures for this division
-  const { data: compsData } = await db
-    .from("competitions")
-    .select("id")
-    .eq("faculty_id", faculty.id);
+  // Fetch assigned clubs + competition fixtures in parallel
+  const [{ data: compsData }, { data: dcData }] = await Promise.all([
+    db.from("competitions").select("id").eq("faculty_id", faculty.id),
+    db
+      .from("division_clubs")
+      .select("club:clubs(id, name, slug, logo_url, logo_status)")
+      .eq("division_id", division.id),
+  ]);
 
   const competitionIds = (compsData ?? []).map((c: { id: string }) => c.id);
+  const seededClubs: ClubRef[] = (dcData ?? [])
+    .map((r: { club: ClubRef | null }) => r.club)
+    .filter(Boolean) as ClubRef[];
 
   let fixtures: FixtureRow[] = [];
   if (competitionIds.length > 0) {
@@ -164,7 +180,7 @@ export default async function DivisionStandingsPage({
     fixtures = (fixturesData ?? []) as FixtureRow[];
   }
 
-  const standings = buildStandings(fixtures);
+  const standings = buildStandings(seededClubs, fixtures);
   const currentSeason = siteSettings.current_season;
 
   return (
@@ -203,7 +219,8 @@ export default async function DivisionStandingsPage({
           </div>
           <h1 className="font-display font-black text-[2.5rem] text-white uppercase leading-none">{division.name}</h1>
           <p className="text-white/35 text-sm mt-1">
-            {standings.length} club{standings.length !== 1 ? "s" : ""} · Updated after every confirmed result
+            {standings.length} club{standings.length !== 1 ? "s" : ""}
+            {standings.length > 0 && " · Live standings"}
           </p>
         </div>
       </div>
@@ -211,8 +228,8 @@ export default async function DivisionStandingsPage({
       {/* Standings table */}
       {standings.length === 0 ? (
         <div className="border border-white/8 bg-card px-8 py-16 text-center">
-          <p className="text-white font-semibold">No results yet.</p>
-          <p className="text-white/35 text-sm mt-2">The table will appear once match results are confirmed.</p>
+          <p className="text-white font-semibold">No clubs in this division yet.</p>
+          <p className="text-white/35 text-sm mt-2">Clubs will appear once they are assigned to this division.</p>
         </div>
       ) : (
         <div className="border border-white/6 overflow-x-auto">
