@@ -54,6 +54,57 @@ export async function updateCompetitionStatus(formData: FormData) {
   revalidatePath("/admin/competitions");
 }
 
+export async function updateCompetition(prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const db = await requireAdminDb();
+  const competitionId = formData.get("competition_id") as string;
+  if (!competitionId) return { error: "Invalid competition." };
+
+  const name        = (formData.get("name") as string)?.trim();
+  const type        = formData.get("type") as string;
+  const format      = formData.get("format") as string;
+  const cycle       = formData.get("cycle") as string;
+  const edition     = (formData.get("edition") as string)?.trim();
+  const entryFee    = parseFloat(formData.get("entry_fee") as string) || 0;
+  const status      = formData.get("status") as string;
+  const description = (formData.get("description") as string)?.trim() || null;
+
+  if (!name || !type || !format || !cycle || !edition || !status) {
+    return { error: "All required fields must be filled in." };
+  }
+
+  const { error } = await db
+    .from("competitions")
+    .update({ name, type, format, cycle, edition, entry_fee: entryFee, status, description })
+    .eq("id", competitionId);
+
+  if (error) {
+    console.error("admin/updateCompetition:", error);
+    return { error: "Could not update competition. Please try again." };
+  }
+
+  revalidatePath("/admin/competitions");
+  revalidatePath("/competitions");
+  revalidatePath("/");
+  return null;
+}
+
+export async function deleteCompetition(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const db = await requireAdminDb();
+  const competitionId = formData.get("competition_id") as string;
+  if (!competitionId) return { error: "Invalid competition." };
+
+  const { error } = await db.from("competitions").delete().eq("id", competitionId);
+  if (error) {
+    console.error("admin/deleteCompetition:", error);
+    return { error: "Could not delete competition. Please try again." };
+  }
+
+  revalidatePath("/admin/competitions");
+  revalidatePath("/competitions");
+  revalidatePath("/");
+  return null;
+}
+
 export async function updateCompetitionBanner(prevState: ActionState, formData: FormData): Promise<ActionState> {
   const db = await requireAdminDb();
   const competitionId  = (formData.get("competition_id")  as string).trim();

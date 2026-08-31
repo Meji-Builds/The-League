@@ -12,6 +12,7 @@ interface Props {
     stage:          string;
     group_name:     string;
     matchday:       number;
+    status:         string;
     scheduled_at:   string | null;
     competition_id: string;
     club_a:         { id: string; name: string } | null;
@@ -155,6 +156,21 @@ export function EditFixtureForm({ fixture, clubs, competitions }: Props) {
             defaultValue={scheduledValue}
             className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors"
           />
+        </div>
+
+        {/* Status */}
+        <div>
+          <label className="block text-xs font-semibold text-white/70 uppercase tracking-wide mb-1">Status</label>
+          <select
+            name="status"
+            defaultValue={fixture.status}
+            className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors [&>option]:bg-navy [&>option]:text-white"
+          >
+            <option value="scheduled">Scheduled</option>
+            <option value="reported">Reported</option>
+            <option value="disputed">Disputed</option>
+            <option value="confirmed">Confirmed</option>
+          </select>
         </div>
 
         {/* Actions row */}

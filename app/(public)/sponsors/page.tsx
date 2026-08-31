@@ -98,7 +98,7 @@ export default async function SponsorsPage() {
                 <p className="text-white/40 text-sm leading-relaxed mb-5">{description}</p>
 
                 {tierSponsors.length > 0 ? (
-                  <div className="flex flex-wrap gap-6 pt-5 border-t border-white/6">
+                  <div className="flex flex-wrap gap-8 pt-5 border-t border-white/6">
                     {tierSponsors.map((s) =>
                       s.website_url ? (
                         <a
@@ -106,12 +106,12 @@ export default async function SponsorsPage() {
                           href={s.website_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="opacity-60 hover:opacity-100 transition-opacity"
+                          className="opacity-75 hover:opacity-100 transition-opacity"
                         >
-                          <Image src={s.logo_url} alt={s.name} width={100} height={40} className="object-contain h-10" />
+                          <Image src={s.logo_url} alt={s.name} width={160} height={64} className="object-contain h-16" />
                         </a>
                       ) : (
-                        <Image key={s.id} src={s.logo_url} alt={s.name} width={100} height={40} className="object-contain h-10 opacity-60" />
+                        <Image key={s.id} src={s.logo_url} alt={s.name} width={160} height={64} className="object-contain h-16 opacity-75" />
                       )
                     )}
                   </div>

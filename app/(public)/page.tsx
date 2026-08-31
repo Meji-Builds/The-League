@@ -53,11 +53,13 @@ interface ClubRow {
 }
 
 interface PlayerRow {
-  id:        string;
-  gamer_tag: string;
-  position:  string | null;
-  stats:     { matches_played: number; wins: number; losses: number };
-  club:      { name: string; slug: string } | null;
+  id:                     string;
+  gamer_tag:              string;
+  position:               string | null;
+  stats:                  { matches_played: number; wins: number; losses: number };
+  club:                   { name: string; slug: string } | null;
+  profile_picture_url:    string | null;
+  profile_picture_status: string | null;
 }
 
 interface FixtureRow {
@@ -158,7 +160,7 @@ async function getPageData() {
       .order("created_at", { ascending: true })
       .limit(5),
     db.from("players")
-      .select("id, gamer_tag, position, stats, club:clubs(name, slug)")
+      .select("id, gamer_tag, position, stats, profile_picture_url, profile_picture_status, club:clubs(name, slug)")
       .limit(20),
     db.from("global_sponsors")
       .select("*")
@@ -559,12 +561,21 @@ export default async function HomePage() {
                     {topPlayers.map((player, i) => (
                       <div key={player.id} className="flex items-center gap-4 px-4 py-3.5">
                         <span className="text-white/15 text-xs w-5 text-right shrink-0 tabular-nums font-mono">{i + 1}</span>
-                        <div
-                          className="w-7 h-7 shrink-0 flex items-center justify-center text-navy text-[9px] font-black"
-                          style={{ backgroundColor: avatarColor(player.gamer_tag) }}
-                        >
-                          {nameInitials(player.gamer_tag)}
-                        </div>
+                        {player.profile_picture_status === "approved" && player.profile_picture_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={player.profile_picture_url}
+                            alt={player.gamer_tag}
+                            className="w-7 h-7 shrink-0 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div
+                            className="w-7 h-7 shrink-0 flex items-center justify-center text-navy text-[9px] font-black rounded-full"
+                            style={{ backgroundColor: avatarColor(player.gamer_tag) }}
+                          >
+                            {nameInitials(player.gamer_tag)}
+                          </div>
+                        )}
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-sm text-white truncate">{player.gamer_tag}</p>
                           <p className="text-xs text-white/30 truncate">
@@ -655,15 +666,15 @@ export default async function HomePage() {
                     href={s.website_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="opacity-40 hover:opacity-80 transition-opacity"
+                    className="opacity-70 hover:opacity-100 transition-opacity"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={s.logo_url} alt={s.name} className="h-8 object-contain" />
+                    <img src={s.logo_url} alt={s.name} className="h-14 object-contain" />
                   </a>
                 ) : (
-                  <div key={s.id} className="opacity-40">
+                  <div key={s.id} className="opacity-70">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={s.logo_url} alt={s.name} className="h-8 object-contain" />
+                    <img src={s.logo_url} alt={s.name} className="h-14 object-contain" />
                   </div>
                 )
               )}

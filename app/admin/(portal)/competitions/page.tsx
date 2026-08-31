@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { updateCompetitionStatus } from "./actions";
 import { CreateCompetitionForm } from "./CreateCompetitionForm";
+import { EditCompetitionForm } from "./EditCompetitionForm";
 import { BannerUploadForm } from "./BannerUploadForm";
 
 export const metadata = { title: "Admin — Competitions" };
@@ -85,22 +85,7 @@ export default async function AdminCompetitionsPage() {
                   )}
                 </div>
 
-                <form action={updateCompetitionStatus} className="flex items-center gap-2 flex-shrink-0">
-                  <input type="hidden" name="competition_id" value={comp.id} />
-                  <select
-                    name="status"
-                    defaultValue={comp.status}
-                    className="border border-white/10 bg-white/5 text-white text-xs px-2 py-1.5 focus:outline-none focus:border-cobalt"
-                  >
-                    <option value="upcoming">Upcoming</option>
-                    <option value="registration_open">Registration open</option>
-                    <option value="in_progress">In progress</option>
-                    <option value="completed">Completed</option>
-                  </select>
-                  <button type="submit" className="text-xs font-semibold px-3 py-1.5 bg-cobalt/10 text-cobalt hover:bg-cobalt/20 transition-colors rounded">
-                    Save
-                  </button>
-                </form>
+                <EditCompetitionForm competition={comp} />
               </div>
 
               <BannerUploadForm competitionId={comp.id} currentBannerUrl={comp.banner_image_url} />
