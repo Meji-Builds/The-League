@@ -15,28 +15,28 @@ export function PaymentStep({ feeNaira, clubName }: Props) {
     <div className="max-w-lg">
       <div className="mb-6">
         <span className="text-xs font-semibold text-gold uppercase tracking-widest">Step 2 of 2</span>
-        <h2 className="text-navy text-xl font-bold mt-1">Pay registration fee</h2>
-        <p className="text-muted text-sm mt-1">
-          A one-time fee to register <span className="font-medium text-navy">{clubName}</span> in The League.
+        <h2 className="text-white text-xl font-bold mt-1">Pay registration fee</h2>
+        <p className="text-white/40 text-sm mt-1">
+          A one-time fee to register <span className="font-medium text-white">{clubName}</span> in The League.
         </p>
       </div>
 
       {state?.error && (
-        <div className="bg-danger/5 border border-danger/30 text-danger text-sm px-4 py-3 mb-6 rounded">
+        <div className="bg-danger/5 border border-danger/30 text-danger text-sm px-4 py-3 mb-6">
           {state.error}
         </div>
       )}
 
-      <div className="border border-border bg-white rounded p-5 mb-6">
+      <div className="border border-white/6 bg-card p-5 mb-6">
         <div className="flex items-center justify-between mb-1">
-          <span className="text-sm text-muted">Owner registration fee</span>
-          <span className="text-sm font-semibold text-navy">
+          <span className="text-sm text-white/40">Owner registration fee</span>
+          <span className="text-sm font-semibold text-white">
             NGN {feeNaira.toLocaleString()}
           </span>
         </div>
-        <div className="border-t border-border pt-3 mt-3 flex items-center justify-between">
-          <span className="text-sm font-semibold text-navy">Total</span>
-          <span className="text-lg font-bold text-navy">
+        <div className="border-t border-white/6 pt-3 mt-3 flex items-center justify-between">
+          <span className="text-sm font-semibold text-white/70">Total</span>
+          <span className="text-lg font-bold text-white">
             NGN {feeNaira.toLocaleString()}
           </span>
         </div>
@@ -46,15 +46,11 @@ export function PaymentStep({ feeNaira, clubName }: Props) {
         <button
           type="submit"
           disabled={isPending}
-          className="w-full bg-gold text-navy font-semibold text-sm px-4 py-2.5 rounded hover:bg-gold/90 transition-colors disabled:opacity-60"
+          className="w-full bg-gold text-navy font-semibold text-sm px-4 py-2.5 hover:bg-gold/90 transition-colors disabled:opacity-60"
         >
-          {isPending ? "Redirecting to payment..." : "Pay now"}
+          {isPending ? "Redirecting to payment..." : "Pay with Paystack"}
         </button>
       </form>
-
-      <p className="text-muted text-xs text-center mt-4">
-        Payments are processed securely by Paystack. You will be redirected back after payment.
-      </p>
     </div>
   );
 }

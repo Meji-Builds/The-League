@@ -25,7 +25,7 @@ export function ResolveForm({ fixtureId, clubAId, clubBId, clubAName, clubBName 
       )}
 
       <div>
-        <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
+        <label className="block text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
           {clubAName} score
         </label>
         <input
@@ -34,12 +34,12 @@ export function ResolveForm({ fixtureId, clubAId, clubBId, clubAName, clubBName 
           min="0"
           required
           placeholder="0"
-          className="w-20 border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
+          className="w-20 border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors"
         />
       </div>
 
       <div>
-        <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
+        <label className="block text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
           {clubBName} score
         </label>
         <input
@@ -48,14 +48,14 @@ export function ResolveForm({ fixtureId, clubAId, clubBId, clubAName, clubBName 
           min="0"
           required
           placeholder="0"
-          className="w-20 border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
+          className="w-20 border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors"
         />
       </div>
 
       <button
         type="submit"
         disabled={isPending}
-        className="bg-navy text-white font-semibold text-sm px-5 py-2 rounded hover:bg-navy/90 transition-colors disabled:opacity-60"
+        className="bg-white/10 text-white font-semibold text-sm px-5 py-2 hover:bg-white/20 transition-colors disabled:opacity-60"
       >
         {isPending ? "Saving..." : "Set official score"}
       </button>

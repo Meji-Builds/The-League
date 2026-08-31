@@ -33,15 +33,15 @@ export function ImageUploadField({ name, folder, label, currentUrl, aspectHint }
 
   return (
     <div>
-      <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
+      <label className="block text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
         {label}
-        {aspectHint && <span className="ml-1 text-muted font-normal normal-case">({aspectHint})</span>}
+        {aspectHint && <span className="ml-1 text-white/40 font-normal normal-case">({aspectHint})</span>}
       </label>
 
       <input type="hidden" name={name} value={url} />
 
       {url && (
-        <div className="mb-2 relative w-full h-28 bg-navy/5 border border-border rounded overflow-hidden">
+        <div className="mb-2 relative w-full h-28 bg-white/5 border border-white/10 overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={url} alt="" className="w-full h-full object-cover" />
           <button
@@ -61,9 +61,9 @@ export function ImageUploadField({ name, folder, label, currentUrl, aspectHint }
           accept="image/*"
           onChange={handleChange}
           disabled={uploading}
-          className="text-xs text-muted file:mr-2 file:text-xs file:font-semibold file:bg-navy file:text-white file:border-0 file:px-2.5 file:py-1 file:rounded file:cursor-pointer hover:file:bg-navy/80 disabled:opacity-60"
+          className="text-xs text-white/50 file:mr-2 file:text-xs file:font-semibold file:bg-white/10 file:text-white file:border file:border-white/20 file:px-2.5 file:py-1 file:cursor-pointer hover:file:bg-white/20 disabled:opacity-60"
         />
-        {uploading && <span className="text-xs text-muted">Uploading...</span>}
+        {uploading && <span className="text-xs text-white/40">Uploading...</span>}
       </div>
       {error && <p className="text-xs text-danger mt-1">{error}</p>}
     </div>

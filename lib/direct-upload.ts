@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
-import { getSignedUploadUrl, getIdCardUploadUrl } from "@/app/actions/upload";
+import { getSignedUploadUrl, getIdCardUploadUrl, getPlayerPhotoUploadUrl } from "@/app/actions/upload";
 
 export async function directUpload(file: File, folder: string): Promise<string | null> {
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
@@ -20,6 +20,31 @@ export async function directUpload(file: File, folder: string): Promise<string |
 
   if (error) {
     console.error("directUpload (upload):", error.message);
+    return null;
+  }
+
+  return result.publicUrl;
+}
+
+export async function directUploadPlayerPhoto(file: File): Promise<string | null> {
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+  const result = await getPlayerPhotoUploadUrl(ext);
+
+  if ("error" in result) {
+    console.error("directUploadPlayerPhoto (getSignedUrl):", result.error);
+    return null;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabase = createClient() as any;
+  const { error } = await supabase.storage
+    .from("media")
+    .uploadToSignedUrl(result.path, result.token, file, {
+      contentType: file.type || "application/octet-stream",
+    });
+
+  if (error) {
+    console.error("directUploadPlayerPhoto (upload):", error.message);
     return null;
   }
 

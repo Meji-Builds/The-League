@@ -31,7 +31,7 @@ export function EditFixtureForm({ fixture }: Props) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="text-xs font-semibold px-3 py-1 rounded border border-border text-muted hover:text-navy transition-colors"
+        className="text-xs font-semibold px-3 py-1 border border-white/10 text-white/50 hover:text-white transition-colors"
       >
         Edit
       </button>
@@ -46,7 +46,7 @@ export function EditFixtureForm({ fixture }: Props) {
     <form
       action={formAction}
       onSubmit={() => { submitted.current = true; }}
-      className="mt-3 pt-3 border-t border-border grid sm:grid-cols-2 lg:grid-cols-4 gap-3"
+      className="mt-3 pt-3 border-t border-white/6 grid sm:grid-cols-2 lg:grid-cols-4 gap-3"
     >
       <input type="hidden" name="fixture_id" value={fixture.id} />
 
@@ -55,44 +55,44 @@ export function EditFixtureForm({ fixture }: Props) {
       )}
 
       <div>
-        <label className="block text-xs font-semibold text-muted uppercase tracking-wide mb-1">Stage</label>
+        <label className="block text-xs font-semibold text-white/70 uppercase tracking-wide mb-1">Stage</label>
         <select
           name="stage"
           defaultValue={fixture.stage}
-          className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
+          className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors [&>option]:bg-navy [&>option]:text-white"
         >
           {STAGES.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
       </div>
 
       <div>
-        <label className="block text-xs font-semibold text-muted uppercase tracking-wide mb-1">Group name</label>
+        <label className="block text-xs font-semibold text-white/70 uppercase tracking-wide mb-1">Group name</label>
         <input
           name="group_name"
           type="text"
           defaultValue={fixture.group_name}
-          className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
+          className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors"
         />
       </div>
 
       <div>
-        <label className="block text-xs font-semibold text-muted uppercase tracking-wide mb-1">Matchday</label>
+        <label className="block text-xs font-semibold text-white/70 uppercase tracking-wide mb-1">Matchday</label>
         <input
           name="matchday"
           type="number"
           min="1"
           defaultValue={fixture.matchday}
-          className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
+          className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors"
         />
       </div>
 
       <div>
-        <label className="block text-xs font-semibold text-muted uppercase tracking-wide mb-1">Scheduled date & time</label>
+        <label className="block text-xs font-semibold text-white/70 uppercase tracking-wide mb-1">Scheduled date & time</label>
         <input
           name="scheduled_at"
           type="datetime-local"
           defaultValue={scheduledValue}
-          className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
+          className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors"
         />
       </div>
 
@@ -100,14 +100,14 @@ export function EditFixtureForm({ fixture }: Props) {
         <button
           type="submit"
           disabled={isPending}
-          className="bg-gold text-navy font-semibold text-xs px-4 py-1.5 rounded hover:bg-gold/90 transition-colors disabled:opacity-60"
+          className="bg-gold text-navy font-semibold text-xs px-4 py-1.5 hover:bg-gold/90 transition-colors disabled:opacity-60"
         >
           {isPending ? "Saving..." : "Save"}
         </button>
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="text-xs font-semibold px-4 py-1.5 rounded border border-border text-muted hover:text-navy transition-colors"
+          className="text-xs font-semibold px-4 py-1.5 border border-white/10 text-white/50 hover:text-white transition-colors"
         >
           Cancel
         </button>

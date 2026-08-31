@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { approveClub, suspendClub, approvePlayer, rejectPlayer, approveClubLogo, rejectClubLogo } from "./actions";
+import { approveClub, suspendClub, approvePlayer, rejectPlayer, approveClubLogo, rejectClubLogo, approvePlayerPhoto, rejectPlayerPhoto } from "./actions";
 import { BannerUploadForm } from "./BannerUploadForm";
 
 export const metadata = { title: "Admin — Clubs" };
@@ -22,6 +22,8 @@ interface Player {
   full_name: string | null;
   id_card_url: string | null;
   id_card_status: string;
+  profile_picture_url: string | null;
+  profile_picture_status: string;
   club: { id: string; name: string; faculty: string } | null;
 }
 
@@ -77,11 +79,20 @@ export default async function AdminClubsPage() {
 
   const { data: rawPlayers } = await db
     .from("players")
-    .select("id, gamer_tag, full_name, id_card_url, id_card_status, club:clubs(id, name, faculty)")
+    .select("id, gamer_tag, full_name, id_card_url, id_card_status, profile_picture_url, profile_picture_status, club:clubs(id, name, faculty)")
     .eq("id_card_status", "pending")
     .order("created_at", { ascending: false });
 
   const rawPendingPlayers = (rawPlayers ?? []) as Player[];
+
+  const { data: rawPhotoPlayers } = await db
+    .from("players")
+    .select("id, gamer_tag, full_name, id_card_url, id_card_status, profile_picture_url, profile_picture_status, club:clubs(id, name, faculty)")
+    .eq("profile_picture_status", "pending")
+    .order("created_at", { ascending: false });
+
+  const pendingPhotoPlayers = (rawPhotoPlayers ?? []) as Player[];
+
 
   const pendingPlayers = await Promise.all(
     rawPendingPlayers.map(async (player) => {
@@ -141,6 +152,55 @@ export default async function AdminClubsPage() {
                     </button>
                   </form>
                   <form action={rejectPlayer}>
+                    <input type="hidden" name="player_id" value={player.id} />
+                    <button type="submit" className="text-xs font-semibold px-3 py-1 bg-danger/10 text-danger hover:bg-danger/20 transition-colors w-full">
+                      Reject
+                    </button>
+                  </form>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Pending player photo verifications */}
+      {pendingPhotoPlayers.length > 0 && (
+        <section className="mb-10">
+          <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-3">
+            Player photos — awaiting review ({pendingPhotoPlayers.length})
+          </p>
+          <div className="border border-warning/20 border-l-[3px] border-l-warning divide-y divide-white/5">
+            {pendingPhotoPlayers.map((player) => (
+              <div key={player.id} className="bg-card flex flex-col sm:flex-row sm:items-start gap-4 p-4">
+                <div className="flex-1">
+                  <p className="font-medium text-white text-sm">{player.gamer_tag}</p>
+                  {player.full_name && <p className="text-white/40 text-xs mt-0.5">{player.full_name}</p>}
+                  <p className="text-[11px] text-white/30 mt-1">
+                    {player.club?.name} &middot; {player.club?.faculty}
+                  </p>
+                </div>
+
+                {player.profile_picture_url && (
+                  <a
+                    href={player.profile_picture_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-16 h-16 border border-white/10 overflow-hidden bg-white/5 flex-shrink-0"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={player.profile_picture_url} alt="Player photo" className="w-full h-full object-cover" />
+                  </a>
+                )}
+
+                <div className="flex gap-2 sm:flex-col">
+                  <form action={approvePlayerPhoto}>
+                    <input type="hidden" name="player_id" value={player.id} />
+                    <button type="submit" className="text-xs font-semibold px-3 py-1 bg-success/10 text-success hover:bg-success/20 transition-colors w-full">
+                      Approve
+                    </button>
+                  </form>
+                  <form action={rejectPlayerPhoto}>
                     <input type="hidden" name="player_id" value={player.id} />
                     <button type="submit" className="text-xs font-semibold px-3 py-1 bg-danger/10 text-danger hover:bg-danger/20 transition-colors w-full">
                       Reject

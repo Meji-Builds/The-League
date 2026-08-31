@@ -249,7 +249,7 @@ export default async function HomePage() {
         )}
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 pt-32 w-full">
-          <p className="text-[9px] font-bold uppercase tracking-[0.55em] text-dim mb-10">
+          <p className="text-[11px] font-bold uppercase tracking-[0.4em] text-white/60 mb-10">
             University Esports &nbsp;&middot;&nbsp; Season 2025
           </p>
 

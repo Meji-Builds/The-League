@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 
 type ActionState = { error: string } | null;
 
@@ -151,7 +152,10 @@ export async function initiatePayment(prevState: ActionState, _formData: FormDat
   }
 
   // Call the Paystack initialization API.
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const headersList = await headers();
+  const host = headersList.get("host") ?? "localhost:3000";
+  const proto = host.includes("localhost") ? "http" : "https";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? `${proto}://${host}`;
 
   const paystackRes = await fetch("https://api.paystack.co/transaction/initialize", {
     method: "POST",

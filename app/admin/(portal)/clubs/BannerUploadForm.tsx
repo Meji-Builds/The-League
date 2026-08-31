@@ -45,8 +45,8 @@ export function BannerUploadForm({ clubId, currentBannerUrl }: Props) {
   const busy = isPending || uploading;
 
   return (
-    <form onSubmit={handleSubmit} className="mt-3 pt-3 border-t border-border">
-      <p className="text-xs font-semibold text-navy uppercase tracking-wide mb-2">Club Banner Image</p>
+    <form onSubmit={handleSubmit} className="mt-3 pt-3 border-t border-white/6">
+      <p className="text-xs font-semibold text-white/70 uppercase tracking-wide mb-2">Club Banner Image</p>
 
       {(uploadError || (state && "error" in state)) && (
         <p className="text-xs text-danger mb-2">

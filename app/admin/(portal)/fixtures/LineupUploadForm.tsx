@@ -55,8 +55,8 @@ export function LineupUploadForm({ fixtureId, clubAName, clubBName, hasLineupA, 
   const busy = isPending || uploading;
 
   return (
-    <form onSubmit={handleSubmit} className="mt-3 pt-3 border-t border-border">
-      <p className="text-xs font-semibold text-navy uppercase tracking-wide mb-2">Lineup Graphics</p>
+    <form onSubmit={handleSubmit} className="mt-3 pt-3 border-t border-white/6">
+      <p className="text-xs font-semibold text-white/70 uppercase tracking-wide mb-2">Lineup Graphics</p>
 
       {(uploadError || (state && "error" in state)) && (
         <p className="text-xs text-danger mb-2">
@@ -66,7 +66,7 @@ export function LineupUploadForm({ fixtureId, clubAName, clubBName, hasLineupA, 
 
       <div className="grid sm:grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs text-muted mb-1">
+          <label className="block text-xs text-white/50 mb-1">
             {clubAName} lineup {hasLineupA && <span className="text-success">(uploaded)</span>}
           </label>
           <input
@@ -74,11 +74,11 @@ export function LineupUploadForm({ fixtureId, clubAName, clubBName, hasLineupA, 
             name="lineup_image_a"
             type="file"
             accept="image/*"
-            className="w-full text-xs text-muted file:mr-2 file:text-xs file:font-semibold file:bg-navy file:text-white file:border-0 file:px-2.5 file:py-1 file:rounded file:cursor-pointer hover:file:bg-navy/80"
+            className="w-full text-xs text-white/50 file:mr-2 file:text-xs file:font-semibold file:bg-white/10 file:text-white file:border file:border-white/20 file:px-2.5 file:py-1 file:cursor-pointer hover:file:bg-white/20"
           />
         </div>
         <div>
-          <label className="block text-xs text-muted mb-1">
+          <label className="block text-xs text-white/50 mb-1">
             {clubBName} lineup {hasLineupB && <span className="text-success">(uploaded)</span>}
           </label>
           <input
@@ -86,7 +86,7 @@ export function LineupUploadForm({ fixtureId, clubAName, clubBName, hasLineupA, 
             name="lineup_image_b"
             type="file"
             accept="image/*"
-            className="w-full text-xs text-muted file:mr-2 file:text-xs file:font-semibold file:bg-navy file:text-white file:border-0 file:px-2.5 file:py-1 file:rounded file:cursor-pointer hover:file:bg-navy/80"
+            className="w-full text-xs text-white/50 file:mr-2 file:text-xs file:font-semibold file:bg-white/10 file:text-white file:border file:border-white/20 file:px-2.5 file:py-1 file:cursor-pointer hover:file:bg-white/20"
           />
         </div>
       </div>

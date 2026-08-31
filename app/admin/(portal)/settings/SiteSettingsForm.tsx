@@ -25,7 +25,7 @@ function Field({ label, name, value, placeholder }: {
 }) {
   return (
     <div>
-      <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
+      <label className="block text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
         {label}
       </label>
       <input
@@ -33,7 +33,7 @@ function Field({ label, name, value, placeholder }: {
         type="url"
         defaultValue={value ?? ""}
         placeholder={placeholder}
-        className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
+        className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors placeholder:text-white/20"
       />
     </div>
   );
@@ -45,18 +45,18 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings | null }
   return (
     <form action={action} className="space-y-5">
       {"error" in (state ?? {}) && (
-        <div className="bg-danger/5 border border-danger/30 text-danger text-xs px-3 py-2 rounded">
+        <div className="bg-danger/5 border border-danger/30 text-danger text-xs px-3 py-2">
           {(state as { error: string }).error}
         </div>
       )}
       {"success" in (state ?? {}) && (
-        <div className="bg-success/5 border border-success/30 text-success text-xs px-3 py-2 rounded">
+        <div className="bg-success/5 border border-success/30 text-success text-xs px-3 py-2">
           Settings saved.
         </div>
       )}
 
       <div>
-        <p className="text-navy text-xs font-semibold uppercase tracking-wide mb-3">Social links</p>
+        <p className="text-white/70 text-xs font-semibold uppercase tracking-wide mb-3">Social links</p>
         <div className="space-y-3">
           <Field label="YouTube"   name="social_youtube"   value={settings?.social_youtube   ?? null} placeholder="https://youtube.com/@..." />
           <Field label="Instagram" name="social_instagram" value={settings?.social_instagram ?? null} placeholder="https://instagram.com/..." />
@@ -66,22 +66,22 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings | null }
         </div>
       </div>
 
-      <div className="border-t border-border pt-5">
-        <p className="text-navy text-xs font-semibold uppercase tracking-wide mb-3">Platform content</p>
+      <div className="border-t border-white/6 pt-5">
+        <p className="text-white/70 text-xs font-semibold uppercase tracking-wide mb-3">Platform content</p>
         <div className="space-y-3">
           <div>
-            <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
+            <label className="block text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
               Hero headline
             </label>
             <input
               name="hero_title"
               type="text"
               defaultValue={settings?.hero_title ?? "University Esports, Officially Organized."}
-              className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
+              className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors"
             />
           </div>
           <div>
-            <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
+            <label className="block text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
               Hero subtitle
             </label>
             <input
@@ -89,7 +89,7 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings | null }
               type="text"
               defaultValue={settings?.hero_subtitle ?? ""}
               placeholder="Short tagline shown below the headline"
-              className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
+              className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors placeholder:text-white/20"
             />
           </div>
           <ImageUploadField
@@ -100,7 +100,7 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings | null }
             aspectHint="16:9 or wider recommended"
           />
           <div>
-            <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
+            <label className="block text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
               About us
             </label>
             <textarea
@@ -108,11 +108,11 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings | null }
               rows={4}
               defaultValue={settings?.about_text ?? ""}
               placeholder="Platform description shown on the About/Sponsors page"
-              className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors resize-none"
+              className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors resize-none placeholder:text-white/20"
             />
           </div>
           <div>
-            <label className="block text-navy text-xs font-semibold mb-1 uppercase tracking-wide">
+            <label className="block text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
               Contact email
             </label>
             <input
@@ -120,7 +120,7 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings | null }
               type="email"
               defaultValue={settings?.contact_email ?? ""}
               placeholder="sponsorship@theleague.ng"
-              className="w-full border border-border bg-white text-navy text-sm px-3 py-2 rounded focus:outline-none focus:border-cobalt transition-colors"
+              className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors placeholder:text-white/20"
             />
           </div>
         </div>
@@ -129,7 +129,7 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings | null }
       <button
         type="submit"
         disabled={isPending}
-        className="bg-gold text-navy font-semibold text-sm px-5 py-2 rounded hover:bg-gold/90 transition-colors disabled:opacity-60"
+        className="bg-gold text-navy font-semibold text-sm px-5 py-2 hover:bg-gold/90 transition-colors disabled:opacity-60"
       >
         {isPending ? "Saving..." : "Save settings"}
       </button>

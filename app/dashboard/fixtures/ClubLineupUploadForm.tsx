@@ -44,8 +44,8 @@ export function ClubLineupUploadForm({ fixtureId, hasLineup }: Props) {
   const busy = isPending || uploading;
 
   return (
-    <form onSubmit={handleSubmit} className="mt-3 pt-3 border-t border-border">
-      <p className="text-xs font-semibold text-navy uppercase tracking-wide mb-2">
+    <form onSubmit={handleSubmit} className="mt-3 pt-3 border-t border-white/6">
+      <p className="text-xs font-semibold text-white/70 uppercase tracking-wide mb-2">
         Lineup Graphic {hasLineup && <span className="normal-case font-normal text-success">(uploaded)</span>}
       </p>
 
@@ -65,7 +65,7 @@ export function ClubLineupUploadForm({ fixtureId, hasLineup }: Props) {
           name="lineup_image"
           type="file"
           accept="image/*"
-          className="text-xs text-muted file:mr-2 file:text-xs file:font-semibold file:bg-navy file:text-white file:border-0 file:px-2.5 file:py-1 file:rounded file:cursor-pointer hover:file:bg-navy/80"
+          className="text-xs text-white/50 file:mr-2 file:text-xs file:font-semibold file:bg-white/10 file:text-white file:border file:border-white/20 file:px-2.5 file:py-1 file:cursor-pointer hover:file:bg-white/20"
         />
         <button
           type="submit"

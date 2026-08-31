@@ -35,6 +35,27 @@ export async function getSignedUploadUrl(
   return { token: data.token, path, publicUrl };
 }
 
+export async function getPlayerPhotoUploadUrl(
+  ext: string,
+): Promise<{ token: string; path: string; publicUrl: string } | { error: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const path = `player-photos/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const admin = storageAdmin();
+
+  const { data, error } = await admin.storage.from("media").createSignedUploadUrl(path);
+
+  if (error || !data) {
+    console.error("getPlayerPhotoUploadUrl:", error);
+    return { error: "Could not prepare upload. Please try again." };
+  }
+
+  const publicUrl = admin.storage.from("media").getPublicUrl(path).data.publicUrl;
+  return { token: data.token, path, publicUrl };
+}
+
 export async function getIdCardUploadUrl(
   ext: string,
 ): Promise<{ token: string; storagePath: string } | { error: string }> {
