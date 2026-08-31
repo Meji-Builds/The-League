@@ -14,10 +14,12 @@ interface Props {
     entry_fee:   number;
     status:      string;
     description: string | null;
+    faculty_id:  string | null;
   };
+  faculties: { id: string; name: string }[];
 }
 
-export function EditCompetitionForm({ competition }: Props) {
+export function EditCompetitionForm({ competition, faculties }: Props) {
   const [open,          setOpen]          = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -149,6 +151,21 @@ export function EditCompetitionForm({ competition }: Props) {
             defaultValue={competition.entry_fee}
             className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors"
           />
+        </div>
+
+        {/* Faculty */}
+        <div>
+          <label className="block text-xs font-semibold text-white/70 uppercase tracking-wide mb-1">Faculty</label>
+          <select
+            name="faculty_id"
+            defaultValue={competition.faculty_id ?? ""}
+            className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors [&>option]:bg-navy [&>option]:text-white"
+          >
+            <option value="">University-wide</option>
+            {faculties.map((f) => (
+              <option key={f.id} value={f.id}>{f.name}</option>
+            ))}
+          </select>
         </div>
 
         {/* Description */}

@@ -22,12 +22,24 @@ interface Competition {
   id: string;
   name: string;
   edition: string;
+  faculty_id: string | null;
 }
 
 interface Club {
   id: string;
   name: string;
   faculty: string;
+}
+
+interface Division {
+  id: string;
+  name: string;
+  faculty_id: string;
+}
+
+interface DivisionClub {
+  division_id: string;
+  club_id: string;
 }
 
 function formatDate(iso: string | null) {
@@ -51,7 +63,10 @@ const STATUS_TEXT: Record<string, string> = {
   confirmed: "text-success",
 };
 
-function FixtureRow({ f, clubs, competitions }: { f: Fixture; clubs: Club[]; competitions: Competition[] }) {
+function FixtureRow({ f, clubs, competitions, divisions, divisionClubs }: {
+  f: Fixture; clubs: Club[]; competitions: Competition[];
+  divisions: Division[]; divisionClubs: DivisionClub[];
+}) {
   return (
     <div className="p-4">
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
@@ -73,7 +88,7 @@ function FixtureRow({ f, clubs, competitions }: { f: Fixture; clubs: Club[]; com
               </span>
             </div>
           </div>
-          <EditFixtureForm fixture={f} clubs={clubs} competitions={competitions} />
+          <EditFixtureForm fixture={f} clubs={clubs} competitions={competitions} divisions={divisions} divisionClubs={divisionClubs} />
         </div>
       </div>
       <LineupUploadForm
@@ -91,7 +106,13 @@ export default async function AdminFixturesPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = (await createClient()) as any;
 
-  const [{ data: rawFixtures }, { data: rawComps }, { data: rawClubs }] = await Promise.all([
+  const [
+    { data: rawFixtures },
+    { data: rawComps },
+    { data: rawClubs },
+    { data: rawDivisions },
+    { data: rawDivisionClubs },
+  ] = await Promise.all([
     db.from("fixtures")
       .select(`
         id, stage, group_name, matchday, status, scheduled_at, competition_id,
@@ -100,13 +121,17 @@ export default async function AdminFixturesPage() {
         competition:competitions(name, edition)
       `)
       .order("scheduled_at", { ascending: false }),
-    db.from("competitions").select("id, name, edition").order("created_at", { ascending: false }),
+    db.from("competitions").select("id, name, edition, faculty_id").order("created_at", { ascending: false }),
     db.from("clubs").select("id, name, faculty").eq("status", "approved").order("name"),
+    db.from("faculty_divisions").select("id, name, faculty_id").order("name"),
+    db.from("division_clubs").select("division_id, club_id"),
   ]);
 
-  const fixtures     = (rawFixtures ?? []) as Fixture[];
-  const competitions = (rawComps ?? []) as Competition[];
-  const clubs        = (rawClubs ?? []) as Club[];
+  const fixtures      = (rawFixtures ?? []) as Fixture[];
+  const competitions  = (rawComps ?? []) as Competition[];
+  const clubs         = (rawClubs ?? []) as Club[];
+  const divisions     = (rawDivisions ?? []) as Division[];
+  const divisionClubs = (rawDivisionClubs ?? []) as DivisionClub[];
 
   const upcoming  = fixtures.filter((f) => f.status === "scheduled");
   const reported  = fixtures.filter((f) => f.status === "reported");
@@ -123,7 +148,7 @@ export default async function AdminFixturesPage() {
       </div>
 
       <div className="mb-10">
-        <CreateFixtureForm competitions={competitions} clubs={clubs} />
+        <CreateFixtureForm competitions={competitions} clubs={clubs} divisions={divisions} divisionClubs={divisionClubs} />
       </div>
 
       {fixtures.length === 0 ? (
@@ -139,7 +164,7 @@ export default async function AdminFixturesPage() {
                 Disputed ({disputed.length})
               </p>
               <div className={sectionClass}>
-                {disputed.map((f) => <FixtureRow key={f.id} f={f} clubs={clubs} competitions={competitions} />)}
+                {disputed.map((f) => <FixtureRow key={f.id} f={f} clubs={clubs} competitions={competitions} divisions={divisions} divisionClubs={divisionClubs} />)}
               </div>
             </section>
           )}
@@ -151,7 +176,7 @@ export default async function AdminFixturesPage() {
                 Reported — awaiting confirmation ({reported.length})
               </p>
               <div className={sectionClass}>
-                {reported.map((f) => <FixtureRow key={f.id} f={f} clubs={clubs} competitions={competitions} />)}
+                {reported.map((f) => <FixtureRow key={f.id} f={f} clubs={clubs} competitions={competitions} divisions={divisions} divisionClubs={divisionClubs} />)}
               </div>
             </section>
           )}
@@ -163,7 +188,7 @@ export default async function AdminFixturesPage() {
                 Upcoming ({upcoming.length})
               </p>
               <div className={sectionClass}>
-                {upcoming.map((f) => <FixtureRow key={f.id} f={f} clubs={clubs} competitions={competitions} />)}
+                {upcoming.map((f) => <FixtureRow key={f.id} f={f} clubs={clubs} competitions={competitions} divisions={divisions} divisionClubs={divisionClubs} />)}
               </div>
             </section>
           )}
@@ -175,7 +200,7 @@ export default async function AdminFixturesPage() {
                 Confirmed / played ({confirmed.length}) — delete to remove from public page
               </p>
               <div className={sectionClass}>
-                {confirmed.map((f) => <FixtureRow key={f.id} f={f} clubs={clubs} competitions={competitions} />)}
+                {confirmed.map((f) => <FixtureRow key={f.id} f={f} clubs={clubs} competitions={competitions} divisions={divisions} divisionClubs={divisionClubs} />)}
               </div>
             </section>
           )}

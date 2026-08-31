@@ -1,10 +1,12 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import { updateFixture, deleteFixture } from "./actions";
 
-interface Club       { id: string; name: string; faculty: string }
-interface Competition { id: string; name: string; edition: string }
+interface Club         { id: string; name: string; faculty: string }
+interface Competition  { id: string; name: string; edition: string; faculty_id: string | null }
+interface Division     { id: string; name: string; faculty_id: string }
+interface DivisionClub { division_id: string; club_id: string }
 
 interface Props {
   fixture: {
@@ -18,15 +20,39 @@ interface Props {
     club_a:         { id: string; name: string } | null;
     club_b:         { id: string; name: string } | null;
   };
-  clubs:        Club[];
-  competitions: Competition[];
+  clubs:         Club[];
+  competitions:  Competition[];
+  divisions:     Division[];
+  divisionClubs: DivisionClub[];
 }
 
 const STAGES = ["N/A", "Department", "Faculty", "University"];
 
-export function EditFixtureForm({ fixture, clubs, competitions }: Props) {
+export function EditFixtureForm({ fixture, clubs, competitions, divisions, divisionClubs }: Props) {
   const [open,          setOpen]          = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [selectedCompId, setSelectedCompId] = useState(fixture.competition_id);
+
+  const selectedComp = useMemo(
+    () => competitions.find((c) => c.id === selectedCompId) ?? null,
+    [competitions, selectedCompId],
+  );
+
+  const filteredDivisions = useMemo(() => {
+    if (!selectedComp?.faculty_id) return [];
+    return divisions.filter((d) => d.faculty_id === selectedComp.faculty_id);
+  }, [divisions, selectedComp]);
+
+  const eligibleClubIds = useMemo(() => {
+    if (!selectedComp?.faculty_id) return null;
+    const divIds = new Set(filteredDivisions.map((d) => d.id));
+    return new Set(divisionClubs.filter((dc) => divIds.has(dc.division_id)).map((dc) => dc.club_id));
+  }, [filteredDivisions, divisionClubs, selectedComp]);
+
+  const filteredClubs = useMemo(
+    () => (eligibleClubIds ? clubs.filter((c) => eligibleClubIds.has(c.id)) : clubs),
+    [clubs, eligibleClubIds],
+  );
 
   const [updateState, updateAction, isUpdating] = useActionState(updateFixture, null);
   const [deleteState, deleteAction, isDeleting] = useActionState(deleteFixture, null);
@@ -73,11 +99,27 @@ export function EditFixtureForm({ fixture, clubs, competitions }: Props) {
           <label className="block text-xs font-semibold text-white/70 uppercase tracking-wide mb-1">Competition</label>
           <select
             name="competition_id"
-            defaultValue={fixture.competition_id}
+            value={selectedCompId}
+            onChange={(e) => setSelectedCompId(e.target.value)}
             className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors [&>option]:bg-navy [&>option]:text-white"
           >
             {competitions.map((c) => (
               <option key={c.id} value={c.id}>{c.name} — {c.edition}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Division */}
+        <div>
+          <label className="block text-xs font-semibold text-white/70 uppercase tracking-wide mb-1">Division</label>
+          <select
+            name="division_id"
+            defaultValue=""
+            className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors [&>option]:bg-navy [&>option]:text-white"
+          >
+            <option value="">No division / Open</option>
+            {filteredDivisions.map((d) => (
+              <option key={d.id} value={d.id}>{d.name}</option>
             ))}
           </select>
         </div>
@@ -91,7 +133,7 @@ export function EditFixtureForm({ fixture, clubs, competitions }: Props) {
             className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors [&>option]:bg-navy [&>option]:text-white"
           >
             <option value="">— select —</option>
-            {clubs.map((c) => (
+            {filteredClubs.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
@@ -106,7 +148,7 @@ export function EditFixtureForm({ fixture, clubs, competitions }: Props) {
             className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors [&>option]:bg-navy [&>option]:text-white"
           >
             <option value="">— select —</option>
-            {clubs.map((c) => (
+            {filteredClubs.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
@@ -122,17 +164,6 @@ export function EditFixtureForm({ fixture, clubs, competitions }: Props) {
           >
             {STAGES.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
-        </div>
-
-        {/* Group name */}
-        <div>
-          <label className="block text-xs font-semibold text-white/70 uppercase tracking-wide mb-1">Group name</label>
-          <input
-            name="group_name"
-            type="text"
-            defaultValue={fixture.group_name}
-            className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors"
-          />
         </div>
 
         {/* Matchday */}

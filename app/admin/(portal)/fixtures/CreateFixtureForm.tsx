@@ -1,27 +1,44 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import { createFixture } from "./actions";
 
-interface Competition {
-  id: string;
-  name: string;
-  edition: string;
-}
-
-interface Club {
-  id: string;
-  name: string;
-  faculty: string;
-}
+interface Competition { id: string; name: string; edition: string; faculty_id: string | null }
+interface Club        { id: string; name: string; faculty: string }
+interface Division    { id: string; name: string; faculty_id: string }
+interface DivisionClub { division_id: string; club_id: string }
 
 interface Props {
-  competitions: Competition[];
-  clubs: Club[];
+  competitions:  Competition[];
+  clubs:         Club[];
+  divisions:     Division[];
+  divisionClubs: DivisionClub[];
 }
 
-export function CreateFixtureForm({ competitions, clubs }: Props) {
+export function CreateFixtureForm({ competitions, clubs, divisions, divisionClubs }: Props) {
   const [state, action, isPending] = useActionState(createFixture, null);
+  const [selectedCompId, setSelectedCompId] = useState("");
+
+  const selectedComp = useMemo(
+    () => competitions.find((c) => c.id === selectedCompId) ?? null,
+    [competitions, selectedCompId],
+  );
+
+  const filteredDivisions = useMemo(() => {
+    if (!selectedComp?.faculty_id) return [];
+    return divisions.filter((d) => d.faculty_id === selectedComp.faculty_id);
+  }, [divisions, selectedComp]);
+
+  const eligibleClubIds = useMemo(() => {
+    if (!selectedComp?.faculty_id) return null; // null = all clubs
+    const divIds = new Set(filteredDivisions.map((d) => d.id));
+    return new Set(divisionClubs.filter((dc) => divIds.has(dc.division_id)).map((dc) => dc.club_id));
+  }, [filteredDivisions, divisionClubs, selectedComp]);
+
+  const filteredClubs = useMemo(
+    () => (eligibleClubIds ? clubs.filter((c) => eligibleClubIds.has(c.id)) : clubs),
+    [clubs, eligibleClubIds],
+  );
 
   return (
     <form action={action} className="border border-white/6 bg-card p-5 space-y-4">
@@ -41,7 +58,8 @@ export function CreateFixtureForm({ competitions, clubs }: Props) {
           <select
             name="competition_id"
             required
-            defaultValue=""
+            value={selectedCompId}
+            onChange={(e) => setSelectedCompId(e.target.value)}
             className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors [&>option]:bg-navy [&>option]:text-white"
           >
             <option value="" disabled>Select competition</option>
@@ -70,7 +88,29 @@ export function CreateFixtureForm({ competitions, clubs }: Props) {
 
         <div>
           <label className="block text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
+            Division
+            {selectedComp?.faculty_id && filteredDivisions.length === 0 && (
+              <span className="text-danger/70 font-normal normal-case ml-1">(no divisions for this faculty)</span>
+            )}
+          </label>
+          <select
+            name="division_id"
+            defaultValue=""
+            className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors [&>option]:bg-navy [&>option]:text-white"
+          >
+            <option value="">No division / Open</option>
+            {filteredDivisions.map((d) => (
+              <option key={d.id} value={d.id}>{d.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
             Club A <span className="text-danger">*</span>
+            {eligibleClubIds && (
+              <span className="text-white/30 font-normal normal-case ml-1">({filteredClubs.length} in faculty)</span>
+            )}
           </label>
           <select
             name="club_a_id"
@@ -79,7 +119,7 @@ export function CreateFixtureForm({ competitions, clubs }: Props) {
             className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors [&>option]:bg-navy [&>option]:text-white"
           >
             <option value="" disabled>Select club</option>
-            {clubs.map((c) => (
+            {filteredClubs.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
@@ -96,23 +136,10 @@ export function CreateFixtureForm({ competitions, clubs }: Props) {
             className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors [&>option]:bg-navy [&>option]:text-white"
           >
             <option value="" disabled>Select club</option>
-            {clubs.map((c) => (
+            {filteredClubs.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
-        </div>
-
-        <div>
-          <label className="block text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
-            Group name
-          </label>
-          <input
-            name="group_name"
-            type="text"
-            placeholder="Open"
-            defaultValue="Open"
-            className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2 focus:outline-none focus:border-cobalt transition-colors placeholder:text-white/20"
-          />
         </div>
 
         <div>
