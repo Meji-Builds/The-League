@@ -36,6 +36,8 @@ html, body {
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Eliminate tap highlight flash on iOS */
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -43,6 +45,12 @@ body {
   color: white;
   font-family: var(--font-sans);
   font-size: 15px;
+}
+
+/* Buttons and links: instant tap response on mobile */
+button, a, [role="button"] {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 ::selection {
