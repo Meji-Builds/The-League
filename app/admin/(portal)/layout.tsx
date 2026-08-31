@@ -15,6 +15,7 @@ const navItems = [
   { label: "Overview",      href: "/admin" },
   { label: "Clubs",         href: "/admin/clubs" },
   { label: "Competitions",  href: "/admin/competitions" },
+  { label: "Payments",      href: "/admin/payments" },
   { label: "Fixtures",      href: "/admin/fixtures" },
   { label: "Results",       href: "/admin/results" },
   { label: "Disputes",      href: "/admin/disputes" },
