@@ -128,6 +128,16 @@ export async function initiatePayment(prevState: ActionState, _formData: FormDat
     .single();
 
   const feeNaira = feeRow?.owner_registration_fee ?? 5000;
+
+  // Free registration — skip Paystack entirely.
+  if (feeNaira === 0) {
+    await db
+      .from("club_owners")
+      .update({ owner_registration_payment_status: "paid" })
+      .eq("user_id", user.id);
+    redirect("/dashboard/onboarding?step=3");
+  }
+
   const feeKobo  = feeNaira * 100; // Paystack uses the smallest currency unit
 
   // Generate a unique reference.

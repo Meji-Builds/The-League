@@ -44,6 +44,15 @@ export default async function OnboardingPage({ searchParams }: Props) {
     return <ClubSetupStep />;
   }
 
+  // Free registration — mark as paid and advance without showing Paystack UI.
+  if (feeNaira === 0 && owner.owner_registration_payment_status !== "paid") {
+    await db
+      .from("club_owners")
+      .update({ owner_registration_payment_status: "paid" })
+      .eq("user_id", user.id);
+    redirect("/dashboard/onboarding?step=3");
+  }
+
   return (
     <PaymentStep
       feeNaira={feeNaira}
