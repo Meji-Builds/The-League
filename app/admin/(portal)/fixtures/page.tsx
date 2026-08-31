@@ -6,17 +6,18 @@ import { LineupUploadForm } from "./LineupUploadForm";
 export const metadata = { title: "Admin — Fixtures" };
 
 interface Fixture {
-  id: string;
-  stage: string;
-  group_name: string;
-  matchday: number;
-  status: string;
-  scheduled_at: string | null;
+  id:             string;
+  stage:          string;
+  group_name:     string;
+  matchday:       number;
+  status:         string;
+  scheduled_at:   string | null;
+  competition_id: string;
   lineup_image_a: string | null;
   lineup_image_b: string | null;
-  club_a: { id: string; name: string } | null;
-  club_b: { id: string; name: string } | null;
-  competition: { name: string; edition: string } | null;
+  club_a:         { id: string; name: string } | null;
+  club_b:         { id: string; name: string } | null;
+  competition:    { name: string; edition: string } | null;
 }
 
 interface Competition {
@@ -59,7 +60,7 @@ export default async function AdminFixturesPage() {
   const [{ data: rawFixtures }, { data: rawComps }, { data: rawClubs }] = await Promise.all([
     db.from("fixtures")
       .select(`
-        id, stage, group_name, matchday, status, scheduled_at, lineup_image_a, lineup_image_b,
+        id, stage, group_name, matchday, status, scheduled_at, competition_id, lineup_image_a, lineup_image_b,
         club_a:clubs!fixtures_club_a_id_fkey(id, name),
         club_b:clubs!fixtures_club_b_id_fkey(id, name),
         competition:competitions(name, edition)
@@ -111,7 +112,7 @@ export default async function AdminFixturesPage() {
                       </span>
                     </div>
                   </div>
-                  <EditFixtureForm fixture={f} />
+                  <EditFixtureForm fixture={f} clubs={clubs} competitions={competitions} />
                 </div>
               </div>
               <LineupUploadForm
