@@ -83,6 +83,11 @@ export function CreateFixtureForm({ competitions, clubs, divisions, divisionClub
             <option value="Department">Department</option>
             <option value="Faculty">Faculty</option>
             <option value="University">University</option>
+            <option value="Group">Group</option>
+            <option value="Round of 16">Round of 16</option>
+            <option value="Quarter-final">Quarter-final</option>
+            <option value="Semi-final">Semi-final</option>
+            <option value="Final">Final</option>
           </select>
         </div>
 

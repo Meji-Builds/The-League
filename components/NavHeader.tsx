@@ -37,13 +37,13 @@ export function NavHeader({ brand, badge, items }: Props) {
         </Link>
 
         {badge && (
-          <span className="hidden sm:block text-white/20 text-xs uppercase tracking-widest shrink-0">
+          <span className="block max-sm:hidden text-white/20 text-xs uppercase tracking-widest shrink-0">
             {badge}
           </span>
         )}
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-4 overflow-x-auto flex-1">
+        <nav className="flex max-md:hidden items-center gap-4 overflow-x-auto flex-1 min-w-0">
           {items.map(({ label, href }) => (
             <Link
               key={href}
@@ -58,7 +58,7 @@ export function NavHeader({ brand, badge, items }: Props) {
         </nav>
 
         {/* Desktop sign out */}
-        <div className="hidden md:block ml-auto shrink-0">
+        <div className="block max-md:hidden ml-auto shrink-0">
           <form action="/api/auth/signout" method="POST">
             <button type="submit" className="text-white/40 hover:text-white text-xs transition-colors">
               Sign out

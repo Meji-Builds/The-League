@@ -71,10 +71,12 @@ export async function generateChampionshipFixtures(
   if (promoErr) return { error: "Could not load promotions." };
   if (!promoData || promoData.length < 2) return { error: "Need at least 2 promoted teams to generate fixtures." };
 
-  // Seed order: all 1st-place first, then 2nd-place
+  // Seed order: all 1st-place first, then 2nd-place; deduplicate so a club
+  // promoted from multiple divisions only appears once.
   const pos1  = (promoData as { club_id: string; position: number }[]).filter((p) => p.position === 1).map((p) => p.club_id);
   const pos2  = (promoData as { club_id: string; position: number }[]).filter((p) => p.position === 2).map((p) => p.club_id);
-  const teams = [...pos1, ...pos2];
+  const seen  = new Set<string>();
+  const teams = [...pos1, ...pos2].filter((id) => { if (seen.has(id)) return false; seen.add(id); return true; });
   const n     = teams.length;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -89,7 +91,7 @@ export async function generateChampionshipFixtures(
     }
 
   } else if (format === "knockout") {
-    const stageName = n <= 2 ? "Final" : n <= 4 ? "Semi-final" : n <= 8 ? "Quarter-final" : `Round of ${n}`;
+    const stageName = n <= 2 ? "Final" : n <= 4 ? "Semi-final" : n <= 8 ? "Quarter-final" : "Round of 16";
     let md = 1;
     for (let i = 0; i < Math.floor(n / 2); i++) {
       rows.push({ competition_id: compId, club_a_id: teams[i], club_b_id: teams[n - 1 - i], stage: stageName, group_name: "Championship", matchday: md++, status: "scheduled" });

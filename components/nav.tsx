@@ -177,7 +177,7 @@ export function Nav({ siteName = "The League" }: { siteName?: string }) {
             </Link>
 
             {/* Desktop nav links */}
-            <nav className="hidden md:flex items-center flex-1">
+            <nav className="flex max-md:hidden items-center flex-1 min-w-0 overflow-x-auto">
               {desktopLinks.map(({ label, href }) => (
                 <Link
                   key={href}
@@ -197,7 +197,7 @@ export function Nav({ siteName = "The League" }: { siteName?: string }) {
             </nav>
 
             {/* Desktop auth */}
-            <div className="hidden md:flex items-center gap-1 ml-auto">
+            <div className="flex max-md:hidden items-center gap-1 ml-auto shrink-0">
               <Link
                 href="/login"
                 className="text-[13px] text-white/30 hover:text-white/65 transition-colors px-3 py-2"
