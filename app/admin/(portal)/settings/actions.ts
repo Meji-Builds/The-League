@@ -185,6 +185,30 @@ export async function updateTheme(prevState: ActionState, formData: FormData): P
   return { success: true };
 }
 
+export async function toggleRegistration(prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const { supabase, user } = await requireAdmin();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any;
+
+  const enabled = formData.get("enabled") === "true";
+
+  const { error } = await db.from("site_settings").upsert({
+    id: 1,
+    registration_enabled: enabled,
+    updated_at: new Date().toISOString(),
+    updated_by: user.id,
+  }, { onConflict: "id" });
+
+  if (error) {
+    console.error("admin/toggleRegistration:", error);
+    return { error: "Could not update registration status. Please try again." };
+  }
+
+  revalidatePath("/admin/settings");
+  revalidatePath("/register");
+  return { success: true };
+}
+
 export async function revertTheme(prevState: ActionState, formData: FormData): Promise<ActionState> {
   const { supabase } = await requireAdmin();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

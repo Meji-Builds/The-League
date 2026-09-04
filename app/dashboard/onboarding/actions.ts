@@ -47,6 +47,16 @@ export async function setupClub(prevState: ActionState, formData: FormData): Pro
     ? `${baseSlug}-${user.id.slice(0, 6)}`
     : baseSlug;
 
+  // Check if this user registered via an invite (makes the club a test entry)
+  const { data: invite } = await db
+    .from("registration_invites")
+    .select("id")
+    .eq("used_by_user_id", user.id)
+    .eq("status", "used")
+    .maybeSingle();
+
+  const isTest = !!invite;
+
   // Create the club record.
   const { data: club, error: clubError } = await db
     .from("clubs")
@@ -58,6 +68,7 @@ export async function setupClub(prevState: ActionState, formData: FormData): Pro
       bio,
       owner_id: user.id,
       status: "pending",
+      is_test: isTest,
       logo_url: null,
       badge_url: null,
       merch: [],
