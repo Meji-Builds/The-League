@@ -17,21 +17,22 @@ export default async function OnboardingPage({ searchParams }: Props) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = supabase as any;
 
-  const { data: owner } = await db
-    .from("club_owners")
-    .select("id, owner_registration_payment_status, club:clubs(id, name)")
-    .eq("user_id", user.id)
-    .single();
+  const [
+    { data: owner },
+    { data: feeRow },
+    { data: facultyRows },
+  ] = await Promise.all([
+    db.from("club_owners").select("id, owner_registration_payment_status, club:clubs(id, name)").eq("user_id", user.id).single(),
+    db.from("fee_settings").select("owner_registration_fee").limit(1).single(),
+    db.from("faculties").select("id, name, short_name").order("display_order", { ascending: true }),
+  ]);
+
+  const faculties: { id: string; name: string; short_name: string }[] = facultyRows ?? [];
 
   if (owner?.owner_registration_payment_status === "paid" && owner.club) {
     redirect("/dashboard");
   }
 
-  const { data: feeRow } = await db
-    .from("fee_settings")
-    .select("owner_registration_fee")
-    .limit(1)
-    .single();
   const feeNaira: number = feeRow?.owner_registration_fee ?? 5000;
 
   const { step } = await searchParams;
@@ -41,7 +42,7 @@ export default async function OnboardingPage({ searchParams }: Props) {
   }
 
   if (!owner || step === "1") {
-    return <ClubSetupStep />;
+    return <ClubSetupStep faculties={faculties} />;
   }
 
   // Free registration — mark as paid and advance without showing Paystack UI.
