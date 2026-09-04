@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { NavHeader } from "@/components/NavHeader";
+import { ThemeStyle } from "@/components/ThemeStyle";
 
 const navItems = [
   { label: "Overview",     href: "/dashboard" },
@@ -20,6 +21,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="min-h-screen flex flex-col bg-navy">
+      <ThemeStyle />
       <NavHeader brand="The League" items={navItems} />
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-10">
         {children}
