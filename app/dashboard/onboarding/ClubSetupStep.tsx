@@ -3,7 +3,17 @@
 import { useActionState, useEffect } from "react";
 import { setupClub } from "./actions";
 
-export function ClubSetupStep() {
+interface Faculty {
+  id: string;
+  name: string;
+  short_name: string;
+}
+
+interface Props {
+  faculties: Faculty[];
+}
+
+export function ClubSetupStep({ faculties }: Props) {
   const [state, action, isPending] = useActionState(setupClub, null);
 
   useEffect(() => {
@@ -24,7 +34,7 @@ export function ClubSetupStep() {
 
       {state && "error" in state && (
         <div className="bg-danger/5 border border-danger/30 text-danger text-sm px-4 py-3 mb-6">
-          {"error" in state ? state.error : null}
+          {state.error}
         </div>
       )}
 
@@ -47,14 +57,31 @@ export function ClubSetupStep() {
           <label htmlFor="faculty" className="block text-white/70 text-xs font-semibold mb-1.5 uppercase tracking-wide">
             Faculty
           </label>
-          <input
-            id="faculty"
-            name="faculty"
-            type="text"
-            required
-            placeholder="e.g. Faculty of Science"
-            className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2.5 focus:outline-none focus:border-cobalt transition-colors placeholder:text-white/20"
-          />
+          {faculties.length > 0 ? (
+            <select
+              id="faculty"
+              name="faculty"
+              required
+              defaultValue=""
+              className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2.5 focus:outline-none focus:border-cobalt transition-colors appearance-none"
+            >
+              <option value="" disabled className="text-white/40">Select your faculty</option>
+              {faculties.map((f) => (
+                <option key={f.id} value={f.short_name} className="bg-navy text-white">
+                  {f.short_name} — {f.name}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              id="faculty"
+              name="faculty"
+              type="text"
+              required
+              placeholder="e.g. Faculty of Science"
+              className="w-full border border-white/10 bg-navy/50 text-white text-sm px-3 py-2.5 focus:outline-none focus:border-cobalt transition-colors placeholder:text-white/20"
+            />
+          )}
         </div>
 
         <div>
