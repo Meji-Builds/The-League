@@ -37,7 +37,7 @@ export default async function OnboardingPage({ searchParams }: Props) {
   const { step } = await searchParams;
 
   if (step === "3" || (owner?.owner_registration_payment_status === "paid")) {
-    return <PendingStep clubName={owner?.club?.name} />;
+    return <PendingStep clubName={owner?.club?.name} feeWasFree={feeNaira === 0} />;
   }
 
   if (!owner || step === "1") {
@@ -61,7 +61,7 @@ export default async function OnboardingPage({ searchParams }: Props) {
   );
 }
 
-function PendingStep({ clubName }: { clubName?: string }) {
+function PendingStep({ clubName, feeWasFree }: { clubName?: string; feeWasFree?: boolean }) {
   return (
     <div className="max-w-lg">
       <div className="mb-10">
@@ -76,8 +76,8 @@ function PendingStep({ clubName }: { clubName?: string }) {
           {clubName ? `${clubName} is pending approval` : "Registration submitted"}
         </p>
         <p className="text-white/40 text-[13px] mt-1 leading-relaxed">
-          Your payment is being verified and your club registration is under review by
-          The League Office. You will be notified once your club is approved and live.
+          Your club registration is under review by The League Office.
+          You will be notified once it is approved and live.
         </p>
       </div>
 
@@ -88,10 +88,12 @@ function PendingStep({ clubName }: { clubName?: string }) {
             <span className="w-1.5 h-1.5 rounded-full bg-success" />
             <span className="text-white text-sm">Club profile created</span>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="w-1.5 h-1.5 rounded-full bg-success" />
-            <span className="text-white text-sm">Payment submitted</span>
-          </div>
+          {!feeWasFree && (
+            <div className="flex items-center gap-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-success" />
+              <span className="text-white text-sm">Payment submitted</span>
+            </div>
+          )}
           <div className="flex items-center gap-3">
             <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
             <span className="text-white/40 text-sm">Awaiting League Office approval</span>
