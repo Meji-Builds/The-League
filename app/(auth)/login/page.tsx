@@ -2,9 +2,18 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
+const URL_ERRORS: Record<string, string> = {
+  auth_callback_failed: "Sign-in failed. Please try again.",
+  registration_closed:  "Registration is currently closed. You need an invite link to create an account.",
+};
+
 export default function LoginPage() {
+  const searchParams = useSearchParams();
+  const urlError = URL_ERRORS[searchParams.get("error") ?? ""] ?? null;
+
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading]   = useState(false);
@@ -46,9 +55,9 @@ export default function LoginPage() {
       <h1 className="text-white text-2xl font-bold mb-1">Sign in</h1>
       <p className="text-white/50 text-sm mb-8">Club owners and admins sign in here.</p>
 
-      {error && (
+      {(urlError || error) && (
         <div className="bg-red-500/10 border border-red-500/40 text-red-400 text-sm px-4 py-3 mb-6 rounded">
-          {error}
+          {urlError ?? error}
         </div>
       )}
 
