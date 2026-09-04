@@ -49,6 +49,8 @@ export interface SiteSettings {
   theme_gold:   string | null;
   theme_cobalt: string | null;
   theme_navy:   string | null;
+  // Registration gate
+  registration_enabled: boolean;
 }
 
 export const SITE_DEFAULTS: SiteSettings = {
@@ -91,6 +93,7 @@ export const SITE_DEFAULTS: SiteSettings = {
   theme_gold:   null,
   theme_cobalt: null,
   theme_navy:   null,
+  registration_enabled: true,
 };
 
 export async function getSiteSettings(): Promise<SiteSettings> {

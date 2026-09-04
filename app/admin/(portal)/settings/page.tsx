@@ -3,6 +3,7 @@ import { FeeForm } from "./FeeForm";
 import { SiteSettingsForm } from "./SiteSettingsForm";
 import { ThemeForm } from "./ThemeForm";
 import { ContentForm } from "./ContentForm";
+import { RegistrationToggle } from "./RegistrationToggle";
 import type { SiteSettings } from "@/lib/site-settings";
 
 export const metadata = { title: "Admin — Settings" };
@@ -27,6 +28,11 @@ export default async function AdminSettingsPage() {
       </div>
 
       <div className="max-w-lg flex flex-col gap-6">
+        <section className="border border-white/6 bg-card p-5">
+          <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">Public Registration</p>
+          <RegistrationToggle enabled={siteRow?.registration_enabled ?? true} />
+        </section>
+
         <section className="border border-white/6 bg-card p-5">
           <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">Registration Fees</p>
           <FeeForm currentFee={currentFee} maxPlayers={maxPlayers} />

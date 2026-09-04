@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { approveClub, suspendClub, approvePlayer, rejectPlayer, approveClubLogo, rejectClubLogo, approvePlayerPhoto, rejectPlayerPhoto } from "./actions";
+import { createServiceClient } from "@/lib/supabase/service";
+import { approveClub, suspendClub, approvePlayer, rejectPlayer, approveClubLogo, rejectClubLogo, approvePlayerPhoto, rejectPlayerPhoto, approveTestClub, rejectTestClub } from "./actions";
 import { BannerUploadForm } from "./BannerUploadForm";
 
 export const metadata = { title: "Admin — Clubs" };
@@ -9,11 +10,18 @@ interface Club {
   name: string;
   faculty: string;
   status: string;
+  is_test: boolean;
   created_at: string;
   banner_image_url: string | null;
   logo_url: string | null;
   logo_status: string | null;
   owner: { name: string; email: string } | null;
+  invite?: {
+    id: string;
+    expected_name: string;
+    expected_club_name: string;
+    expected_email: string | null;
+  } | null;
 }
 
 interface Player {
@@ -72,10 +80,43 @@ export default async function AdminClubsPage() {
 
   const { data: rawClubs } = await db
     .from("clubs")
-    .select("id, name, faculty, status, created_at, banner_image_url, logo_url, logo_status, owner:club_owners(name, email)")
+    .select("id, name, faculty, status, is_test, created_at, banner_image_url, logo_url, logo_status, owner:club_owners(name, email)")
     .order("created_at", { ascending: false });
 
-  const clubs = (rawClubs ?? []) as Club[];
+  // Fetch invite records for test clubs so we can show expected vs. actual
+  const testClubOwnerUserIds = (rawClubs ?? [])
+    .filter((c: { is_test: boolean; status: string }) => c.is_test && c.status === "pending")
+    .map(async (c: { id: string }) => {
+      const { data: ownerRow } = await db
+        .from("club_owners")
+        .select("user_id")
+        .eq("club_id", c.id)
+        .single();
+      return { clubId: c.id, userId: ownerRow?.user_id ?? null };
+    });
+
+  const clubOwnerPairs = await Promise.all(testClubOwnerUserIds);
+
+  // Fetch invites for those user ids
+  let invitesByUserId: Record<string, { id: string; expected_name: string; expected_club_name: string; expected_email: string | null }> = {};
+  const userIds = clubOwnerPairs.map((p) => p.userId).filter(Boolean);
+  if (userIds.length > 0) {
+    const serviceDb = createServiceClient();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: inviteRows } = await (serviceDb as any)
+      .from("registration_invites")
+      .select("id, expected_name, expected_club_name, expected_email, used_by_user_id")
+      .in("used_by_user_id", userIds);
+    for (const inv of (inviteRows ?? [])) {
+      invitesByUserId[inv.used_by_user_id] = inv;
+    }
+  }
+
+  const clubs: Club[] = (rawClubs ?? []).map((c: Club & { is_test: boolean }) => {
+    const pair = clubOwnerPairs.find((p) => p.clubId === c.id);
+    const invite = pair?.userId ? (invitesByUserId[pair.userId] ?? null) : null;
+    return { ...c, invite };
+  });
 
   const { data: rawPlayers } = await db
     .from("players")
@@ -303,36 +344,78 @@ export default async function AdminClubsPage() {
 }
 
 function ClubRow({ club }: { club: Club }) {
+  const isTestPending = club.is_test && club.status === "pending";
+
   return (
     <div className="bg-card p-4">
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-start gap-4">
         <div className="flex-1">
-          <div className="flex items-center gap-3 mb-0.5">
+          <div className="flex items-center gap-3 mb-0.5 flex-wrap">
             <p className="font-medium text-white text-sm">{club.name}</p>
             <StatusBadge status={club.status} />
+            {club.is_test && (
+              <span className="text-[9px] font-bold uppercase tracking-widest text-cobalt border border-cobalt/30 px-1.5 py-0.5 rounded">
+                Test
+              </span>
+            )}
           </div>
           <p className="text-[11px] text-white/40">{club.faculty}</p>
           {club.owner && (
             <p className="text-[11px] text-white/30 mt-0.5">{club.owner.name} &middot; {club.owner.email}</p>
           )}
+
+          {/* Expected vs. actual comparison for test clubs */}
+          {isTestPending && club.invite && (
+            <div className="grid grid-cols-2 gap-3 mt-3 border border-white/5 rounded p-3 bg-white/3">
+              <div>
+                <p className="text-[9px] font-bold uppercase tracking-widest text-white/30 mb-1">Expected</p>
+                <p className="text-white/60 text-xs">{club.invite.expected_name}</p>
+                <p className="text-white/40 text-xs">{club.invite.expected_club_name}</p>
+                {club.invite.expected_email && (
+                  <p className="text-white/30 text-[11px]">{club.invite.expected_email}</p>
+                )}
+              </div>
+              <div>
+                <p className="text-[9px] font-bold uppercase tracking-widest text-white/30 mb-1">Actual</p>
+                <p className={`text-xs font-medium ${club.owner?.name && club.owner.name.toLowerCase() !== club.invite.expected_name.toLowerCase() ? "text-warning" : "text-white"}`}>
+                  {club.owner?.name ?? "—"}
+                </p>
+                <p className={`text-xs ${club.name.toLowerCase() !== club.invite.expected_club_name.toLowerCase() ? "text-warning" : "text-white/60"}`}>
+                  {club.name}
+                </p>
+                <p className="text-white/30 text-[11px]">{club.owner?.email ?? "—"}</p>
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="flex gap-2">
-          {club.status !== "approved" && (
-            <ActionForm
-              action={approveClub}
-              clubId={club.id}
-              label="Approve"
-              className="bg-success/10 text-success hover:bg-success/20"
-            />
-          )}
-          {club.status !== "suspended" && (
-            <ActionForm
-              action={suspendClub}
-              clubId={club.id}
-              label="Suspend"
-              className="bg-danger/10 text-danger hover:bg-danger/20"
-            />
+        <div className="flex gap-2 shrink-0">
+          {isTestPending ? (
+            <>
+              <form action={approveTestClub}>
+                <input type="hidden" name="club_id" value={club.id} />
+                {club.invite && <input type="hidden" name="invite_id" value={club.invite.id} />}
+                <button type="submit" className="text-xs font-semibold px-3 py-1 bg-success/10 text-success hover:bg-success/20 transition-colors rounded">
+                  Approve
+                </button>
+              </form>
+              <form action={rejectTestClub}>
+                <input type="hidden" name="club_id" value={club.id} />
+                {club.invite && <input type="hidden" name="invite_id" value={club.invite.id} />}
+                <button type="submit" className="text-xs font-semibold px-3 py-1 bg-danger/10 text-danger hover:bg-danger/20 transition-colors rounded">
+                  Reject
+                </button>
+              </form>
+            </>
+          ) : (
+            <>
+              {club.status !== "approved" && (
+                <ActionForm action={approveClub} clubId={club.id} label="Approve" className="bg-success/10 text-success hover:bg-success/20" />
+              )}
+              {club.status !== "suspended" && (
+                <ActionForm action={suspendClub} clubId={club.id} label="Suspend" className="bg-danger/10 text-danger hover:bg-danger/20" />
+              )}
+            </>
           )}
         </div>
       </div>
