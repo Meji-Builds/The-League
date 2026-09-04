@@ -9,11 +9,13 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: rawOwner } = await supabase
-    .from("club_owners")
-    .select("*, club:clubs(*)")
-    .eq("user_id", user.id)
-    .single();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any;
+
+  const [{ data: rawOwner }, { data: feeRow }] = await Promise.all([
+    db.from("club_owners").select("*, club:clubs(*)").eq("user_id", user.id).single(),
+    db.from("fee_settings").select("owner_registration_fee").eq("id", 1).single(),
+  ]);
 
   if (!rawOwner) redirect("/dashboard/onboarding");
 
@@ -21,6 +23,9 @@ export default async function DashboardPage() {
     owner_registration_payment_status: "unpaid" | "paid";
     club: { name: string; department: string; faculty: string; status: string } | null;
   };
+
+  const feeNaira = feeRow?.owner_registration_fee ?? 0;
+  const feeIsFree = feeNaira === 0;
 
   const club = owner.club;
 
@@ -48,7 +53,7 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {owner.owner_registration_payment_status === "unpaid" && (
+      {owner.owner_registration_payment_status === "unpaid" && !feeIsFree && (
         <div className="border border-danger/40 border-l-[3px] border-l-danger bg-card px-5 py-4 mb-8">
           <p className="font-semibold text-white text-sm">Registration fee not yet paid.</p>
           <p className="text-white/40 text-[13px] mt-1">Complete your registration fee payment to proceed.</p>
