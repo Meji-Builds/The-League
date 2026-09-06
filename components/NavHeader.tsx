@@ -13,9 +13,10 @@ interface Props {
   brand: string;
   badge?: string;
   items: NavItem[];
+  logoUrl?: string | null;
 }
 
-export function NavHeader({ brand, badge, items }: Props) {
+export function NavHeader({ brand, badge, items, logoUrl }: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -30,10 +31,15 @@ export function NavHeader({ brand, badge, items }: Props) {
         {/* Brand */}
         <Link
           href="/"
-          className="text-gold font-bold tracking-widest uppercase text-sm shrink-0 mr-2"
+          className="shrink-0 mr-2"
           onClick={() => setOpen(false)}
         >
-          {brand}
+          {logoUrl ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src={logoUrl} alt={brand} className="h-7 max-w-[120px] object-contain" />
+          ) : (
+            <span className="text-gold font-bold tracking-widest uppercase text-sm">{brand}</span>
+          )}
         </Link>
 
         {badge && (

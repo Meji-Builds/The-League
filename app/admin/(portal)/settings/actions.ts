@@ -209,6 +209,31 @@ export async function toggleRegistration(prevState: ActionState, formData: FormD
   return { success: true };
 }
 
+export async function updateLogoUrl(prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const { supabase, user } = await requireAdmin();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any;
+
+  const logo_url = (formData.get("logo_url") as string | null)?.trim() || null;
+
+  const { error } = await db.from("site_settings").upsert({
+    id: 1,
+    logo_url,
+    updated_at: new Date().toISOString(),
+    updated_by: user.id,
+  }, { onConflict: "id" });
+
+  if (error) {
+    console.error("admin/updateLogoUrl:", error);
+    return { error: "Could not save logo. Please try again." };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/dashboard");
+  revalidatePath("/admin/settings");
+  return { success: true };
+}
+
 export async function revertTheme(prevState: ActionState, formData: FormData): Promise<ActionState> {
   const { supabase } = await requireAdmin();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

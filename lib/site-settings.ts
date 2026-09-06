@@ -51,6 +51,8 @@ export interface SiteSettings {
   theme_navy:   string | null;
   // Registration gate
   registration_enabled: boolean;
+  // Platform logo
+  logo_url: string | null;
 }
 
 export const SITE_DEFAULTS: SiteSettings = {
@@ -94,6 +96,7 @@ export const SITE_DEFAULTS: SiteSettings = {
   theme_cobalt: null,
   theme_navy:   null,
   registration_enabled: true,
+  logo_url:     null,
 };
 
 export async function getSiteSettings(): Promise<SiteSettings> {

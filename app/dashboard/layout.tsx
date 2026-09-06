@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { NavHeader } from "@/components/NavHeader";
 import { ThemeStyle } from "@/components/ThemeStyle";
+import { getSiteSettings } from "@/lib/site-settings";
 
 const navItems = [
   { label: "Overview",     href: "/dashboard" },
@@ -19,10 +20,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   if (!user) redirect("/login");
 
+  const settings = await getSiteSettings();
+
   return (
     <div className="min-h-screen flex flex-col bg-navy">
       <ThemeStyle />
-      <NavHeader brand="The League" items={navItems} />
+      <NavHeader brand={settings.site_name} logoUrl={settings.logo_url} items={navItems} />
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-10">
         {children}
       </main>

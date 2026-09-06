@@ -10,7 +10,7 @@ export default async function PublicLayout({ children }: { children: React.React
   return (
     <>
       <ThemeStyle />
-      <Nav siteName={settings.site_name} />
+      <Nav siteName={settings.site_name} logoUrl={settings.logo_url} />
       <main className="flex-1 pb-16 md:pb-0">{children}</main>
       <Footer />
     </>
