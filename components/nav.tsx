@@ -149,7 +149,7 @@ const moreLinks = [
   },
 ];
 
-export function Nav({ siteName = "The League" }: { siteName?: string }) {
+export function Nav({ siteName = "The League", logoUrl }: { siteName?: string; logoUrl?: string | null }) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
 
@@ -167,13 +167,20 @@ export function Nav({ siteName = "The League" }: { siteName?: string }) {
 
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2.5 shrink-0 mr-2">
-              <div
-                className="w-5 h-5 bg-gold shrink-0"
-                style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
-              />
-              <span className="font-display font-black text-white text-sm tracking-[0.18em] uppercase">
-                {siteName}
-              </span>
+              {logoUrl ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={logoUrl} alt={siteName} className="h-8 max-w-[140px] object-contain" />
+              ) : (
+                <>
+                  <div
+                    className="w-5 h-5 bg-gold shrink-0"
+                    style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
+                  />
+                  <span className="font-display font-black text-white text-sm tracking-[0.18em] uppercase">
+                    {siteName}
+                  </span>
+                </>
+              )}
             </Link>
 
             {/* Desktop nav links */}

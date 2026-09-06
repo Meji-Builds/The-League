@@ -4,6 +4,7 @@ import { SiteSettingsForm } from "./SiteSettingsForm";
 import { ThemeForm } from "./ThemeForm";
 import { ContentForm } from "./ContentForm";
 import { RegistrationToggle } from "./RegistrationToggle";
+import { LogoUploadForm } from "./LogoUploadForm";
 import type { SiteSettings } from "@/lib/site-settings";
 
 export const metadata = { title: "Admin — Settings" };
@@ -28,6 +29,14 @@ export default async function AdminSettingsPage() {
       </div>
 
       <div className="max-w-lg flex flex-col gap-6">
+        <section className="border border-white/6 bg-card p-5">
+          <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-1">Platform Logo</p>
+          <p className="text-white/40 text-[11px] mb-4">
+            Replaces the text wordmark in the navigation bar on all public and dashboard pages.
+          </p>
+          <LogoUploadForm currentLogoUrl={siteRow?.logo_url ?? null} />
+        </section>
+
         <section className="border border-white/6 bg-card p-5">
           <p className="text-[9px] font-bold uppercase tracking-[0.5em] text-dim mb-4">Public Registration</p>
           <RegistrationToggle enabled={siteRow?.registration_enabled ?? true} />
